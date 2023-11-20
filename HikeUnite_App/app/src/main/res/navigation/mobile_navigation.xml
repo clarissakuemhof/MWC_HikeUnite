@@ -28,4 +28,10 @@
         android:name="com.example.stepappv4.ui.Day.DayFragment"
         android:label="Day"
         tools:layout="@layout/fragment_day" />
+
+    <fragment
+        android:id="@+id/nav_hist"
+        android:name="com.example.stepappv4.ui.History.HistoryFragment"
+        android:label="History"
+        tools:layout="@layout/fragment_history" />
 </navigation>
