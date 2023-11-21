@@ -4,7 +4,7 @@
     <color name="seed">#684536</color>
     <color name="md_theme_light_primary">#99461D</color>
     <color name="md_theme_light_onPrimary">#FFFFFF</color>
-    <color name="md_theme_light_primaryContainer">#FFDBCD</color>
+    <color name="md_theme_light_primaryContainer">#B6765D</color>
     <color name="md_theme_light_onPrimaryContainer">#360F00</color>
     <color name="md_theme_light_secondary">#77574A</color>
     <color name="md_theme_light_onSecondary">#FFFFFF</color>
