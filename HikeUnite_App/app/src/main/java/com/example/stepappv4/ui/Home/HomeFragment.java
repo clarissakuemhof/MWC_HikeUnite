@@ -13,8 +13,10 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.widget.ViewSwitcher;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
@@ -49,6 +51,10 @@ public class HomeFragment extends Fragment {
 
     private Sensor stepDetectorSensor;
 
+    private ViewSwitcher viewSwitcher;
+    private Button startButton;
+    private Button stopButton;
+
 
 
     public View onCreateView(@NonNull LayoutInflater inflater,
@@ -74,14 +80,35 @@ public class HomeFragment extends Fragment {
         StepAppOpenHelper databaseOpenHelper = new StepAppOpenHelper(this.getContext());
         SQLiteDatabase database = databaseOpenHelper.getWritableDatabase();
 
+        viewSwitcher = root.findViewById(R.id.viewSwitcher);
+        startButton = root.findViewById(R.id.start_button);
+        stopButton = root.findViewById(R.id.stop_button);
 
+
+        startButton.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View v){
+                if(viewSwitcher.getCurrentView() == root.findViewById(R.id.defaultView)){
+                    viewSwitcher.showNext();
+                }
+            }
+        });
+
+        stopButton.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View v){
+                if(viewSwitcher.getCurrentView() == root.findViewById(R.id.progressView)){
+                    viewSwitcher.showPrevious();
+                }
+
+            }
+        });
 
         toggleButtonGroup = (MaterialButtonToggleGroup) root.findViewById(R.id.toggleButtonGroup);
         toggleButtonGroup.addOnButtonCheckedListener(new MaterialButtonToggleGroup.OnButtonCheckedListener() {
             @Override
             public void onButtonChecked(MaterialButtonToggleGroup group, int checkedId, boolean isChecked) {
-                if (group.getCheckedButtonId() ==R.id.start_button)
-                {
+                if (group.getCheckedButtonId() ==R.id.start_button) {
                     if (accSensor != null)
                     {
                         sensorListener = new StepCounterListener(stepCountsView, progressBar, database);
@@ -92,10 +119,8 @@ public class HomeFragment extends Fragment {
                     {
                         Toast.makeText(getContext(), R.string.acc_sensor_not_available, Toast.LENGTH_LONG).show();
                     }
-
                 }
-                else
-                {
+                if(group.getCheckedButtonId() == R.id.stop_button){
                     sensorManager.unregisterListener(sensorListener);
                     Toast.makeText(getContext(), R.string.stop_text, Toast.LENGTH_LONG).show();
                 }
