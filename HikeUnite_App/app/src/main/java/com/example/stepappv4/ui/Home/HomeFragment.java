@@ -29,6 +29,7 @@ import com.google.android.material.button.MaterialButtonToggleGroup;
 import com.google.android.material.progressindicator.CircularProgressIndicator;
 
 import java.text.SimpleDateFormat;
+import java.util.Random;
 import java.util.TimeZone;
 
 import java.util.ArrayList;
@@ -54,6 +55,8 @@ public class HomeFragment extends Fragment {
     private ViewSwitcher viewSwitcher;
     private Button startButton;
     private Button stopButton;
+    private TextView quoteText;
+    private String[] inspirationalQuotes;
 
 
 
@@ -83,6 +86,9 @@ public class HomeFragment extends Fragment {
         viewSwitcher = root.findViewById(R.id.viewSwitcher);
         startButton = root.findViewById(R.id.start_button);
         stopButton = root.findViewById(R.id.stop_button);
+        quoteText = root.findViewById(R.id.quote_text);
+        inspirationalQuotes = getResources().getStringArray(R.array.inspirational_quotes);
+        setRandomQuote();
 
         startButton.setOnClickListener(new View.OnClickListener(){
             @Override
@@ -97,11 +103,13 @@ public class HomeFragment extends Fragment {
             @Override
             public void onClick(View v){
                 if(viewSwitcher.getCurrentView() == root.findViewById(R.id.progressView)){
+                    setRandomQuote();
                     viewSwitcher.showPrevious();
                 }
 
             }
         });
+
 
         toggleButtonGroup = (MaterialButtonToggleGroup) root.findViewById(R.id.toggleButtonGroup);
         toggleButtonGroup.addOnButtonCheckedListener(new MaterialButtonToggleGroup.OnButtonCheckedListener() {
@@ -133,6 +141,13 @@ public class HomeFragment extends Fragment {
     public void onDestroyView() {
         super.onDestroyView();
         binding = null;
+    }
+
+    private void setRandomQuote() {
+        if (inspirationalQuotes.length > 0) {
+            int randomIndex = new Random().nextInt(inspirationalQuotes.length);
+            quoteText.setText(inspirationalQuotes[randomIndex]);
+        }
     }
 }
 
