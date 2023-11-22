@@ -35,6 +35,7 @@ import com.anychart.enums.TooltipPositionMode;
 import com.example.stepappv4.StepAppOpenHelper;
 import com.example.stepappv4.databinding.FragmentGalleryBinding;
 import com.example.stepappv4.R;
+import com.example.stepappv4.ui.History.HistoryFragment;
 
 public class ReportFragment extends Fragment {
 
@@ -55,6 +56,7 @@ public class ReportFragment extends Fragment {
         binding = FragmentGalleryBinding.inflate(inflater, container, false);
         View root = binding.getRoot();
 
+
         // Create column chart
         anyChartView = root.findViewById(R.id.hourBarChart);
         anyChartView.setProgressBar(root.findViewById(R.id.loadingBar));
@@ -66,6 +68,8 @@ public class ReportFragment extends Fragment {
 
         return root;
     }
+
+
 
     @Override
     public void onDestroyView() {
