@@ -21,6 +21,10 @@ public class CustomAdapter extends ArrayAdapter<DataModel> implements View.OnCli
     private ArrayList<DataModel> dataSet;
     Context mContext;
 
+    /**
+     * This code is based on the tutorial of the following website
+     * https://www.digitalocean.com/community/tutorials/android-listview-with-custom-adapter-example-tutorial
+     */
     // View lookup cache
     private static class ViewHolder {
         TextView txtName;
@@ -72,10 +76,6 @@ public class CustomAdapter extends ArrayAdapter<DataModel> implements View.OnCli
             viewHolder = (ViewHolder) convertView.getTag();
             result=convertView;
         }
-
-        Animation animation = AnimationUtils.loadAnimation(mContext, (position > lastPosition) ? R.anim.up_from_bottom : R.anim.down_from_top);
-        result.startAnimation(animation);
-        lastPosition = position;
 
         viewHolder.txtName.setText(dataModel.getName());
         viewHolder.txtType.setText(dataModel.getDate());
