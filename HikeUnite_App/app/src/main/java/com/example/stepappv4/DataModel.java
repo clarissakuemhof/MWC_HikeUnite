@@ -3,15 +3,13 @@ package com.example.stepappv4;
 public class DataModel {
 
     String name;
-    String type;
-    String version_number;
-    String feature;
+    String date;
+    String duration;
 
-    public DataModel(String name, String type, String version_number, String feature ) {
+    public DataModel(String name, String date, String duration ) {
         this.name=name;
-        this.type=type;
-        this.version_number=version_number;
-        this.feature=feature;
+        this.date=date;
+        this.duration=duration;
 
     }
 
@@ -19,16 +17,13 @@ public class DataModel {
         return name;
     }
 
-    public String getType() {
-        return type;
+    public String getDate() {
+        return date;
     }
 
-    public String getVersion_number() {
-        return version_number;
-    }
 
-    public String getFeature() {
-        return feature;
+    public String getDuration() {
+        return duration;
     }
 
 }

@@ -33,5 +33,9 @@
         android:id="@+id/nav_hist"
         android:name="com.example.stepappv4.ui.History.HistoryFragment"
         android:label="History"
-        tools:layout="@layout/fragment_history" />
+        tools:layout="@layout/fragment_history" >
+        <action
+            android:id="@+id/action_nav_hist_to_nav_gallery"
+            app:destination="@id/nav_gallery" />
+    </fragment>
 </navigation>
