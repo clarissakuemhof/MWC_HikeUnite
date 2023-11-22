@@ -13,8 +13,10 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.widget.ViewSwitcher;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
@@ -27,6 +29,7 @@ import com.google.android.material.button.MaterialButtonToggleGroup;
 import com.google.android.material.progressindicator.CircularProgressIndicator;
 
 import java.text.SimpleDateFormat;
+import java.util.Random;
 import java.util.TimeZone;
 
 import java.util.ArrayList;
@@ -48,6 +51,12 @@ public class HomeFragment extends Fragment {
     private StepCounterListener sensorListener;
 
     private Sensor stepDetectorSensor;
+
+    private ViewSwitcher viewSwitcher;
+    private Button startButton;
+    private Button stopButton;
+    private TextView quoteText;
+    private String[] inspirationalQuotes;
 
 
 
@@ -74,14 +83,39 @@ public class HomeFragment extends Fragment {
         StepAppOpenHelper databaseOpenHelper = new StepAppOpenHelper(this.getContext());
         SQLiteDatabase database = databaseOpenHelper.getWritableDatabase();
 
+        viewSwitcher = root.findViewById(R.id.viewSwitcher);
+        startButton = root.findViewById(R.id.start_button);
+        stopButton = root.findViewById(R.id.stop_button);
+        quoteText = root.findViewById(R.id.quote_text);
+        inspirationalQuotes = getResources().getStringArray(R.array.inspirational_quotes);
+        setRandomQuote();
+
+        startButton.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View v){
+                if(viewSwitcher.getCurrentView() == root.findViewById(R.id.defaultView)){
+                    viewSwitcher.showNext();
+                }
+            }
+        });
+
+        stopButton.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View v){
+                if(viewSwitcher.getCurrentView() == root.findViewById(R.id.progressView)){
+                    setRandomQuote();
+                    viewSwitcher.showPrevious();
+                }
+
+            }
+        });
 
 
         toggleButtonGroup = (MaterialButtonToggleGroup) root.findViewById(R.id.toggleButtonGroup);
         toggleButtonGroup.addOnButtonCheckedListener(new MaterialButtonToggleGroup.OnButtonCheckedListener() {
             @Override
             public void onButtonChecked(MaterialButtonToggleGroup group, int checkedId, boolean isChecked) {
-                if (group.getCheckedButtonId() ==R.id.start_button)
-                {
+                if (group.getCheckedButtonId() ==R.id.start_button) {
                     if (accSensor != null)
                     {
                         sensorListener = new StepCounterListener(stepCountsView, progressBar, database);
@@ -92,10 +126,8 @@ public class HomeFragment extends Fragment {
                     {
                         Toast.makeText(getContext(), R.string.acc_sensor_not_available, Toast.LENGTH_LONG).show();
                     }
-
                 }
-                else
-                {
+                if(group.getCheckedButtonId() == R.id.stop_button){
                     sensorManager.unregisterListener(sensorListener);
                     Toast.makeText(getContext(), R.string.stop_text, Toast.LENGTH_LONG).show();
                 }
@@ -109,6 +141,13 @@ public class HomeFragment extends Fragment {
     public void onDestroyView() {
         super.onDestroyView();
         binding = null;
+    }
+
+    private void setRandomQuote() {
+        if (inspirationalQuotes.length > 0) {
+            int randomIndex = new Random().nextInt(inspirationalQuotes.length);
+            quoteText.setText(inspirationalQuotes[randomIndex]);
+        }
     }
 }
 

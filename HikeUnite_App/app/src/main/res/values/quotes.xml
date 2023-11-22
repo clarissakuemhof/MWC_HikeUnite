@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="inspirational_quotes">
+        <item>"The journey of a thousand miles begins with a single step." - Lao Tzu</item>
+        <item>"Nature always wears the colors of the spirit." - Ralph Waldo Emerson</item>
+        <item>"Adventure awaits at every corner. Go and find it."</item>
+        <item>"In every walk with nature, one receives far more than he seeks." - John Muir</item>
+        <item>"The best view comes after the hardest climb."</item>
+        <item>"Take only memories, leave only footprints." - Chief Seattle</item>
+        <item>"Let's wander where the Wi-Fi is weak."</item>
+        <item>"Of all the paths you take in life, make sure a few of them are dirt." - John Muir</item>
+        <item>"Climb the mountains and get their good tidings. Nature's peace will flow into you as sunshine flows into trees." - John Muir</item>
+        <item>"The mountains are calling, and I must go." - John Muir</item>
+        <item>"Hiking and happiness go hand in hand or foot in boot." - Diane Spicer</item>
+        <item>"The clearest way into the Universe is through a forest wilderness." - John Muir</item>
+        <item>"On the top of the mountains and beneath the stars is the journey of your lifetime."</item>
+        <item>"Life is short. Hike more."</item>
+        <item>"The best journeys in life are those that answer questions you never thought to ask." - Rick Ridgeway</item>
+        <item>"Difficult roads often lead to beautiful destinations."</item>
+    </string-array>
+</resources>
