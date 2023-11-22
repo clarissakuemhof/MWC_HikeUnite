@@ -23,6 +23,12 @@
         android:label="Achievements"
         tools:layout="@layout/fragment_achievements" />
 
+    <activity
+        android:id="@+id/nav_details"
+        android:name="com.example.stepappv4.ui.Achievements.DetailsActivity"
+        android:label="Details"
+        tools:layout="@layout/activity_details" />
+
     <fragment
         android:id="@+id/nav_day"
         android:name="com.example.stepappv4.ui.Day.DayFragment"

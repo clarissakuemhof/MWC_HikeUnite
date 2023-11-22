@@ -1,13 +1,15 @@
 package com.example.stepappv4.ui.Achievements;
+import com.example.stepappv4.ui.Achievements.DetailsActivity;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-
+import android.content.Intent;
 import android.app.Dialog;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.ImageButton;
 import androidx.appcompat.app.AppCompatActivity;
 
 import androidx.annotation.NonNull;
@@ -17,13 +19,15 @@ import com.example.stepappv4.R;
 import com.example.stepappv4.databinding.FragmentAchievementsBinding;
 import com.google.android.material.progressindicator.LinearProgressIndicator;
 
+
 public class AchievementsFragment extends Fragment {
 
     private LinearProgressIndicator progressBar;
+    ImageView icon;
 
     private FragmentAchievementsBinding binding;
 
-    public View onCreateView(@NonNull LayoutInflater inflater,
+    public View onCreateView(LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
 
         binding = FragmentAchievementsBinding.inflate(inflater, container, false);
@@ -57,39 +61,21 @@ public class AchievementsFragment extends Fragment {
         progressBar.setMax(5000);
         progressBar.setProgress(4565);
 
-        return root;
-    }
-
-    /*
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.fragment_achievements); // Replace with your layout
-
-        ImageView badge1 = findViewById(R.id.challenge7); // Replace with your ImageView
-        badge1.setOnClickListener(new View.OnClickListener() {
+        icon = root.findViewById(R.id.challenge7);
+        icon.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                showBadgeDetails(R.drawable.challenge7, "Badge 1 Details");
+                openNewActivity();
             }
         });
 
-        // Add more badges with their respective click listeners
+        return root;
     }
 
-    private void showBadgeDetails(int badgeImageResId, String details) {
-        Dialog dialog = new Dialog(this);
-        dialog.setContentView(R.layout.fragment_achievements); // Create a layout for badge details
-
-        ImageView badgeImageView = dialog.findViewById(R.id.challenge7);
-        badgeImageView.setImageResource(badgeImageResId);
-
-        TextView detailsTextView = dialog.findViewById(R.id.challenge7Details);
-        detailsTextView.setText(details);
-
-        dialog.show();
+    public void openNewActivity() {
+        Intent intent = new Intent(getActivity(), DetailsActivity.class);
+        startActivity(intent);
     }
-*/
 
     @Override
     public void onDestroyView() {
