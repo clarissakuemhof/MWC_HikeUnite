@@ -84,7 +84,6 @@ public class HomeFragment extends Fragment {
         startButton = root.findViewById(R.id.start_button);
         stopButton = root.findViewById(R.id.stop_button);
 
-
         startButton.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View v){

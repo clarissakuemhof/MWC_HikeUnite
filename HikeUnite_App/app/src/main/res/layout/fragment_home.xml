@@ -16,15 +16,11 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
 
-    <!-- Default View -->
-
-        <!-- Progress View -->
         <RelativeLayout
             android:id="@+id/defaultView"
             android:layout_width="match_parent"
             android:layout_height="match_parent">
 
-            <!-- Inspirational Quote -->
             <TextView
                 android:id="@+id/quote_text"
                 android:layout_width="wrap_content"
@@ -56,7 +52,6 @@
                 app:layout_constraintTop_toTopOf="parent"
                 app:trackColor="?attr/colorTertiaryContainer"
                 app:trackThickness="42dp" />
-
             <TextView
                 android:id="@+id/counter"
                 android:layout_width="wrap_content"
@@ -70,7 +65,6 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
-
             <TextView
                 android:id="@+id/goal"
                 android:layout_width="wrap_content"
@@ -82,7 +76,6 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="@+id/progressBar" />
-
             <TextView
                 android:id="@+id/steps_text"
                 android:layout_width="wrap_content"
@@ -140,6 +133,4 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
     </com.google.android.material.button.MaterialButtonToggleGroup>
-
-
 </androidx.constraintlayout.widget.ConstraintLayout>
