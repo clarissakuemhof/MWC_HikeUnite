@@ -5,6 +5,11 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import android.app.Dialog;
+import android.widget.ImageView;
+import android.widget.TextView;
+import androidx.appcompat.app.AppCompatActivity;
+
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
@@ -54,6 +59,37 @@ public class AchievementsFragment extends Fragment {
 
         return root;
     }
+
+    /*
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.fragment_achievements); // Replace with your layout
+
+        ImageView badge1 = findViewById(R.id.challenge7); // Replace with your ImageView
+        badge1.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                showBadgeDetails(R.drawable.challenge7, "Badge 1 Details");
+            }
+        });
+
+        // Add more badges with their respective click listeners
+    }
+
+    private void showBadgeDetails(int badgeImageResId, String details) {
+        Dialog dialog = new Dialog(this);
+        dialog.setContentView(R.layout.fragment_achievements); // Create a layout for badge details
+
+        ImageView badgeImageView = dialog.findViewById(R.id.challenge7);
+        badgeImageView.setImageResource(badgeImageResId);
+
+        TextView detailsTextView = dialog.findViewById(R.id.challenge7Details);
+        detailsTextView.setText(details);
+
+        dialog.show();
+    }
+*/
 
     @Override
     public void onDestroyView() {
