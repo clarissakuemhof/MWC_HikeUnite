@@ -33,7 +33,7 @@ import com.anychart.enums.HoverMode;
 import com.anychart.enums.Position;
 import com.anychart.enums.TooltipPositionMode;
 import com.example.stepappv4.StepAppOpenHelper;
-import com.example.stepappv4.databinding.FragmentGalleryBinding;
+import com.example.stepappv4.databinding.FragmentReportBinding;
 import com.example.stepappv4.R;
 import com.example.stepappv4.ui.History.HistoryFragment;
 
@@ -48,12 +48,12 @@ public class ReportFragment extends Fragment {
 
     public Map<Integer, Integer> stepsByHour = null;
 
-    private FragmentGalleryBinding binding;
+    private FragmentReportBinding binding;
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
 
-        binding = FragmentGalleryBinding.inflate(inflater, container, false);
+        binding = FragmentReportBinding.inflate(inflater, container, false);
         View root = binding.getRoot();
 
 
