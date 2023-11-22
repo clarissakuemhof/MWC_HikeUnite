@@ -16,6 +16,8 @@ import java.util.Locale;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
+import androidx.navigation.NavController;
+import androidx.navigation.Navigation;
 
 
 import com.example.stepappv4.DataModel;
@@ -81,20 +83,25 @@ public class HistoryFragment extends Fragment {
         dataModels = new ArrayList<>();
 
         // List Entries
-        dataModels.add(new DataModel("My Hike", "22.11.2023", "min", "230"));
-        dataModels.add(new DataModel("My Hike2", "23.11.2023", "min", "230"));
-
+        dataModels.add(new DataModel("My Hike", "23.11.2023", "230"));
+        dataModels.add(new DataModel("My Hike2", "21.11.2023", "345"));
+        dataModels.add(new DataModel("My Hike3", "19.11.2023", "456"));
+        dataModels.add(new DataModel("My Hike4", "15.11.2023", "278"));
 
         adapter = new CustomAdapter(dataModels, requireContext());
         listView.setAdapter(adapter);
+        NavController navController = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment_content_main);
 
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                DataModel dataModel = dataModels.get(position);
+                Bundle bundle = new Bundle();
+                // Pass any necessary data to the ReportFragment using the bundle
+                bundle.putString("itemName", dataModels.get(position).getName());
+                bundle.putString("itemDate", dataModels.get(position).getDate());
+                bundle.putString("itemDuration", dataModels.get(position).getDuration());
 
-                Snackbar.make(view, dataModel.getName() + "\n"  + " Duration: " + dataModel.getFeature() + " " + dataModel.getVersion_number(), Snackbar.LENGTH_LONG)
-                        .setAction("No action", null).show();
+                navController.navigate(R.id.action_nav_hist_to_nav_gallery, bundle);
             }
         });
 

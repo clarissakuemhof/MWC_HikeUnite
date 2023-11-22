@@ -42,11 +42,6 @@ public class CustomAdapter extends ArrayAdapter<DataModel> implements View.OnCli
         int position=(Integer) v.getTag();
         Object object= getItem(position);
         DataModel dataModel=(DataModel)object;
-
-        if (v.getId() == R.id.item_info) {
-            Snackbar.make(v, "Release date " + dataModel.getFeature(), Snackbar.LENGTH_LONG)
-                    .setAction("No action", null).show();
-        }
     }
 
     private int lastPosition = -1;
@@ -83,8 +78,8 @@ public class CustomAdapter extends ArrayAdapter<DataModel> implements View.OnCli
         lastPosition = position;
 
         viewHolder.txtName.setText(dataModel.getName());
-        viewHolder.txtType.setText(dataModel.getType());
-        viewHolder.txtVersion.setText(dataModel.getVersion_number());
+        viewHolder.txtType.setText(dataModel.getDate());
+        viewHolder.txtVersion.setText(dataModel.getDuration());
         viewHolder.info.setOnClickListener(this);
         viewHolder.info.setTag(position);
         // Return the completed view to render on screen

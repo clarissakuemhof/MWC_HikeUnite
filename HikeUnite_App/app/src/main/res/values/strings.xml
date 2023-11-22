@@ -33,4 +33,6 @@
     <string name="hourly_report">Hourly report</string>
     <string name="day">Day</string>
     <string name="history">History</string>
+    <string name="date">date</string>
+    <string name="achievements">Achievements</string>
 </resources>
