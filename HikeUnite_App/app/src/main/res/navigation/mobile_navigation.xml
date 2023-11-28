@@ -21,13 +21,17 @@
         android:id="@+id/nav_achievements"
         android:name="com.example.stepappv4.ui.Achievements.AchievementsFragment"
         android:label="Achievements"
-        tools:layout="@layout/fragment_achievements" />
+        tools:layout="@layout/fragment_achievements" >
+        <action
+            android:id="@+id/action_nav_achievements_to_nav_details"
+            app:destination="@id/nav_details" />
+    </fragment>
 
-    <activity
+    <fragment
         android:id="@+id/nav_details"
-        android:name="com.example.stepappv4.ui.Achievements.DetailsActivity"
+        android:name="com.example.stepappv4.ui.Achievements.AchievementsDetailsFragment"
         android:label="Details"
-        tools:layout="@layout/activity_details" />
+        tools:layout="@layout/fragment_details" />
 
     <fragment
         android:id="@+id/nav_day"

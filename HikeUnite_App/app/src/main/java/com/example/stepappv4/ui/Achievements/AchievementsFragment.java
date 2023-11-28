@@ -1,5 +1,5 @@
 package com.example.stepappv4.ui.Achievements;
-import com.example.stepappv4.ui.Achievements.DetailsActivity;
+
 
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -14,6 +14,8 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
+import androidx.navigation.NavController;
+import androidx.navigation.Navigation;
 
 import com.example.stepappv4.R;
 import com.example.stepappv4.databinding.FragmentAchievementsBinding;
@@ -29,6 +31,7 @@ public class AchievementsFragment extends Fragment {
 
     public View onCreateView(LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
+        NavController navController = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment_content_main);
 
         binding = FragmentAchievementsBinding.inflate(inflater, container, false);
         View root = binding.getRoot();
@@ -65,17 +68,15 @@ public class AchievementsFragment extends Fragment {
         icon.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                openNewActivity();
+
+                navController.navigate(R.id.action_nav_achievements_to_nav_details);
             }
         });
 
         return root;
     }
 
-    public void openNewActivity() {
-        Intent intent = new Intent(getActivity(), DetailsActivity.class);
-        startActivity(intent);
-    }
+
 
     @Override
     public void onDestroyView() {
