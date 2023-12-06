@@ -16,5 +16,9 @@
             android:id="@+id/nav_hist"
             android:icon="@drawable/ic_menu_slideshow"
             android:title="@string/history" />
+        <item
+            android:id="@+id/nav_gps"
+            android:icon="@drawable/ic_menu_slideshow"
+            android:title="@string/gps_test" />
     </group>
 </menu>

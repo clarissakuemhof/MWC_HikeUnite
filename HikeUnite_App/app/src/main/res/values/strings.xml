@@ -35,4 +35,5 @@
     <string name="history">History</string>
     <string name="date">date</string>
     <string name="achievements">Achievements</string>
+    <string name="gps_test">GPS Test</string>
 </resources>
