@@ -271,6 +271,4 @@ class  StepCounterListener implements SensorEventListener{
             }
         }
     }
-
-
 }

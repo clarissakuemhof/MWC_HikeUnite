@@ -7,7 +7,7 @@
     tools:context="com.example.stepappv4.ui.Achievements.AchievementsFragment">
 
     <ImageView
-        android:id="@+id/challenge5"
+        android:id="@+id/challenge2"
         android:layout_width="76dp"
         android:layout_height="72dp"
         android:layout_alignParentEnd="true"
@@ -26,10 +26,10 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="32 out of 100"
-        app:layout_constraintBottom_toTopOf="@+id/challenge10"
+        app:layout_constraintBottom_toTopOf="@+id/challenge7"
         app:layout_constraintEnd_toStartOf="@+id/textView14"
         app:layout_constraintHorizontal_bias="0.608"
-        app:layout_constraintStart_toEndOf="@+id/challenge7"
+        app:layout_constraintStart_toEndOf="@+id/challenge4"
         app:layout_constraintTop_toBottomOf="@+id/textView7"
         app:layout_constraintVertical_bias="0.0" />
 
@@ -38,13 +38,13 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:gravity="center_horizontal"
-        android:text="5000 Height\n meters"
+        android:text="5000 Height meters"
         android:textStyle="bold"
-        app:layout_constraintBottom_toTopOf="@+id/challenge10"
+        app:layout_constraintBottom_toTopOf="@+id/challenge7"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.516"
         app:layout_constraintStart_toEndOf="@+id/challenge6"
-        app:layout_constraintTop_toBottomOf="@+id/challenge7"
+        app:layout_constraintTop_toBottomOf="@+id/challenge4"
         app:layout_constraintVertical_bias="0.0" />
 
     <TextView
@@ -64,7 +64,7 @@
         android:layout_height="wrap_content"
         android:text="100 Hikes"
         android:textStyle="bold"
-        app:layout_constraintBottom_toTopOf="@+id/challenge7"
+        app:layout_constraintBottom_toTopOf="@+id/challenge4"
         app:layout_constraintEnd_toStartOf="@+id/textView3"
         app:layout_constraintHorizontal_bias="0.569"
         app:layout_constraintStart_toStartOf="parent"
@@ -80,7 +80,7 @@
         android:layout_centerVertical="true"
         android:src="@drawable/baseline_stars_24_achieved"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/challenge5"
+        app:layout_constraintEnd_toStartOf="@+id/challenge2"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.095" />
@@ -95,11 +95,11 @@
         app:layout_constraintEnd_toStartOf="@+id/textView10"
         app:layout_constraintHorizontal_bias="0.563"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/challenge10"
+        app:layout_constraintTop_toBottomOf="@+id/challenge7"
         app:layout_constraintVertical_bias="0.0" />
 
     <ImageView
-        android:id="@+id/challenge7"
+        android:id="@+id/challenge4"
         android:layout_width="76dp"
         android:layout_height="72dp"
         android:layout_alignParentEnd="true"
@@ -107,7 +107,7 @@
         android:layout_centerVertical="true"
         android:src="@drawable/baseline_stars_24"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/challenge5"
+        app:layout_constraintEnd_toStartOf="@+id/challenge2"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.399" />
@@ -148,23 +148,24 @@
         android:layout_height="wrap_content"
         android:text="10 Lakes"
         android:textStyle="bold"
-        app:layout_constraintBottom_toTopOf="@+id/challenge10"
+        app:layout_constraintBottom_toTopOf="@+id/challenge7"
         app:layout_constraintEnd_toStartOf="@+id/textView7"
         app:layout_constraintHorizontal_bias="0.56"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/challenge7"
+        app:layout_constraintTop_toBottomOf="@+id/challenge4"
         app:layout_constraintVertical_bias="0.0" />
 
     <com.google.android.material.progressindicator.LinearProgressIndicator
         android:id="@+id/achieveProgress4"
         android:layout_width="80dp"
         android:layout_height="3dp"
-        app:layout_constraintBottom_toTopOf="@+id/challenge11"
+        android:layout_marginEnd="44dp"
+        app:layout_constraintBottom_toTopOf="@+id/challenge5"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.534"
-        app:layout_constraintStart_toEndOf="@+id/achieveProgress3"
+        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintStart_toEndOf="@+id/textView13"
         app:layout_constraintTop_toBottomOf="@+id/textView14"
-        app:layout_constraintVertical_bias="0.127"
+        app:layout_constraintVertical_bias="0.14"
         app:trackCornerRadius="5dp" />
 
     <TextView
@@ -185,7 +186,7 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="52dp"
         android:text="3 out of 10"
-        app:layout_constraintBottom_toTopOf="@+id/challenge10"
+        app:layout_constraintBottom_toTopOf="@+id/challenge7"
         app:layout_constraintEnd_toStartOf="@+id/textView13"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
@@ -203,7 +204,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.516"
         app:layout_constraintStart_toEndOf="@+id/challenge9"
-        app:layout_constraintTop_toBottomOf="@+id/challenge10"
+        app:layout_constraintTop_toBottomOf="@+id/challenge7"
         app:layout_constraintVertical_bias="0.0" />
 
     <TextView
@@ -213,10 +214,10 @@
         android:gravity="center_horizontal"
         android:text="5000 Height\n meters"
         android:textStyle="bold"
-        app:layout_constraintBottom_toTopOf="@+id/challenge7"
+        app:layout_constraintBottom_toTopOf="@+id/challenge4"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.516"
-        app:layout_constraintStart_toEndOf="@+id/challenge5"
+        app:layout_constraintStart_toEndOf="@+id/challenge2"
         app:layout_constraintTop_toBottomOf="@+id/challenge1"
         app:layout_constraintVertical_bias="0.01" />
 
@@ -227,10 +228,10 @@
         android:text="100 Kilometers"
         android:textStyle="bold"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/challenge11"
+        app:layout_constraintEnd_toStartOf="@+id/challenge5"
         app:layout_constraintHorizontal_bias="0.507"
-        app:layout_constraintStart_toEndOf="@+id/challenge10"
-        app:layout_constraintTop_toBottomOf="@+id/challenge10"
+        app:layout_constraintStart_toEndOf="@+id/challenge7"
+        app:layout_constraintTop_toBottomOf="@+id/challenge7"
         app:layout_constraintVertical_bias="0.0" />
 
     <com.google.android.material.progressindicator.LinearProgressIndicator
@@ -245,6 +246,18 @@
         app:layout_constraintVertical_bias="0.149"
         app:trackCornerRadius="5dp" />
 
+    <com.google.android.material.progressindicator.LinearProgressIndicator
+        android:id="@+id/achieveProgress3"
+        android:layout_width="80dp"
+        android:layout_height="3dp"
+        app:layout_constraintBottom_toTopOf="@+id/challenge7"
+        app:layout_constraintEnd_toStartOf="@+id/achieveProgress2"
+        app:layout_constraintHorizontal_bias="0.482"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textView12"
+        app:layout_constraintVertical_bias="0.14"
+        app:trackCornerRadius="5dp" />
+
     <TextView
         android:id="@+id/textView15"
         android:layout_width="wrap_content"
@@ -257,20 +270,8 @@
         app:layout_constraintTop_toBottomOf="@+id/textView9"
         app:layout_constraintVertical_bias="0.011" />
 
-    <com.google.android.material.progressindicator.LinearProgressIndicator
-        android:id="@+id/achieveProgress2"
-        android:layout_width="80dp"
-        android:layout_height="3dp"
-        app:layout_constraintBottom_toTopOf="@+id/challenge10"
-        app:layout_constraintEnd_toStartOf="@+id/textView13"
-        app:layout_constraintHorizontal_bias="0.547"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textView12"
-        app:layout_constraintVertical_bias="0.323"
-        app:trackCornerRadius="5dp" />
-
     <ImageView
-        android:id="@+id/challenge10"
+        android:id="@+id/challenge7"
         android:layout_width="76dp"
         android:layout_height="72dp"
         android:layout_alignParentEnd="true"
@@ -278,7 +279,7 @@
         android:layout_centerVertical="true"
         android:src="@drawable/baseline_stars_24"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/challenge5"
+        app:layout_constraintEnd_toStartOf="@+id/challenge2"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.681" />
@@ -294,12 +295,12 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.505"
-        app:layout_constraintStart_toEndOf="@+id/challenge5"
+        app:layout_constraintStart_toEndOf="@+id/challenge2"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.399" />
 
     <ImageView
-        android:id="@+id/challenge11"
+        android:id="@+id/challenge5"
         android:layout_width="76dp"
         android:layout_height="72dp"
         android:layout_alignParentEnd="true"
@@ -309,7 +310,7 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.505"
-        app:layout_constraintStart_toEndOf="@+id/challenge5"
+        app:layout_constraintStart_toEndOf="@+id/challenge2"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.681" />
 
@@ -326,14 +327,26 @@
         app:trackCornerRadius="5dp" />
 
     <com.google.android.material.progressindicator.LinearProgressIndicator
+        android:id="@+id/achieveProgress2"
+        android:layout_width="80dp"
+        android:layout_height="3dp"
+        app:layout_constraintBottom_toTopOf="@+id/challenge9"
+        app:layout_constraintEnd_toStartOf="@+id/achieveProgress4"
+        app:layout_constraintHorizontal_bias="0.551"
+        app:layout_constraintStart_toEndOf="@+id/textView12"
+        app:layout_constraintTop_toBottomOf="@+id/textView13"
+        app:layout_constraintVertical_bias="0.14"
+        app:trackCornerRadius="5dp" />
+
+    <com.google.android.material.progressindicator.LinearProgressIndicator
         android:id="@+id/achieveProgress7"
         android:layout_width="80dp"
         android:layout_height="3dp"
+        android:layout_marginEnd="40dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/achieveProgress3"
         app:layout_constraintTop_toBottomOf="@+id/textView17"
-        app:layout_constraintVertical_bias="0.053"
+        app:layout_constraintVertical_bias="0.054"
         app:trackCornerRadius="5dp" />
 
     <TextView
@@ -341,7 +354,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="2756 out of 5000"
-        app:layout_constraintBottom_toTopOf="@+id/challenge10"
+        app:layout_constraintBottom_toTopOf="@+id/challenge7"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/challenge6"
         app:layout_constraintTop_toBottomOf="@+id/textView8"
@@ -353,11 +366,11 @@
         android:layout_height="wrap_content"
         android:text="100 Kilometers"
         android:textStyle="bold"
-        app:layout_constraintBottom_toTopOf="@+id/challenge10"
+        app:layout_constraintBottom_toTopOf="@+id/challenge7"
         app:layout_constraintEnd_toStartOf="@+id/textView8"
-        app:layout_constraintHorizontal_bias="0.492"
-        app:layout_constraintStart_toEndOf="@+id/challenge7"
-        app:layout_constraintTop_toBottomOf="@+id/challenge7"
+        app:layout_constraintHorizontal_bias="0.744"
+        app:layout_constraintStart_toEndOf="@+id/challenge4"
+        app:layout_constraintTop_toBottomOf="@+id/challenge4"
         app:layout_constraintVertical_bias="0.0" />
 
     <TextView
@@ -366,7 +379,7 @@
         android:layout_height="wrap_content"
         android:text="100 Kilometers"
         android:textStyle="bold"
-        app:layout_constraintBottom_toTopOf="@+id/challenge7"
+        app:layout_constraintBottom_toTopOf="@+id/challenge4"
         app:layout_constraintEnd_toStartOf="@+id/textView4"
         app:layout_constraintHorizontal_bias="0.492"
         app:layout_constraintStart_toEndOf="@+id/challenge1"
@@ -381,7 +394,7 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/textView17"
         app:layout_constraintHorizontal_bias="0.666"
-        app:layout_constraintStart_toEndOf="@+id/challenge10"
+        app:layout_constraintStart_toEndOf="@+id/challenge7"
         app:layout_constraintTop_toBottomOf="@+id/textView9"
         app:layout_constraintVertical_bias="0.011" />
 
@@ -397,20 +410,8 @@
         app:layout_constraintVertical_bias="0.114"
         app:trackCornerRadius="5dp" />
 
-    <com.google.android.material.progressindicator.LinearProgressIndicator
-        android:id="@+id/achieveProgress3"
-        android:layout_width="80dp"
-        android:layout_height="3dp"
-        app:layout_constraintBottom_toTopOf="@+id/challenge9"
-        app:layout_constraintEnd_toStartOf="@+id/textView14"
-        app:layout_constraintHorizontal_bias="0.613"
-        app:layout_constraintStart_toEndOf="@+id/textView12"
-        app:layout_constraintTop_toBottomOf="@+id/textView12"
-        app:layout_constraintVertical_bias="0.323"
-        app:trackCornerRadius="5dp" />
-
     <ImageView
-        android:id="@+id/challenge4"
+        android:id="@+id/challenge3"
         android:layout_width="76dp"
         android:layout_height="72dp"
         android:layout_alignParentEnd="true"
@@ -420,7 +421,7 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.505"
-        app:layout_constraintStart_toEndOf="@+id/challenge5"
+        app:layout_constraintStart_toEndOf="@+id/challenge2"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.095" />
 

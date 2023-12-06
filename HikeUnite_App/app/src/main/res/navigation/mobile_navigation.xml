@@ -8,7 +8,7 @@
     <fragment
         android:id="@+id/nav_home"
         android:name="com.example.stepappv4.ui.Home.HomeFragment"
-        android:label="@string/menu_steps"
+        android:label="Start Your Hike"
         tools:layout="@layout/fragment_home" />
 
     <fragment
