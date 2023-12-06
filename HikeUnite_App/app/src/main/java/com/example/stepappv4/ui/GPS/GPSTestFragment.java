@@ -8,7 +8,9 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.TextView;
 
 import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
@@ -30,10 +32,11 @@ import java.util.Objects;
 public class GPSTestFragment extends Fragment {
 
 
-    ImageView icon;
+    private ImageView icon;
     private FusedLocationProviderClient fusedLocationClient;
     private static final int MY_PERMISSIONS_REQUEST_LOCATION = 99;
-
+    private TextView latInfoTV, longInfoTV;
+    private Button refreshLocation;
 
 
     private FragmentGpstestBinding binding;
@@ -46,6 +49,9 @@ public class GPSTestFragment extends Fragment {
         View root = binding.getRoot();
 
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireActivity());
+        latInfoTV = root.findViewById(R.id.latInfo);
+        longInfoTV = root.findViewById(R.id.longInfo);
+        refreshLocation = root.findViewById(R.id.refreshLocation);
 
 
         if (ActivityCompat.checkSelfPermission(requireActivity(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(requireActivity(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
@@ -58,31 +64,54 @@ public class GPSTestFragment extends Fragment {
             // to handle the user's response to the permission request.
 
         } else {
-            // Permission has already been granted
-            fusedLocationClient.getLastLocation()
-                    .addOnSuccessListener(requireActivity(), new OnSuccessListener<Location>() {
-                        @Override
-                        public void onSuccess(Location location) {
-                            // Got last known location. In some rare situations, this can be null.
-                            if (location != null) {
-                                // Logic to handle location object
-                            }
-                        }
-                    });
+            updateLocation();
         }
 
-
-
-
-
-
+        refreshLocation.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                updateLocation();
+            }
+        });
 
         return root;
     }
 
+    private void updateLocation() {
+        // Get last known location
+        if (ActivityCompat.checkSelfPermission(requireActivity(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(requireActivity(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            // TODO: Consider calling
+            //    ActivityCompat#requestPermissions
+            // here to request the missing permissions, and then overriding
+            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+            //                                          int[] grantResults)
+            // to handle the case where the user grants the permission. See the documentation
+            // for ActivityCompat#requestPermissions for more details.
+            return;
+        }
+        fusedLocationClient.getLastLocation()
+                .addOnSuccessListener(requireActivity(), new OnSuccessListener<Location>() {
+                    @Override
+                    public void onSuccess(Location location) {
+                        // Got last known location. In some rare situations this can be null.
+                        if (location != null) {
+                            double latitude = location.getLatitude();
+                            double longitude = location.getLongitude();
 
+                            // Update UI or perform actions with latitude and longitude
+                            String latitudeText = Double.toString(latitude);
+                            String longitudeText = Double.toString(longitude);
 
+                            latInfoTV.setText(latitudeText);
+                            longInfoTV.setText(longitudeText);
+                        } else {
+                            latInfoTV.setText("Lat not available");
+                            longInfoTV.setText("Long not available");
+                        }
+                    }
+                });
 
+    }
 
     @Override
     public void onDestroyView() {
