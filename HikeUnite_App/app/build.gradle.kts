@@ -46,5 +46,6 @@ dependencies {
     androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
     implementation(platform("org.jetbrains.kotlin:kotlin-bom:1.8.0"))
     implementation("com.google.android.gms:play-services-location:21.0.1")
+    implementation("org.osmdroid:osmdroid-android:6.1.14")
 
 }
