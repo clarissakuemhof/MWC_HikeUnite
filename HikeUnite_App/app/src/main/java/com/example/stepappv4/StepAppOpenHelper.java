@@ -1,5 +1,6 @@
 package com.example.stepappv4;
 
+import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
@@ -20,18 +21,71 @@ import java.util.TreeMap;
 public class StepAppOpenHelper extends SQLiteOpenHelper {
 
     private static final int DATABASE_VERSION = 1;
-    private static final String DATABASE_NAME = "stepapp";
-    public static final String TABLE_NAME = "num_steps";
+    private static final String DATABASE_NAME = "DB_HikeUnite";
+    public static final String TABLE_NAME = "hiking data";
     public static final String KEY_ID = "id";
     public static final String KEY_TIMESTAMP = "timestamp";
     public static final String KEY_DAY = "day";
     public static final String KEY_HOUR = "hour";
-    public static final String CREATE_TABLE_SQL = "CREATE TABLE  " + TABLE_NAME + " (" + KEY_ID + " INTEGER PRIMARY KEY, " +
-            KEY_DAY + " TEXT, " + KEY_HOUR + "  TEXT, " + KEY_TIMESTAMP + "  TEXT);";
+
+    // New columns for location, distance, and steps
+    public static final String KEY_LONGITUDE = "longitude";
+    public static final String KEY_ALTITUDE = "altitude";
+    public static final String KEY_DISTANCE = "distance";
+    public static final String KEY_STEPS = "steps";
+
+    public static final String CREATE_TABLE_SQL = "CREATE TABLE  " + TABLE_NAME + " (" +
+            KEY_ID + " INTEGER PRIMARY KEY, " +
+            KEY_DAY + " TEXT, " +
+            KEY_HOUR + " TEXT, " +
+            KEY_TIMESTAMP + " TEXT, " +
+            KEY_LONGITUDE + " REAL, " +
+            KEY_ALTITUDE + " REAL, " +
+            KEY_DISTANCE + " REAL, " +
+            KEY_STEPS + " INTEGER);";
 
     public StepAppOpenHelper (Context context)
     {
         super(context,DATABASE_NAME,null,DATABASE_VERSION);
+    }
+
+    // Call this method every 10 minutes to save the relevant data during the hike
+    public void insertHikeData(double longitude, double altitude, double distance, int steps) {
+        SQLiteDatabase database = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+
+        // Get current timestamp
+        String timestamp = getCurrentTimestamp();
+
+        values.put(KEY_DAY, getCurrentDate());
+        values.put(KEY_HOUR, getCurrentHour());
+        values.put(KEY_TIMESTAMP, timestamp);
+        values.put(KEY_LONGITUDE, longitude);
+        values.put(KEY_ALTITUDE, altitude);
+        values.put(KEY_DISTANCE, distance);
+        values.put(KEY_STEPS, steps);
+
+        // Insert the values into the database
+        database.insert(TABLE_NAME, null, values);
+
+        // Close the database
+        database.close();
+    }
+
+    // Utility methods for date and time
+    private String getCurrentDate() {
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
+        return dateFormat.format(Calendar.getInstance().getTime());
+    }
+
+    private String getCurrentHour() {
+        SimpleDateFormat hourFormat = new SimpleDateFormat("HH:mm", Locale.getDefault());
+        return hourFormat.format(Calendar.getInstance().getTime());
+    }
+
+    private String getCurrentTimestamp() {
+        SimpleDateFormat timestampFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
+        return timestampFormat.format(Calendar.getInstance().getTime());
     }
 
         // Load all records in the database
