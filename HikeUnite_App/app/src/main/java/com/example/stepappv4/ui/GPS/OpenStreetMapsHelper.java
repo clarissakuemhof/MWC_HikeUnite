@@ -1,5 +1,6 @@
 package com.example.stepappv4.ui.GPS;
 
+import android.app.Activity;
 import android.content.Context;
 import android.graphics.Color;
 import android.graphics.Paint;
@@ -9,6 +10,7 @@ import android.util.Log;
 import com.example.stepappv4.R;
 
 import org.osmdroid.api.IGeoPoint;
+import org.osmdroid.api.IMapController;
 import org.osmdroid.config.Configuration;
 import org.osmdroid.events.MapListener;
 import org.osmdroid.events.ScrollEvent;
@@ -28,6 +30,11 @@ public class OpenStreetMapsHelper implements MapListener {
     private MapView mMap;
     private IGeoPoint centerPoint;
     private MyLocationNewOverlay mMyLocationOverlay;
+
+    private IMapController controller;
+
+
+    private float totalDistanceInKm = 0.0f;
     private float totalDistance = 0.0f;
     private Location lastLocation;
 
@@ -50,15 +57,51 @@ public class OpenStreetMapsHelper implements MapListener {
         red.setColor(Color.RED);
         red.setStrokeWidth(20);
 
+        calculateDistance();
         initMap();
         addPolyline();
 
     }
 
-    private void initMap() {
+    public void initMap() {
+        Configuration.getInstance().load(
+                mMap.getContext().getApplicationContext(),
+                mMap.getContext().getSharedPreferences("MapApp", mMap.getContext().MODE_PRIVATE)
+        );
+
+        mMap.setTileSource(TileSourceFactory.MAPNIK);
+        mMap.setMultiTouchControls(true);
+
         mMyLocationOverlay = new MyLocationNewOverlay(new GpsMyLocationProvider(mMap.getContext()), mMap);
+        controller = mMap.getController();
+
+        mMyLocationOverlay.enableMyLocation();
+        mMyLocationOverlay.enableFollowLocation();
+        mMyLocationOverlay.setDrawAccuracyEnabled(true);
+        mMyLocationOverlay.runOnFirstFix(() -> ((Activity) mMap.getContext()).runOnUiThread(() -> {
+            controller.setCenter(mMyLocationOverlay.getMyLocation());
+            controller.animateTo(mMyLocationOverlay.getMyLocation());
+        }));
+
+        controller.setZoom(6.0);
+
         mMap.getOverlays().add(mMyLocationOverlay);
     }
+
+    // You can add more map-related methods here
+
+    public MapView getMapView() {
+        return mMap;
+    }
+
+    public IMapController getMapController() {
+        return controller;
+    }
+
+    public MyLocationNewOverlay getMyLocationOverlay() {
+        return mMyLocationOverlay;
+    }
+
 
     public void onResume() {
         mMyLocationOverlay.enableMyLocation();
@@ -97,14 +140,12 @@ public class OpenStreetMapsHelper implements MapListener {
         // Your implementation for updating UI or performing actions with the new location
     }
 
-    public float calculateDistance(Location newLocation) {
-        float totalDistanceInKm = 0;
-        if (lastLocation != null) {
+    public void calculateDistance() {
             float[] distance = new float[1];
-            for (int i = 0; i < getHalfUSRoutePoints().size() - 1; i++) {
+            for (int i = 0; i < hikeRoute.size() - 1; i++) {
                 Location.distanceBetween(
-                        getHalfUSRoutePoints().get(i).getLatitude(), getHalfUSRoutePoints().get(i).getLongitude(),
-                        getHalfUSRoutePoints().get(i + 1).getLatitude(), getHalfUSRoutePoints().get(i + 1).getLongitude(),
+                        hikeRoute.get(i).getLatitude(), hikeRoute.get(i).getLongitude(),
+                        hikeRoute.get(i + 1).getLatitude(), hikeRoute.get(i + 1).getLongitude(),
                         distance
                 );
                 totalDistance += distance[0];
@@ -113,13 +154,6 @@ public class OpenStreetMapsHelper implements MapListener {
             // Convert totalDistance from meters to kilometers
             totalDistanceInKm = totalDistance / 1000.0f;
 
-            // Update the UI or perform actions with the total distance in kilometers
-            String distanceText = String.format("%.2f kilometers", totalDistanceInKm);
-
-        }
-
-        lastLocation = newLocation;
-        return totalDistanceInKm;
     }
 
 
@@ -135,11 +169,10 @@ public class OpenStreetMapsHelper implements MapListener {
         mMap.invalidate();
     }
 
-    private List<GeoPoint> getHalfUSRoutePoints() {
-        List<GeoPoint> routePoints = new ArrayList<>();
-        // Your implementation for obtaining route points
-        return routePoints;
+    public float getTotalDistanceInKm() {
+        return totalDistanceInKm;
     }
+
 
 
 }

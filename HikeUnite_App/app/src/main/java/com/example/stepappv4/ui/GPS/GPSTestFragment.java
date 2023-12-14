@@ -41,13 +41,12 @@ import org.osmdroid.views.overlay.mylocation.MyLocationNewOverlay;
 import java.util.ArrayList;
 import java.util.List;
 
-public class GPSTestFragment extends Fragment implements MapListener, GpsStatus.Listener {
+public class GPSTestFragment extends Fragment implements GpsStatus.Listener {
 
     private ImageView icon;
     private MapView mMap;
     private OpenStreetMapsHelper mapHelper;
     private IMapController controller;
-    private Location lastLocation;
     private MyLocationNewOverlay mMyLocationOverlay;
 
     private FusedLocationProviderClient fusedLocationClient;
@@ -87,12 +86,17 @@ public class GPSTestFragment extends Fragment implements MapListener, GpsStatus.
         binding = FragmentGpstestBinding.inflate(inflater, container, false);
         View root = binding.getRoot();
 
+        mMap = binding.osmmap;
+        mapHelper = new OpenStreetMapsHelper(this.getContext(), mMap, getHalfUSRoutePoints());
+
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireActivity());
         latInfoTV = root.findViewById(R.id.latInfo);
         longInfoTV = root.findViewById(R.id.longInfo);
         altInfoTV = root.findViewById(R.id.altInfo);
         distInfoTV = root.findViewById(R.id.distance);
         refreshLocation = root.findViewById(R.id.refreshLocation);
+
+
 
         if (ActivityCompat.checkSelfPermission(requireActivity(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(requireActivity(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             // Permission is not granted, request the permission
@@ -120,20 +124,13 @@ public class GPSTestFragment extends Fragment implements MapListener, GpsStatus.
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        initMap();
+        mapHelper.initMap();
         mapHelper.addPolyline();
     }
 
     private void updateLocation() {
         // Get last known location
         if (ActivityCompat.checkSelfPermission(requireActivity(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(requireActivity(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            // TODO: Consider calling
-            //    ActivityCompat#requestPermissions
-            // here to request the missing permissions, and then overriding
-            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-            //                                          int[] grantResults)
-            // to handle the case where the user grants the permission. See the documentation
-            // for ActivityCompat#requestPermissions for more details.
             return;
         }
         fusedLocationClient.getLastLocation()
@@ -145,17 +142,19 @@ public class GPSTestFragment extends Fragment implements MapListener, GpsStatus.
                             double latitude = location.getLatitude();
                             double longitude = location.getLongitude();
                             double altitude = location.getAltitude();
+                            float distance = mapHelper.getTotalDistanceInKm();
 
                             // Update UI or perform actions with latitude and longitude
                             String latitudeText = Double.toString(latitude);
                             String longitudeText = Double.toString(longitude);
                             String altitudeText = Double.toString(altitude);
+                            String distanceText = Float.toString(distance) + " kilometers";
+
 
                             latInfoTV.setText(latitudeText);
                             longInfoTV.setText(longitudeText);
                             altInfoTV.setText(altitudeText);
-
-                            mapHelper.calculateDistance(location);
+                            distInfoTV.setText(distanceText);
 
                         } else {
                             latInfoTV.setText("Lat not available");
@@ -166,47 +165,8 @@ public class GPSTestFragment extends Fragment implements MapListener, GpsStatus.
                 });
     }
 
-    private void initMap() {
-        Configuration.getInstance().load(
-                requireActivity().getApplicationContext(),
-                requireActivity().getSharedPreferences(getString(R.string.app_name), requireActivity().MODE_PRIVATE)
-        );
 
-        mMap = binding.osmmap;
-        mMap.setTileSource(TileSourceFactory.MAPNIK);
-        mMap.setMultiTouchControls(true);
 
-        mMyLocationOverlay = new MyLocationNewOverlay(new GpsMyLocationProvider(requireContext()), mMap);
-        controller = mMap.getController();
-
-        mMyLocationOverlay.enableMyLocation();
-        mMyLocationOverlay.enableFollowLocation();
-        mMyLocationOverlay.setDrawAccuracyEnabled(true);
-        mMyLocationOverlay.runOnFirstFix(() -> requireActivity().runOnUiThread(() -> {
-            controller.setCenter(mMyLocationOverlay.getMyLocation());
-            controller.animateTo(mMyLocationOverlay.getMyLocation());
-        }));
-
-        controller.setZoom(6.0);
-
-        mMap.getOverlays().add(mMyLocationOverlay);
-        mMap.addMapListener(this);
-
-        mapHelper = new OpenStreetMapsHelper(this.getContext(), mMap, getHalfUSRoutePoints());
-    }
-
-    @Override
-    public boolean onScroll(ScrollEvent event) {
-        Log.e("TAG", "onCreate:la " + event.getSource().getMapCenter().getLatitude());
-        Log.e("TAG", "onCreate:lo " + event.getSource().getMapCenter().getLongitude());
-        return true;
-    }
-
-    @Override
-    public boolean onZoom(ZoomEvent event) {
-        Log.e("TAG", "onZoom zoom level: " + event.getZoomLevel() + "   source:  " + event.getSource());
-        return false;
-    }
 
     @Override
     public void onGpsStatusChanged(int event) {
