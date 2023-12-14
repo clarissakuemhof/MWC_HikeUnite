@@ -10,7 +10,6 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import java.text.DateFormatSymbols;
-import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Locale;
 
@@ -24,7 +23,6 @@ import com.example.stepappv4.DataModel;
 import com.example.stepappv4.R;
 import com.example.stepappv4.databinding.FragmentHistoryBinding;
 import com.example.stepappv4.ui.CustomAdapter;
-import com.google.android.material.snackbar.Snackbar;
 import java.util.ArrayList;
 
 

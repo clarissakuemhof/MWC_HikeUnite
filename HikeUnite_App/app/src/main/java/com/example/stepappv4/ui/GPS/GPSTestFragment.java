@@ -54,14 +54,18 @@ public class GPSTestFragment extends Fragment implements MapListener, GpsStatus.
 
     private MapView mMap;
     private IMapController controller;
+    private Location lastLocation;
     private MyLocationNewOverlay mMyLocationOverlay;
 
     private FusedLocationProviderClient fusedLocationClient;
     private static final int MY_PERMISSIONS_REQUEST_LOCATION = 99;
-    private TextView latInfoTV, longInfoTV;
+    private TextView latInfoTV, longInfoTV, altInfoTV, distInfoTV;
     private Button refreshLocation;
 
     private Paint red = new Paint();
+
+    private float totalDistance = 0.0f;
+
 
 
 
@@ -104,6 +108,8 @@ public class GPSTestFragment extends Fragment implements MapListener, GpsStatus.
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireActivity());
         latInfoTV = root.findViewById(R.id.latInfo);
         longInfoTV = root.findViewById(R.id.longInfo);
+        altInfoTV = root.findViewById(R.id.altInfo);
+        distInfoTV = root.findViewById(R.id.distance);
         refreshLocation = root.findViewById(R.id.refreshLocation);
 
         red.setColor(Color.RED);
@@ -160,16 +166,26 @@ public class GPSTestFragment extends Fragment implements MapListener, GpsStatus.
                         if (location != null) {
                             double latitude = location.getLatitude();
                             double longitude = location.getLongitude();
+                            double altitude = location.getAltitude();
 
                             // Update UI or perform actions with latitude and longitude
                             String latitudeText = Double.toString(latitude);
                             String longitudeText = Double.toString(longitude);
+                            String altitudeText = Double.toString(altitude);
 
                             latInfoTV.setText(latitudeText);
                             longInfoTV.setText(longitudeText);
+                            altInfoTV.setText(altitudeText);
+
+
+                            calculateDistance(location);
+
+
+
                         } else {
                             latInfoTV.setText("Lat not available");
                             longInfoTV.setText("Long not available");
+                            altInfoTV.setText("Alt not available");
                         }
                     }
                 });
@@ -228,6 +244,29 @@ public class GPSTestFragment extends Fragment implements MapListener, GpsStatus.
     public void onDestroyView() {
         super.onDestroyView();
         binding = null;
+    }
+
+    private void calculateDistance(Location newLocation) {
+        if (lastLocation != null) {
+            float[] distance = new float[1];
+            for (int i = 0; i < getHalfUSRoutePoints().size() - 1; i++) {
+                Location.distanceBetween(
+                        getHalfUSRoutePoints().get(i).getLatitude(), getHalfUSRoutePoints().get(i).getLongitude(),
+                        getHalfUSRoutePoints().get(i + 1).getLatitude(), getHalfUSRoutePoints().get(i + 1).getLongitude(),
+                        distance
+                );
+                totalDistance += distance[0];
+            }
+
+            // Convert totalDistance from meters to kilometers
+            float totalDistanceInKm = totalDistance / 1000.0f;
+
+            // Update the UI or perform actions with the total distance in kilometers
+            String distanceText = String.format("%.2f kilometers", totalDistanceInKm);
+            distInfoTV.setText(distanceText);
+        }
+
+        lastLocation = newLocation;
     }
 
     private void addPolyline() {
