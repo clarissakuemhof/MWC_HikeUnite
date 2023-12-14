@@ -162,7 +162,7 @@ class  StepCounterListener implements SensorEventListener{
     private double smoothAccMag = 0;
     // the value requires imperative testing
     // value is between 0 and 1
-    private double alpha = 0.4;
+    private double alpha = 0.2;
     private int lastAddedIndex = 1;
     int stepThreshold = 6;
 
