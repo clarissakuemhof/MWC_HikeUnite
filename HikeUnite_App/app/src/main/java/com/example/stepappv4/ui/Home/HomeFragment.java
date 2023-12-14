@@ -162,7 +162,7 @@ class  StepCounterListener implements SensorEventListener{
     private double smoothAccMag = 0;
     // the value requires imperative testing
     // value is between 0 and 1
-    private double alpha = 0.2;
+    private double alpha = 0.8;
     private int lastAddedIndex = 1;
     int stepThreshold = 6;
 
@@ -222,7 +222,7 @@ class  StepCounterListener implements SensorEventListener{
                 smoothAccMag = alpha * accMag + (1- alpha) * smoothAccMag;
 
 
-                accSeries.add((int) accMag);
+                accSeries.add((int) smoothAccMag);
 
                 // Get the date, the day and the hour
                 timestamp = sensorEventDate;
