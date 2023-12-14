@@ -28,6 +28,7 @@ import com.example.stepappv4.databinding.FragmentHomeBinding;
 import com.google.android.material.button.MaterialButtonToggleGroup;
 import com.google.android.material.progressindicator.CircularProgressIndicator;
 
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Random;
 import java.util.TimeZone;
@@ -249,6 +250,7 @@ class  StepCounterListener implements SensorEventListener{
     private void peakDetection() {
 
         int windowSize = 20;
+        long timeConstraintMillis = 19;
         /* Peak detection algorithm derived from: A Step Counter Service for Java-Enabled Devices Using a Built-In Accelerometer Mladenov et al.
          */
         int currentSize = accSeries.size(); // get the length of the series
@@ -265,20 +267,39 @@ class  StepCounterListener implements SensorEventListener{
             int downwardSlope = valuesInWindow.get(i) - valuesInWindow.get(i - 1);
 
             if (forwardSlope < 0 && downwardSlope > 0 && valuesInWindow.get(i) > stepThreshold) {
-                accStepCounter += 1;
-                Log.d("ACC STEPS: ", String.valueOf(accStepCounter));
-                stepCountsView.setText(String.valueOf(accStepCounter));
-                progressBar.setProgress(accStepCounter);
 
-                ContentValues databaseEntry = new ContentValues();
-                databaseEntry.put(StepAppOpenHelper.KEY_TIMESTAMP, timePointList.get(i));
+                long timeDifference = getTimeDifference(timePointList.get(i), timePointList.get(i-1));
 
-                databaseEntry.put(StepAppOpenHelper.KEY_DAY, this.day);
-                databaseEntry.put(StepAppOpenHelper.KEY_HOUR, this.hour);
+                if(timeDifference > timeConstraintMillis){
+                    accStepCounter += 1;
+                    Log.d("ACC STEPS: ", String.valueOf(accStepCounter));
+                    stepCountsView.setText(String.valueOf(accStepCounter));
+                    progressBar.setProgress(accStepCounter);
 
-                database.insert(StepAppOpenHelper.TABLE_NAME, null, databaseEntry);
+                    ContentValues databaseEntry = new ContentValues();
+                    databaseEntry.put(StepAppOpenHelper.KEY_TIMESTAMP, timePointList.get(i));
 
+                    databaseEntry.put(StepAppOpenHelper.KEY_DAY, this.day);
+                    databaseEntry.put(StepAppOpenHelper.KEY_HOUR, this.hour);
+
+                    database.insert(StepAppOpenHelper.TABLE_NAME, null, databaseEntry);
+                }
             }
+        }
+    }
+
+    private long getTimeDifference(String time1, String time2){
+        try {
+            SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss:SSS");
+            format.setTimeZone(TimeZone.getTimeZone("GMT+2"));
+
+            long timestamp1 = format.parse(time1).getTime();
+            long timestamp2 = format.parse(time2).getTime();
+
+            return timestamp1 - timestamp2;
+        } catch (ParseException e) {
+            e.printStackTrace();
+            return 0;
         }
     }
 }
