@@ -161,7 +161,8 @@ class  StepCounterListener implements SensorEventListener{
     // Everything in double since it's more precise (32-bit FP < 64-bit FP)
     private double smoothAccMag = 0;
     // the value requires imperative testing
-    private double alpha = 0.8;
+    // value is between 0 and 1
+    private double alpha = 0.0;
     private int lastAddedIndex = 1;
     int stepThreshold = 6;
 
