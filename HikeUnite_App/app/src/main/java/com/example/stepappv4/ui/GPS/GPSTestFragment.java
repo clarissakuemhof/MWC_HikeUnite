@@ -41,20 +41,18 @@ import org.osmdroid.views.overlay.mylocation.MyLocationNewOverlay;
 import java.util.ArrayList;
 import java.util.List;
 
-public class GPSTestFragment extends Fragment implements GpsStatus.Listener {
+public class GPSTestFragment extends Fragment  {
 
     private ImageView icon;
     private MapView mMap;
     private OpenStreetMapsHelper mapHelper;
-    private IMapController controller;
-    private MyLocationNewOverlay mMyLocationOverlay;
 
     private FusedLocationProviderClient fusedLocationClient;
     private static final int MY_PERMISSIONS_REQUEST_LOCATION = 99;
     private TextView latInfoTV, longInfoTV, altInfoTV, distInfoTV;
     private Button refreshLocation;
 
-    private float totalDistance = 0.0f;
+    private GPSHelper gpsHelper;
 
     // Assuming you have a method to get a list of GeoPoints representing your route
     private List<GeoPoint> getHalfUSRoutePoints() {
@@ -89,7 +87,9 @@ public class GPSTestFragment extends Fragment implements GpsStatus.Listener {
         mMap = binding.osmmap;
         mapHelper = new OpenStreetMapsHelper(this.getContext(), mMap, getHalfUSRoutePoints());
 
-        fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireActivity());
+        gpsHelper = new GPSHelper(this.getContext());
+
+        //fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireActivity());
         latInfoTV = root.findViewById(R.id.latInfo);
         longInfoTV = root.findViewById(R.id.longInfo);
         altInfoTV = root.findViewById(R.id.altInfo);
@@ -98,23 +98,40 @@ public class GPSTestFragment extends Fragment implements GpsStatus.Listener {
 
 
 
-        if (ActivityCompat.checkSelfPermission(requireActivity(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(requireActivity(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+        // if (ActivityCompat.checkSelfPermission(requireActivity(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(requireActivity(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             // Permission is not granted, request the permission
-            ActivityCompat.requestPermissions(requireActivity(),
-                    new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION},
-                    MY_PERMISSIONS_REQUEST_LOCATION);
+        //  ActivityCompat.requestPermissions(requireActivity(),
+        //          new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION},
+        //          MY_PERMISSIONS_REQUEST_LOCATION);
 
             // The onRequestPermissionsResult method will be called asynchronously
             // to handle the user's response to the permission request.
 
-        } else {
-            updateLocation();
-        }
+        // } else {
+        //    updateLocation();
+        // }
 
         refreshLocation.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                updateLocation();
+
+
+                double latitude = gpsHelper.getLatitude();
+                double longitude = gpsHelper.getLongitude();
+                double altitude = gpsHelper.getAltitude();
+                float distance = mapHelper.getTotalDistanceInKm();
+
+                // Update UI or perform actions with latitude and longitude
+                String latitudeText = Double.toString(latitude);
+                String longitudeText = Double.toString(longitude);
+                String altitudeText = Double.toString(altitude);
+                String distanceText = distance + " kilometers";
+
+
+                latInfoTV.setText(latitudeText);
+                longInfoTV.setText(longitudeText);
+                altInfoTV.setText(altitudeText);
+                distInfoTV.setText(distanceText);
             }
         });
 
@@ -128,6 +145,7 @@ public class GPSTestFragment extends Fragment implements GpsStatus.Listener {
         mapHelper.addPolyline();
     }
 
+    /**
     private void updateLocation() {
         // Get last known location
         if (ActivityCompat.checkSelfPermission(requireActivity(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(requireActivity(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
@@ -148,7 +166,7 @@ public class GPSTestFragment extends Fragment implements GpsStatus.Listener {
                             String latitudeText = Double.toString(latitude);
                             String longitudeText = Double.toString(longitude);
                             String altitudeText = Double.toString(altitude);
-                            String distanceText = Float.toString(distance) + " kilometers";
+                            String distanceText = distance + " kilometers";
 
 
                             latInfoTV.setText(latitudeText);
@@ -164,12 +182,9 @@ public class GPSTestFragment extends Fragment implements GpsStatus.Listener {
                     }
                 });
     }
+     */
 
 
 
 
-    @Override
-    public void onGpsStatusChanged(int event) {
-        // Your implementation for GPS
-    }
 }

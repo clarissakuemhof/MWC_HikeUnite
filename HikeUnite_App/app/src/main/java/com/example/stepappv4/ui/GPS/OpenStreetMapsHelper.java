@@ -21,10 +21,14 @@ import org.osmdroid.views.MapView;
 import org.osmdroid.views.overlay.Polyline;
 import org.osmdroid.views.overlay.mylocation.GpsMyLocationProvider;
 import org.osmdroid.views.overlay.mylocation.MyLocationNewOverlay;
-
-import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * This is the class to handle all methods needed to initialize the maps and to draw the route based on the saved GeoPoints
+ * based on:
+ * <a href="https://medium.com/@mr.appbuilder/how-to-integrate-and-work-with-open-street-map-osm-in-an-android-app-kotlin-564b38590bfe">Open Street Map Tutorial</a>
+ * <a href="https://osmdroid.github.io/osmdroid/javadocAll/org/osmdroid/views/overlay/PolyOverlayWithIW.html#getOutlinePaint--">Documentation for Route Overlay</a>
+ */
 public class OpenStreetMapsHelper implements MapListener {
 
     private MapView mMap;
