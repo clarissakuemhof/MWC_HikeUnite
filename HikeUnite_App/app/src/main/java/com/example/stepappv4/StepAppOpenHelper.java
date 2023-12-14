@@ -8,7 +8,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 import android.widget.Toast;
 
-import com.example.stepappv4.ui.GPS.LocationPoint;
+import org.osmdroid.util.GeoPoint;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -316,51 +316,51 @@ public class StepAppOpenHelper extends SQLiteOpenHelper {
 
 
     /**
-     * This function provides a list of location points linked to a certain hike by id. We extract the longitude
+     * This function provides a list of GeoPoints linked to a certain hike by id. We extract the longitude
      * and latitude from each entry identified by the same gpsnum to get matching pairs.
      *
      * @param id id of the hike
-     * @return list of location points with gps data
+     * @return list of GeoPoints with gps data
      */
-    public List<LocationPoint> getLocationTuplesById(int id) {
+    public List<GeoPoint> getGeoPointsById(int id) {
         SQLiteDatabase database = this.getReadableDatabase();
-        List<LocationPoint> locationPoints = new ArrayList<>();
+        List<GeoPoint> geoPoints = new ArrayList<>();
 
-        String[] columns = {KEY_GPS_NUM, KEY_LONGITUDE, KEY_ALTITUDE};
+        String[] columns = {KEY_GPS_NUM, KEY_LONGITUDE, KEY_LATITUDE};
         String selection = KEY_ID + "=?";
         String[] selectionArgs = {String.valueOf(id)};
 
         Cursor cursor = database.query(TABLE_NAME2, columns, selection, selectionArgs, null, null, null);
 
         if (cursor != null && cursor.moveToFirst()) {
-            Map<Integer, LocationPoint> locationTupleMap = new HashMap<>();
+            Map<Integer, GeoPoint> geoPointMap = new HashMap<>();
 
             do {
                 int gpsNumIndex = cursor.getColumnIndex(KEY_GPS_NUM);
                 int longitudeIndex = cursor.getColumnIndex(KEY_LONGITUDE);
-                int altitudeIndex = cursor.getColumnIndex(KEY_ALTITUDE);
+                int latitudeIndex = cursor.getColumnIndex(KEY_LATITUDE);
 
-                if (gpsNumIndex == -1 || longitudeIndex == -1 || altitudeIndex == -1) {
-                    Log.w("LocationTuples", "One or more columns not found in cursor.");
+                if (gpsNumIndex == -1 || longitudeIndex == -1 || latitudeIndex == -1) {
+                    Log.w("GeoPoints", "One or more columns not found in cursor.");
                     continue;
                 }
 
                 int gpsNum = cursor.getInt(gpsNumIndex);
                 double longitude = cursor.getDouble(longitudeIndex);
-                double altitude = cursor.getDouble(altitudeIndex);
+                double latitude = cursor.getDouble(latitudeIndex);
 
-                if (!locationTupleMap.containsKey(gpsNum)) {
-                    LocationPoint locationTuple = new LocationPoint(longitude, altitude);
-                    locationTupleMap.put(gpsNum, locationTuple);
+                if (!geoPointMap.containsKey(gpsNum)) {
+                    GeoPoint geoPoint = new GeoPoint(latitude, longitude);
+                    geoPointMap.put(gpsNum, geoPoint);
                 }
             } while (cursor.moveToNext());
 
-            locationPoints.addAll(locationTupleMap.values());
+            geoPoints.addAll(geoPointMap.values());
             cursor.close();
         }
 
         database.close();
-        return locationPoints;
+        return geoPoints;
     }
 
     /**

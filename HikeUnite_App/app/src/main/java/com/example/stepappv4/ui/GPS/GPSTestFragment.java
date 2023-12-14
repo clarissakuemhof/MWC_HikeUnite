@@ -1,9 +1,8 @@
 package com.example.stepappv4.ui.GPS;
 
-
 import android.Manifest;
 import android.content.pm.PackageManager;
-import android.graphics.Paint;
+import android.graphics.Color;
 import android.location.GpsStatus;
 import android.location.Location;
 import android.os.Bundle;
@@ -14,10 +13,6 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.graphics.Color;
-import org.osmdroid.api.IGeoPoint;
-import org.osmdroid.util.GeoPoint;
-import org.osmdroid.views.overlay.Polyline;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -38,6 +33,7 @@ import org.osmdroid.events.MapListener;
 import org.osmdroid.events.ScrollEvent;
 import org.osmdroid.events.ZoomEvent;
 import org.osmdroid.tileprovider.tilesource.TileSourceFactory;
+import org.osmdroid.util.GeoPoint;
 import org.osmdroid.views.MapView;
 import org.osmdroid.views.overlay.mylocation.GpsMyLocationProvider;
 import org.osmdroid.views.overlay.mylocation.MyLocationNewOverlay;
@@ -45,14 +41,11 @@ import org.osmdroid.views.overlay.mylocation.MyLocationNewOverlay;
 import java.util.ArrayList;
 import java.util.List;
 
-
-
 public class GPSTestFragment extends Fragment implements MapListener, GpsStatus.Listener {
 
-
     private ImageView icon;
-
     private MapView mMap;
+    private OpenStreetMapsHelper mapHelper;
     private IMapController controller;
     private Location lastLocation;
     private MyLocationNewOverlay mMyLocationOverlay;
@@ -62,16 +55,7 @@ public class GPSTestFragment extends Fragment implements MapListener, GpsStatus.
     private TextView latInfoTV, longInfoTV, altInfoTV, distInfoTV;
     private Button refreshLocation;
 
-    private Paint red = new Paint();
-
     private float totalDistance = 0.0f;
-
-
-
-
-
-
-
 
     // Assuming you have a method to get a list of GeoPoints representing your route
     private List<GeoPoint> getHalfUSRoutePoints() {
@@ -94,8 +78,6 @@ public class GPSTestFragment extends Fragment implements MapListener, GpsStatus.
         return routePoints;
     }
 
-
-
     private FragmentGpstestBinding binding;
 
     public View onCreateView(LayoutInflater inflater,
@@ -111,10 +93,6 @@ public class GPSTestFragment extends Fragment implements MapListener, GpsStatus.
         altInfoTV = root.findViewById(R.id.altInfo);
         distInfoTV = root.findViewById(R.id.distance);
         refreshLocation = root.findViewById(R.id.refreshLocation);
-
-        red.setColor(Color.RED);
-        red.setStrokeWidth(20);
-
 
         if (ActivityCompat.checkSelfPermission(requireActivity(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(requireActivity(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             // Permission is not granted, request the permission
@@ -143,7 +121,7 @@ public class GPSTestFragment extends Fragment implements MapListener, GpsStatus.
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         initMap();
-        addPolyline();
+        mapHelper.addPolyline();
     }
 
     private void updateLocation() {
@@ -177,10 +155,7 @@ public class GPSTestFragment extends Fragment implements MapListener, GpsStatus.
                             longInfoTV.setText(longitudeText);
                             altInfoTV.setText(altitudeText);
 
-
-                            calculateDistance(location);
-
-
+                            mapHelper.calculateDistance(location);
 
                         } else {
                             latInfoTV.setText("Lat not available");
@@ -189,7 +164,6 @@ public class GPSTestFragment extends Fragment implements MapListener, GpsStatus.
                         }
                     }
                 });
-
     }
 
     private void initMap() {
@@ -215,11 +189,10 @@ public class GPSTestFragment extends Fragment implements MapListener, GpsStatus.
 
         controller.setZoom(6.0);
 
-        Log.e("TAG", "onCreate:in " + controller.zoomIn());
-        Log.e("TAG", "onCreate: out  " + controller.zoomOut());
-
         mMap.getOverlays().add(mMyLocationOverlay);
         mMap.addMapListener(this);
+
+        mapHelper = new OpenStreetMapsHelper(this.getContext(), mMap, getHalfUSRoutePoints());
     }
 
     @Override
@@ -237,47 +210,6 @@ public class GPSTestFragment extends Fragment implements MapListener, GpsStatus.
 
     @Override
     public void onGpsStatusChanged(int event) {
-        // Your implementation for GPS status change
-    }
-
-    @Override
-    public void onDestroyView() {
-        super.onDestroyView();
-        binding = null;
-    }
-
-    private void calculateDistance(Location newLocation) {
-        if (lastLocation != null) {
-            float[] distance = new float[1];
-            for (int i = 0; i < getHalfUSRoutePoints().size() - 1; i++) {
-                Location.distanceBetween(
-                        getHalfUSRoutePoints().get(i).getLatitude(), getHalfUSRoutePoints().get(i).getLongitude(),
-                        getHalfUSRoutePoints().get(i + 1).getLatitude(), getHalfUSRoutePoints().get(i + 1).getLongitude(),
-                        distance
-                );
-                totalDistance += distance[0];
-            }
-
-            // Convert totalDistance from meters to kilometers
-            float totalDistanceInKm = totalDistance / 1000.0f;
-
-            // Update the UI or perform actions with the total distance in kilometers
-            String distanceText = String.format("%.2f kilometers", totalDistanceInKm);
-            distInfoTV.setText(distanceText);
-        }
-
-        lastLocation = newLocation;
-    }
-
-    private void addPolyline() {
-        List<GeoPoint> dummyRoutePoints = getHalfUSRoutePoints();
-
-        Polyline polyline = new Polyline();
-        polyline.setPoints(dummyRoutePoints);
-        polyline.getOutlinePaint().set(red);
-        polyline.isVisible();
-
-        mMap.getOverlayManager().add(polyline);
-        mMap.invalidate();
+        // Your implementation for GPS
     }
 }
