@@ -8,6 +8,7 @@ import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.SystemClock;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -25,6 +26,7 @@ import androidx.lifecycle.ViewModelProvider;
 import com.example.stepappv4.StepAppOpenHelper;
 import com.example.stepappv4.R;
 import com.example.stepappv4.databinding.FragmentHomeBinding;
+import com.example.stepappv4.ui.GPS.GPSHelper;
 import com.google.android.material.button.MaterialButtonToggleGroup;
 import com.google.android.material.progressindicator.CircularProgressIndicator;
 
@@ -58,6 +60,41 @@ public class HomeFragment extends Fragment {
     private TextView quoteText;
     private String[] inspirationalQuotes;
 
+    private int id;
+
+    private GPSHelper gpsHelper;
+
+    private boolean started;
+
+    public boolean isStarted() {
+        return started;
+    }
+
+    public void setStarted(boolean started) {
+        this.started = started;
+    }
+
+    private final Handler handler = new Handler();
+
+    private void sendToDatabase() {
+        if (started) {
+            handler.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    updateLastLocation();
+                    myDatabaseHelper.insertGPSData(gpsHelper.getLongitude(), gpsHelper.getAltitude(), gpsHelper.getLatitude(), id);
+                    sendToDatabase(); // Schedule the next update
+                }
+            }, 30000); // 30 seconds delay
+        }
+    }
+
+    private void updateLastLocation(){
+        gpsHelper.getAndHandleLastLocation();
+        Log.d("FunctionLog", "Updated Location");
+    }
+    private StepAppOpenHelper myDatabaseHelper;
+
 
 
     public View onCreateView(@NonNull LayoutInflater inflater,
@@ -70,6 +107,8 @@ public class HomeFragment extends Fragment {
 
         stepCountsView = (TextView) root.findViewById(R.id.counter);
         stepCountsView.setText("0");
+        gpsHelper = new GPSHelper(this.getContext());
+
 
         progressBar = (CircularProgressIndicator) root.findViewById(R.id.progressBar);
         progressBar.setMax(50);
@@ -80,8 +119,8 @@ public class HomeFragment extends Fragment {
 
         stepDetectorSensor = sensorManager.getDefaultSensor(Sensor.TYPE_STEP_DETECTOR);
 
-        StepAppOpenHelper databaseOpenHelper = new StepAppOpenHelper(this.getContext());
-        SQLiteDatabase database = databaseOpenHelper.getWritableDatabase();
+        myDatabaseHelper = new StepAppOpenHelper(this.getContext());
+        SQLiteDatabase database = myDatabaseHelper.getWritableDatabase();
 
         viewSwitcher = root.findViewById(R.id.viewSwitcher);
         startButton = root.findViewById(R.id.start_button);
@@ -90,12 +129,22 @@ public class HomeFragment extends Fragment {
         inspirationalQuotes = getResources().getStringArray(R.array.inspirational_quotes);
         setRandomQuote();
 
+        started = false;
+
         startButton.setOnClickListener(new View.OnClickListener(){
             @Override
-            public void onClick(View v){
-                if(viewSwitcher.getCurrentView() == root.findViewById(R.id.defaultView)){
+            public void onClick(View v) {
+                Log.d("DatabaseUpdate", "Start button clicked");
+                if (viewSwitcher.getCurrentView() == root.findViewById(R.id.defaultView)) {
                     viewSwitcher.showNext();
                 }
+                id = myDatabaseHelper.getLastId(myDatabaseHelper.getWritableDatabase()) + 1;
+                myDatabaseHelper.insertHikeData(0, 0);
+
+                setStarted(true);
+                sendToDatabase();
+
+
             }
         });
 
@@ -106,7 +155,7 @@ public class HomeFragment extends Fragment {
                     setRandomQuote();
                     viewSwitcher.showPrevious();
                 }
-
+                setStarted(false);
             }
         });
 
@@ -137,10 +186,13 @@ public class HomeFragment extends Fragment {
         return root;
     }
 
+
+
     @Override
     public void onDestroyView() {
         super.onDestroyView();
         binding = null;
+
     }
 
     private void setRandomQuote() {
@@ -179,6 +231,8 @@ class  StepCounterListener implements SensorEventListener{
     }
 
 
+
+
     @Override
     public void onSensorChanged(SensorEvent sensorEvent) {
         switch (sensorEvent.sensor.getType())
@@ -205,7 +259,7 @@ class  StepCounterListener implements SensorEventListener{
                 {
                     lastSensorUpdate = currentTimeInMilliSecond;
                     String sensorRawValues = "  x = "+ String.valueOf(x) +"  y = "+ String.valueOf(y) +"  z = "+ String.valueOf(z);
-                    Log.d("Acc. Event", "last sensor update at " + String.valueOf(sensorEventDate) + sensorRawValues);
+                    //Log.d("Acc. Event", "last sensor update at " + String.valueOf(sensorEventDate) + sensorRawValues);
                 }
 
 
@@ -219,7 +273,7 @@ class  StepCounterListener implements SensorEventListener{
                 day = sensorEventDate.substring(0,10);
                 hour = sensorEventDate.substring(11,13);
 
-                Log.d("SensorEventTimestampInMilliSecond", timestamp);
+                //Log.d("SensorEventTimestampInMilliSecond", timestamp);
 
 
                 timestampsSeries.add(timestamp);
@@ -235,6 +289,7 @@ class  StepCounterListener implements SensorEventListener{
     public void onAccuracyChanged(Sensor sensor, int i) {
 
     }
+
 
     private void peakDetection() {
 
@@ -271,6 +326,8 @@ class  StepCounterListener implements SensorEventListener{
             }
         }
     }
+
+
 
 
 }

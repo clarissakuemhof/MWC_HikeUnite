@@ -43,14 +43,40 @@ public class StepAppOpenHelper extends SQLiteOpenHelper {
     public static final String KEY_DISTANCE = "distance";
     public static final String KEY_STEPS = "steps";
 
-    public static final String CREATE_TABLE_SQL = "CREATE TABLE " + TABLE_NAME +"  (" +
+
+
+    public StepAppOpenHelper (Context context)
+    {
+        super(context,DATABASE_NAME,null,DATABASE_VERSION);
+        this.onCreate(this.getWritableDatabase());
+
+    }
+
+    @Override
+    public void onCreate(SQLiteDatabase sqLiteDatabase) {
+
+        sqLiteDatabase.execSQL(CREATE_TABLE_SQL);
+        sqLiteDatabase.execSQL(CREATE_TABLE_GPS);
+
+    }
+
+    @Override
+    public void onUpgrade(SQLiteDatabase sqLiteDatabase, int i, int i1) {
+       // sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + TABLE_NAME);
+       // sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + TABLE_NAME2);
+        onCreate(sqLiteDatabase);
+    }
+
+
+
+    public static final String CREATE_TABLE_SQL = "CREATE TABLE IF NOT EXISTS " + TABLE_NAME +"  (" +
             KEY_ID + " INTEGER PRIMARY KEY, " +
             KEY_DAY + " TEXT, " +
             KEY_NAME + " TEXT, " +
             KEY_DISTANCE + " REAL, " +
             KEY_STEPS + " INTEGER);";
 
-    public static final String CREATE_TABLE_GPS = "CREATE TABLE " + TABLE_NAME2 + " (" +
+    public static final String CREATE_TABLE_GPS = "CREATE TABLE IF NOT EXISTS " + TABLE_NAME2 + " (" +
             KEY_GPS_NUM + " INTEGER PRIMARY KEY, " +
             KEY_DAY + " TEXT, " +
             KEY_HOUR + " TEXT, " +
@@ -59,12 +85,6 @@ public class StepAppOpenHelper extends SQLiteOpenHelper {
             KEY_LONGITUDE + " REAL, " +
             KEY_LATITUDE + " REAL, " +
             KEY_ALTITUDE + " REAL);";
-
-
-    public StepAppOpenHelper (Context context)
-    {
-        super(context,DATABASE_NAME,null,DATABASE_VERSION);
-    }
 
     // Call this method every 10 minutes to save the relevant data during the hike
     public void insertHikeData(double distance, int steps) {
@@ -82,13 +102,16 @@ public class StepAppOpenHelper extends SQLiteOpenHelper {
 
         values.put(KEY_ID, newId);
         values.put(KEY_DAY, getCurrentDate());
-        values.put(KEY_HOUR, getCurrentHour());
-        values.put(KEY_TIMESTAMP, timestamp);;
         values.put(KEY_DISTANCE, distance);
         values.put(KEY_STEPS, steps);
 
         // Insert the values into the database
-        database.insert(TABLE_NAME2, null, values);
+        database.insert(TABLE_NAME, null, values);
+        Log.d("DatabaseInsert", "Inserted GPS data: "
+                + ", ID: " + newId
+                + ", Distance: " + distance
+                + ", steps: " + steps
+                + ", Timestamp: " + timestamp);
 
         // Close the database
         database.close();
@@ -113,14 +136,21 @@ public class StepAppOpenHelper extends SQLiteOpenHelper {
         values.put(KEY_TIMESTAMP, timestamp);
         values.put(KEY_ID, id);
         values.put(KEY_LONGITUDE, longitude);
-        values.put(KEY_LATITUDE, longitude);
+        values.put(KEY_LATITUDE, longitude);  // Note: This should be latitude, not longitude
         values.put(KEY_ALTITUDE, altitude);
 
         // Insert the values into the database
         database.insert(TABLE_NAME2, null, values);
-
+        // Log the inserted entry
+        Log.d("DatabaseInsert", "Inserted GPS data - GPS_NUM: " + newGpsNum
+                + ", ID: " + id
+                + ", Longitude: " + longitude
+                + ", Latitude: " + latitude
+                + ", Altitude: " + altitude
+                + ", Timestamp: " + timestamp);
         // Close the database
         database.close();
+
     }
     // Utility methods for date and time
     private String getCurrentDate() {
@@ -267,16 +297,6 @@ public class StepAppOpenHelper extends SQLiteOpenHelper {
         return stepsByDate;
     }
 
-    @Override
-    public void onCreate(SQLiteDatabase sqLiteDatabase) {
-
-        sqLiteDatabase.execSQL(CREATE_TABLE_SQL);
-    }
-
-    @Override
-    public void onUpgrade(SQLiteDatabase sqLiteDatabase, int i, int i1) {
-
-    }
 
 
     /**
@@ -302,7 +322,7 @@ public class StepAppOpenHelper extends SQLiteOpenHelper {
      * @return last id entry in the table
      */
     // Helper method to get the last id from the database
-    private int getLastId(SQLiteDatabase database) {
+    public int getLastId(SQLiteDatabase database) {
         int lastId = 0;
         Cursor cursor = database.rawQuery("SELECT MAX(" + KEY_ID + ") FROM " + TABLE_NAME, null);
 

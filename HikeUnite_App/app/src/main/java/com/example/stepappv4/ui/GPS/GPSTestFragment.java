@@ -22,6 +22,7 @@ import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 
 import com.example.stepappv4.R;
+import com.example.stepappv4.StepAppOpenHelper;
 import com.example.stepappv4.databinding.FragmentGpstestBinding;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
@@ -54,6 +55,8 @@ public class GPSTestFragment extends Fragment  {
 
     private GPSHelper gpsHelper;
 
+    private StepAppOpenHelper myDatabaseHelper;
+
     // Assuming you have a method to get a list of GeoPoints representing your route
     private List<GeoPoint> getHalfUSRoutePoints() {
         List<GeoPoint> routePoints = new ArrayList<>();
@@ -84,8 +87,10 @@ public class GPSTestFragment extends Fragment  {
         binding = FragmentGpstestBinding.inflate(inflater, container, false);
         View root = binding.getRoot();
 
+        myDatabaseHelper = new StepAppOpenHelper(this.getContext());
+
         mMap = binding.osmmap;
-        mapHelper = new OpenStreetMapsHelper(this.getContext(), mMap, getHalfUSRoutePoints());
+        mapHelper = new OpenStreetMapsHelper(this.getContext(), mMap, myDatabaseHelper.getGeoPointsById(6));
 
         gpsHelper = new GPSHelper(this.getContext());
 
