@@ -158,6 +158,10 @@ class  StepCounterListener implements SensorEventListener{
     ArrayList<Integer> accSeries = new ArrayList<Integer>();
     ArrayList<String> timestampsSeries = new ArrayList<String>();
     private double accMag = 0;
+    // Everything in double since it's more precise (32-bit FP < 64-bit FP)
+    private double smoothAccMag = 0;
+    // the value requires imperative testing
+    private double alpha = 0.8;
     private int lastAddedIndex = 1;
     int stepThreshold = 6;
 
@@ -171,10 +175,10 @@ class  StepCounterListener implements SensorEventListener{
     private String hour;
 
 
-    public StepCounterListener(TextView stepCountsView, CircularProgressIndicator progressBar,  SQLiteDatabase databse)
+    public StepCounterListener(TextView stepCountsView, CircularProgressIndicator progressBar,  SQLiteDatabase database)
     {
         this.stepCountsView = stepCountsView;
-        this.database = databse;
+        this.database = database;
         this.progressBar = progressBar;
     }
 
@@ -208,8 +212,13 @@ class  StepCounterListener implements SensorEventListener{
                     Log.d("Acc. Event", "last sensor update at " + String.valueOf(sensorEventDate) + sensorRawValues);
                 }
 
-
+                // Calculate the acceleration vector
                 accMag = Math.sqrt(x*x+y*y+z*z);
+
+                // Add a low-pass filter to smooth and to reduce noise
+                // alpha = smoothing factor
+                // (1- alpha) = weight assigned for the smoothAccMAg
+                smoothAccMag = alpha * accMag + (1- alpha) * smoothAccMag;
 
 
                 accSeries.add((int) accMag);
