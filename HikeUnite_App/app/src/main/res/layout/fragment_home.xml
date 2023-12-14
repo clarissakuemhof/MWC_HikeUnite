@@ -21,15 +21,58 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent">
 
+            <ImageView
+                android:id="@+id/forest"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_above="@+id/quote_text"
+                android:layout_alignParentStart="true"
+                android:layout_alignParentEnd="true"
+                android:layout_marginStart="178dp"
+                android:layout_marginTop="264dp"
+                android:layout_marginEnd="178dp"
+                android:layout_marginRight="187dp"
+                android:layout_marginBottom="10dp"
+                android:src="@drawable/baseline_forest_24"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.501"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintVertical_bias="0.095" />
+
+            <ImageView
+                android:id="@+id/forest2"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_below="@+id/quote_text"
+                android:layout_alignParentStart="true"
+                android:layout_alignParentEnd="true"
+                android:layout_alignParentRight="true"
+                android:layout_marginStart="178dp"
+                android:layout_marginTop="10dp"
+                android:layout_marginEnd="178dp"
+                android:layout_marginRight="178dp"
+                android:rotation="180"
+                android:src="@drawable/baseline_forest_24"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.501"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintVertical_bias="0.095" />
+
             <TextView
                 android:id="@+id/quote_text"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_centerInParent="true"
-                android:layout_centerHorizontal="false"
+                android:gravity="center"
+                android:padding="10dp"
                 android:text=""
                 android:textColor="?android:attr/textColorPrimary"
-                android:textSize="18sp" />
+                android:textSize="30sp"
+                android:textStyle="italic" />
         </RelativeLayout>
 
         <RelativeLayout
@@ -65,6 +108,7 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
+            <!--
             <TextView
                 android:id="@+id/goal"
                 android:layout_width="wrap_content"
@@ -87,7 +131,7 @@
                 app:layout_constraintBottom_toBottomOf="@+id/progressBar"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/counter" />
+                app:layout_constraintTop_toBottomOf="@+id/counter" />-->
         </RelativeLayout>
     </ViewSwitcher>
 
