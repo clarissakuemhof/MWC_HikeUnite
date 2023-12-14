@@ -1,5 +1,6 @@
 package com.example.stepappv4.ui.History;
 
+import android.database.Cursor;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -7,6 +8,7 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ImageButton;
 import android.widget.ListView;
+import android.widget.SimpleCursorAdapter;
 import android.widget.TextView;
 
 import java.text.DateFormatSymbols;
@@ -19,8 +21,10 @@ import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 
 
+import com.anychart.editor.Step;
 import com.example.stepappv4.DataModel;
 import com.example.stepappv4.R;
+import com.example.stepappv4.StepAppOpenHelper;
 import com.example.stepappv4.databinding.FragmentHistoryBinding;
 import com.example.stepappv4.ui.CustomAdapter;
 import java.util.ArrayList;
@@ -31,7 +35,7 @@ public class HistoryFragment extends Fragment {
 
     private ArrayList<DataModel> dataModels;
     private ListView listView;
-    private CustomAdapter adapter;
+    private SimpleCursorAdapter adapter;
 
     private FragmentHistoryBinding binding;
 
@@ -41,6 +45,10 @@ public class HistoryFragment extends Fragment {
     private int currentMonthIndex = 0;  // Track the current month index
     Calendar calendar = Calendar.getInstance();
     private int currentYear = calendar.get(Calendar.YEAR);
+
+    private StepAppOpenHelper myDatabaseHelper;
+
+
 
 
     @Override
@@ -53,10 +61,16 @@ public class HistoryFragment extends Fragment {
         textViewMonth = root.findViewById(R.id.textView5);
         btnPrevMonth = root.findViewById(R.id.btnPrevMonth);
         btnNextMonth = root.findViewById(R.id.btnNextMonth);
+        myDatabaseHelper = new StepAppOpenHelper(this.getContext());
+
+
 
         // Get the current month
         Calendar calendar = Calendar.getInstance();
         currentMonthIndex = calendar.get(Calendar.MONTH);
+        int currentMonth = calendar.get(Calendar.MONTH);
+        int currentYear = calendar.get(Calendar.YEAR);
+
 
         // Set initial month
         updateMonth();
@@ -78,16 +92,10 @@ public class HistoryFragment extends Fragment {
             }
         });
         listView = root.findViewById(R.id.list_view_history);
-        dataModels = new ArrayList<>();
+        createCursor();
 
-        // List Entries
-        dataModels.add(new DataModel("My Hike", "23.11.2023", "230"));
-        dataModels.add(new DataModel("My Hike2", "21.11.2023", "345"));
-        dataModels.add(new DataModel("My Hike3", "19.11.2023", "456"));
-        dataModels.add(new DataModel("My Hike4", "15.11.2023", "278"));
-
-        adapter = new CustomAdapter(dataModels, requireContext());
         listView.setAdapter(adapter);
+
         NavController navController = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment_content_main);
 
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -112,6 +120,34 @@ public class HistoryFragment extends Fragment {
         binding = null;
     }
 
+    private void createCursor() {
+        // Create a cursor to fetch data from the database
+        Cursor cursor = myDatabaseHelper.getHikesForMonth(currentMonthIndex, currentYear);
+
+        // Define the columns from which to fetch data
+        String[] columns = {
+                StepAppOpenHelper.KEY_NAME, // Alias "id" column as "_id"
+                StepAppOpenHelper.KEY_DAY,
+                StepAppOpenHelper.KEY_DISTANCE
+        };
+
+        // Define the views where data should be placed
+        int[] to = {
+                R.id.name,
+                R.id.version_number,
+                R.id.type
+        };
+
+        adapter = new SimpleCursorAdapter(
+                requireContext(),
+                R.layout.list_view_item, // your custom layout for each item
+                cursor,
+                columns,
+                to,
+                0
+        );
+    }
+
     private void updateMonth() {
         // Get the current month and year based on currentMonthIndex
         Calendar calendar = Calendar.getInstance();
@@ -132,6 +168,10 @@ public class HistoryFragment extends Fragment {
         }
 
         updateMonth();
+
+        // Refresh the cursor data for the new month
+        adapter.swapCursor(myDatabaseHelper.getHikesForMonth(currentMonthIndex, currentYear));
+
         // Add logic to update the ListView based on the new month if needed
     }
 
@@ -145,6 +185,11 @@ public class HistoryFragment extends Fragment {
         }
 
         updateMonth();
+
+        // Refresh the cursor data for the new month
+        adapter.swapCursor(myDatabaseHelper.getHikesForMonth(currentMonthIndex, currentYear));
+
         // Add logic to update the ListView based on the new month if needed
     }
+
 }

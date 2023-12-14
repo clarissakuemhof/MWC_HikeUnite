@@ -139,7 +139,7 @@ public class HomeFragment extends Fragment {
                     viewSwitcher.showNext();
                 }
                 id = myDatabaseHelper.getLastId(myDatabaseHelper.getWritableDatabase()) + 1;
-                myDatabaseHelper.insertHikeData(0, 0);
+                myDatabaseHelper.insertHikeData(0, 0, "YourHike"+ id);
 
                 setStarted(true);
                 sendToDatabase();

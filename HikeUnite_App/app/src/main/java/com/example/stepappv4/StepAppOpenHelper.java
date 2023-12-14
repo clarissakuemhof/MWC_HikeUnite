@@ -48,7 +48,7 @@ public class StepAppOpenHelper extends SQLiteOpenHelper {
     public StepAppOpenHelper (Context context)
     {
         super(context,DATABASE_NAME,null,DATABASE_VERSION);
-        this.onCreate(this.getWritableDatabase());
+        this.onCreate(getWritableDatabase());
 
     }
 
@@ -62,8 +62,8 @@ public class StepAppOpenHelper extends SQLiteOpenHelper {
 
     @Override
     public void onUpgrade(SQLiteDatabase sqLiteDatabase, int i, int i1) {
-       // sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + TABLE_NAME);
-       // sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + TABLE_NAME2);
+        //sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + TABLE_NAME);
+        //sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + TABLE_NAME2);
         onCreate(sqLiteDatabase);
     }
 
@@ -87,7 +87,7 @@ public class StepAppOpenHelper extends SQLiteOpenHelper {
             KEY_ALTITUDE + " REAL);";
 
     // Call this method every 10 minutes to save the relevant data during the hike
-    public void insertHikeData(double distance, int steps) {
+    public void insertHikeData(double distance, int steps, String name) {
         SQLiteDatabase database = this.getWritableDatabase();
         ContentValues values = new ContentValues();
 
@@ -104,6 +104,7 @@ public class StepAppOpenHelper extends SQLiteOpenHelper {
         values.put(KEY_DAY, getCurrentDate());
         values.put(KEY_DISTANCE, distance);
         values.put(KEY_STEPS, steps);
+        values.put(KEY_NAME, name);
 
         // Insert the values into the database
         database.insert(TABLE_NAME, null, values);
@@ -415,6 +416,50 @@ public class StepAppOpenHelper extends SQLiteOpenHelper {
 
         database.close();
         return altitudeList;
+    }
+
+
+    // Method to get hikes from the "hiking_data" table for a specific month
+    public Cursor getHikesForMonth(int month, int year) {
+        SQLiteDatabase db = this.getReadableDatabase();
+
+        // Calculate the start and end dates for the specified month
+        Calendar cal = Calendar.getInstance();
+        cal.set(Calendar.MONTH, month);
+        cal.set(Calendar.YEAR, year);
+        cal.set(Calendar.DAY_OF_MONTH, 1);
+        String startDate = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(cal.getTime());
+
+        cal.set(Calendar.DAY_OF_MONTH, cal.getActualMaximum(Calendar.DAY_OF_MONTH));
+        String endDate = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(cal.getTime());
+
+        // Define the columns you want to retrieve
+        String[] projection = {
+                KEY_ID + " AS _id",
+                KEY_NAME,
+                KEY_DAY,
+                KEY_DISTANCE
+                // Add other columns as needed
+        };
+
+        // Define the WHERE clause to filter by month
+        String selection = KEY_DAY + " BETWEEN ? AND ?";
+        String[] selectionArgs = {startDate, endDate};
+
+        // Query the "hiking_data" table
+        Cursor cursor = db.query(
+                TABLE_NAME,       // The table name
+                projection,       // The columns to retrieve
+                selection,        // Selection (filter by month)
+                selectionArgs,    // SelectionArgs
+                null,             // GroupBy
+                null,             // Having
+                KEY_DAY + " DESC" // OrderBy (assuming you want to order by date)
+        );
+
+        // Note: If you have additional WHERE clauses, you can append them using "AND" in the selection.
+
+        return cursor;
     }
 
 
