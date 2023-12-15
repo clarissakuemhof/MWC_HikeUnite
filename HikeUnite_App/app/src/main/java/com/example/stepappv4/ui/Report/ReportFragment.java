@@ -7,6 +7,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.LinearLayout;
+import android.widget.TextView;
+
 import com.anychart.enums.Anchor;
 
 import androidx.annotation.NonNull;
@@ -30,14 +32,23 @@ import org.osmdroid.views.MapView;
 
 import java.util.List;
 
+/**
+ * This fragments shows detailed data about the hikes
+ * based on the hike id of the list entry we can retrieve the corresponding data from our database
+ */
+
 public class ReportFragment extends Fragment {
 
-    private int hikeId;
+    private int hikeId, steps;
+    private float distance;
+    private String name;
     private StepAppOpenHelper myDatabaseHelper;
     private AnyChartView anyChartView;
     private MapView mMap;
     private OpenStreetMapsHelper mapHelper;
     private LinearLayout chartLayout;
+    private TextView stepsTV, distanceTV, nameTV;
+
     private boolean showMap = true; // Flag to track whether to show the map or altitude chart
 
     private FragmentReportBinding binding;
@@ -49,7 +60,11 @@ public class ReportFragment extends Fragment {
 
         mMap = binding.osmmap;
         anyChartView = root.findViewById(R.id.anyChartView);
-        chartLayout = root.findViewById(R.id.mapContainer); // Add this line
+        chartLayout = root.findViewById(R.id.mapContainer);
+        stepsTV = root.findViewById(R.id.steps);
+        distanceTV = root.findViewById(R.id.distanceTest);
+        nameTV = root.findViewById(R.id.yourhikeheadline);
+
 
 
         Button switchButton = root.findViewById(R.id.toggleMapButton);
@@ -67,14 +82,25 @@ public class ReportFragment extends Fragment {
             Log.d("ID", "ID: " + hikeId);
 
             myDatabaseHelper = new StepAppOpenHelper(getContext());
+            steps = myDatabaseHelper.getStepsDataById(hikeId);
+            distance = myDatabaseHelper.getDistanceDataById(hikeId);
+            name = myDatabaseHelper.getNameDataById(hikeId);
+            Log.d("Test", "Steps: " + steps);
+            stepsTV.setText(String.format(String.valueOf(steps)));
+            distanceTV.setText(String.format(String.valueOf(distance)));
+            nameTV.setText(name);
 
-            // Initially show the map
+            myDatabaseHelper = new StepAppOpenHelper(getContext());
+
             showMap();
         }
 
         return root;
     }
 
+    /**
+     * Method to toggle between map and chart. Uses showMap as indicator to decide what to show
+     */
     private void toggleView() {
         if (showMap) {
             // If currently showing the map, switch to the altitude chart
@@ -85,6 +111,10 @@ public class ReportFragment extends Fragment {
         }
     }
 
+    /**
+     * Sets visibility for map to visible and disables the visibility for the chart
+     * Initializes map and Polyline to show Hike
+     */
     private void showMap() {
         anyChartView.setVisibility(View.GONE);
         mMap.setVisibility(View.VISIBLE);
@@ -96,6 +126,10 @@ public class ReportFragment extends Fragment {
         showMap = true;
     }
 
+    /**
+     * Sets visibility for chart to visible and disables the visibility for the map
+     * Gets data for chart from database
+     */
     private void showAltitudeChart() {
         mMap.setVisibility(View.GONE);
         chartLayout.setVisibility(View.VISIBLE);
@@ -109,6 +143,11 @@ public class ReportFragment extends Fragment {
         showMap = false;
     }
 
+    /**
+     * Method to draw the chart based on altitude values during the hike
+     * @param altitudeData Points that are saved in a given time interval during the hike
+     * @return chart
+     */
     private Cartesian createColumnChart(List<Double> altitudeData) {
         Cartesian cartesian = AnyChart.column();
 
