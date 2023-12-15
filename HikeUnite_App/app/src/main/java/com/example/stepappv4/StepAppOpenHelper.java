@@ -49,6 +49,7 @@ public class StepAppOpenHelper extends SQLiteOpenHelper {
     {
         super(context,DATABASE_NAME,null,DATABASE_VERSION);
         this.onCreate(getWritableDatabase());
+        //this.onUpgrade(getWritableDatabase(),0,0);
 
     }
 
@@ -62,8 +63,8 @@ public class StepAppOpenHelper extends SQLiteOpenHelper {
 
     @Override
     public void onUpgrade(SQLiteDatabase sqLiteDatabase, int i, int i1) {
-        //sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + TABLE_NAME);
-        //sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + TABLE_NAME2);
+        sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + TABLE_NAME);
+        sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + TABLE_NAME2);
         onCreate(sqLiteDatabase);
     }
 
@@ -118,7 +119,7 @@ public class StepAppOpenHelper extends SQLiteOpenHelper {
         database.close();
     }
 
-    public void insertGPSData(double longitude, double altitude, double latitude, int id) {
+    public void insertGPSData(double longitude, double latitude, double altitude, int id) {
         SQLiteDatabase database = this.getWritableDatabase();
         ContentValues values = new ContentValues();
 
@@ -137,7 +138,7 @@ public class StepAppOpenHelper extends SQLiteOpenHelper {
         values.put(KEY_TIMESTAMP, timestamp);
         values.put(KEY_ID, id);
         values.put(KEY_LONGITUDE, longitude);
-        values.put(KEY_LATITUDE, longitude);  // Note: This should be latitude, not longitude
+        values.put(KEY_LATITUDE, latitude);
         values.put(KEY_ALTITUDE, altitude);
 
         // Insert the values into the database
@@ -216,53 +217,8 @@ public class StepAppOpenHelper extends SQLiteOpenHelper {
         return numSteps;
     }
 
-    public static void deleteRecords (Context context) {
-        StepAppOpenHelper databaseHelper = new StepAppOpenHelper(context);
-        SQLiteDatabase database = databaseHelper.getWritableDatabase();
-
-        int numberDeletedRecords = 0;
-
-        numberDeletedRecords = database.delete(StepAppOpenHelper.TABLE_NAME, null, null);
-        database.close();
-
-        Toast.makeText(context, "Deleted + "+ String.valueOf(numberDeletedRecords) + " steps", Toast.LENGTH_LONG).show();
-
-    }
 
 
-
-    public static Map<Integer, Integer> loadStepsByHour(Context context, String date){
-        // 1. Define a map to store the hour and number of steps as key-value pairs
-        Map<Integer, Integer>  map = new HashMap<>();
-
-        // 2. Get the readable database
-        StepAppOpenHelper databaseHelper = new StepAppOpenHelper(context);
-        SQLiteDatabase database = databaseHelper.getReadableDatabase();
-
-        // 3. Define the query to get the data
-        Cursor cursor = database.rawQuery("SELECT hour, COUNT(*)  FROM num_steps " +
-                "WHERE day = ? GROUP BY hour ORDER BY  hour ASC ", new String [] {date});
-
-        // 4. Iterate over returned elements on the cursor
-        cursor.moveToFirst();
-        for (int index=0; index < cursor.getCount(); index++){
-            Integer tmpKey = Integer.parseInt(cursor.getString(0));
-            Integer tmpValue = Integer.parseInt(cursor.getString(1));
-
-            //2. Put the data from the database into the map
-            map.put(tmpKey, tmpValue);
-
-
-            cursor.moveToNext();
-        }
-
-        // 5. Close the cursor and database
-        cursor.close();
-        database.close();
-
-        // 6. Return the map with hours and number of steps
-        return map;
-    }
 
     public static Map<String, Integer> loadStepsByDateForLastWeek(Context context) {
         Map<String, Integer> stepsByDate = new TreeMap<>();
@@ -347,7 +303,7 @@ public class StepAppOpenHelper extends SQLiteOpenHelper {
         SQLiteDatabase database = this.getReadableDatabase();
         List<GeoPoint> geoPoints = new ArrayList<>();
 
-        String[] columns = {KEY_GPS_NUM, KEY_LONGITUDE, KEY_LATITUDE};
+        String[] columns = {KEY_GPS_NUM, KEY_LONGITUDE, KEY_LATITUDE, KEY_ALTITUDE};
         String selection = KEY_ID + "=?";
         String[] selectionArgs = {String.valueOf(id)};
 
@@ -355,13 +311,15 @@ public class StepAppOpenHelper extends SQLiteOpenHelper {
 
         if (cursor != null && cursor.moveToFirst()) {
             Map<Integer, GeoPoint> geoPointMap = new HashMap<>();
+            int maxGpsNum = -1;
 
             do {
                 int gpsNumIndex = cursor.getColumnIndex(KEY_GPS_NUM);
                 int longitudeIndex = cursor.getColumnIndex(KEY_LONGITUDE);
                 int latitudeIndex = cursor.getColumnIndex(KEY_LATITUDE);
+                int altitudeIndex = cursor.getColumnIndex(KEY_ALTITUDE);
 
-                if (gpsNumIndex == -1 || longitudeIndex == -1 || latitudeIndex == -1) {
+                if (gpsNumIndex == -1 || longitudeIndex == -1 || latitudeIndex == -1 || altitudeIndex == -1) {
                     Log.w("GeoPoints", "One or more columns not found in cursor.");
                     continue;
                 }
@@ -369,14 +327,22 @@ public class StepAppOpenHelper extends SQLiteOpenHelper {
                 int gpsNum = cursor.getInt(gpsNumIndex);
                 double longitude = cursor.getDouble(longitudeIndex);
                 double latitude = cursor.getDouble(latitudeIndex);
+                double altitude = cursor.getDouble(altitudeIndex);
 
-                if (!geoPointMap.containsKey(gpsNum)) {
-                    GeoPoint geoPoint = new GeoPoint(latitude, longitude);
-                    geoPointMap.put(gpsNum, geoPoint);
-                }
+                GeoPoint geoPoint = new GeoPoint(longitude, latitude, altitude);
+                geoPointMap.put(gpsNum, geoPoint);
+
+                // Track the maximum gpsNum encountered
+                maxGpsNum = Math.max(maxGpsNum, gpsNum);
             } while (cursor.moveToNext());
 
-            geoPoints.addAll(geoPointMap.values());
+            // Ensure the GeoPoint list is ordered from 0 to maxGpsNum - 1
+            for (int i = 0; i <= maxGpsNum; i++) {
+                if (geoPointMap.containsKey(i)) {
+                    geoPoints.add(geoPointMap.get(i));
+                }
+            }
+
             cursor.close();
         }
 

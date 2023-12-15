@@ -86,6 +86,8 @@ public class ReportFragment extends Fragment {
             distance = myDatabaseHelper.getDistanceDataById(hikeId);
             name = myDatabaseHelper.getNameDataById(hikeId);
             Log.d("Test", "Steps: " + steps);
+            Log.d("TAG",String.format(String.valueOf(myDatabaseHelper.getGeoPointsById(hikeId))));
+
             stepsTV.setText(String.format(String.valueOf(steps)));
             distanceTV.setText(String.format(String.valueOf(distance)));
             nameTV.setText(name);
@@ -120,8 +122,9 @@ public class ReportFragment extends Fragment {
         mMap.setVisibility(View.VISIBLE);
 
         mapHelper = new OpenStreetMapsHelper(this.getContext(), mMap, myDatabaseHelper.getGeoPointsById(hikeId));
+        Log.d("TAG",String.format(String.valueOf(myDatabaseHelper.getGeoPointsById(hikeId))));
         mapHelper.initMap();
-        mapHelper.addPolyline();
+        mapHelper.addPolyline(myDatabaseHelper.getGeoPointsById(hikeId));
 
         showMap = true;
     }

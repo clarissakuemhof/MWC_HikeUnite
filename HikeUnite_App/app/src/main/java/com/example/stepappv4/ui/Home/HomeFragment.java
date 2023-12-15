@@ -103,10 +103,13 @@ public class HomeFragment extends Fragment {
                 if (viewSwitcher.getCurrentView() == root.findViewById(R.id.defaultView)) {
                     viewSwitcher.showNext();
                 }
+                //id = 3;
                 id = myDatabaseHelper.getLastId(myDatabaseHelper.getWritableDatabase()) + 1;
-                myDatabaseHelper.insertHikeData(0, 0, "YourHike"+ id);
+                myDatabaseHelper.insertHikeData(20.0, 46545, "YourHike"+ id);
+                insertDummyHikeLuganoToBellinzonaWithGPS(1);
+
                 setStarted(true);
-                sendToDatabase();
+                //sendToDatabase();
 
             }
         });
@@ -161,6 +164,18 @@ public class HomeFragment extends Fragment {
             int randomIndex = new Random().nextInt(inspirationalQuotes.length);
             quoteText.setText(inspirationalQuotes[randomIndex]);
         }
+    }
+
+    private void insertDummyHikeLuganoToBellinzonaWithGPS(int id) {
+        // Insert the hike details
+        // Define GPS points for a circular path
+        myDatabaseHelper.insertGPSData( 45.9897, 8.9164,200, id);
+        myDatabaseHelper.insertGPSData( 46.0015, 8.9382,255, id);
+        myDatabaseHelper.insertGPSData( 46.0158, 8.9527,343, id);
+        myDatabaseHelper.insertGPSData( 46.0276, 8.9164,243, id);
+        myDatabaseHelper.insertGPSData( 46.0391, 8.9873,345, id);
+        myDatabaseHelper.insertGPSData( 46.1984, 9.0173,255, id);
+
     }
 
     /**

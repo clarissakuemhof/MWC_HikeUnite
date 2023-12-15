@@ -147,7 +147,7 @@ public class GPSTestFragment extends Fragment  {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         mapHelper.initMap();
-        mapHelper.addPolyline();
+        //mapHelper.addPolyline();
     }
 
     /**

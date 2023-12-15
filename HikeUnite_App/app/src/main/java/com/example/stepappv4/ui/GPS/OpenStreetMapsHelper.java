@@ -63,7 +63,6 @@ public class OpenStreetMapsHelper implements MapListener {
 
         calculateDistance();
         initMap();
-        addPolyline();
 
     }
 
@@ -129,8 +128,8 @@ public class OpenStreetMapsHelper implements MapListener {
 
     @Override
     public boolean onScroll(ScrollEvent event) {
-        Log.e("TAG", "onCreate:la " + event.getSource().getMapCenter().getLatitude());
-        Log.e("TAG", "onCreate:lo " + event.getSource().getMapCenter().getLongitude());
+        //Log.e("TAG", "onCreate:la " + event.getSource().getMapCenter().getLatitude());
+        //Log.e("TAG", "onCreate:lo " + event.getSource().getMapCenter().getLongitude());
         return true;
     }
 
@@ -162,14 +161,18 @@ public class OpenStreetMapsHelper implements MapListener {
 
 
 
-    public void addPolyline() {
+    public void addPolyline(List <GeoPoint> hikeRoute) {
 
         Polyline polyline = new Polyline();
         polyline.setPoints(hikeRoute);
+        red.setColor(Color.RED); // Set the color to red (adjust as needed)
         polyline.getOutlinePaint().set(red);
         polyline.isVisible();
 
+
+
         mMap.getOverlayManager().add(polyline);
+        Log.d("TEST", "Polyline added...");
         mMap.invalidate();
     }
 
