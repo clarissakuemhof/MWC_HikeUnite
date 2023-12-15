@@ -1,13 +1,16 @@
 package com.example.stepappv4.ui.GPS;
 
 import android.Manifest;
+import android.app.Activity;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.location.Location;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 
 import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
@@ -26,6 +29,7 @@ public class GPSHelper {
     private double latitude;
     private  double altitude;
 
+
     /**
      * Constructor method for the GPS Helper
      * Saves the current location during the creation
@@ -34,7 +38,26 @@ public class GPSHelper {
     public GPSHelper(Context context) {
         this.context = context;
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(context);
+        checkAndRequestPermissions();
         getAndHandleLastLocation();
+
+    }
+
+    /**
+     * Method to check and request location permissions
+     */
+    private void checkAndRequestPermissions() {
+        // Check if the app has location permissions
+        if (ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION)
+                == PackageManager.PERMISSION_GRANTED) {
+            // Permissions already granted
+            getAndHandleLastLocation();
+        } else {
+            // Request location permissions
+            ActivityCompat.requestPermissions((Activity) context,
+                    new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                    123);
+        }
     }
 
     /**
