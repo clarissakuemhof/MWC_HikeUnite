@@ -16,6 +16,7 @@ import org.osmdroid.events.MapListener;
 import org.osmdroid.events.ScrollEvent;
 import org.osmdroid.events.ZoomEvent;
 import org.osmdroid.tileprovider.tilesource.TileSourceFactory;
+import org.osmdroid.util.BoundingBox;
 import org.osmdroid.util.GeoPoint;
 import org.osmdroid.views.MapView;
 import org.osmdroid.views.overlay.Polyline;
@@ -75,20 +76,26 @@ public class OpenStreetMapsHelper implements MapListener {
         mMap.setTileSource(TileSourceFactory.MAPNIK);
         mMap.setMultiTouchControls(true);
 
-        mMyLocationOverlay = new MyLocationNewOverlay(new GpsMyLocationProvider(mMap.getContext()), mMap);
+        //mMyLocationOverlay = new MyLocationNewOverlay(new GpsMyLocationProvider(mMap.getContext()), mMap);
         controller = mMap.getController();
+        BoundingBox boundingBox = getBoundingBox(hikeRoute);
 
-        mMyLocationOverlay.enableMyLocation();
-        mMyLocationOverlay.enableFollowLocation();
-        mMyLocationOverlay.setDrawAccuracyEnabled(true);
-        mMyLocationOverlay.runOnFirstFix(() -> ((Activity) mMap.getContext()).runOnUiThread(() -> {
-            controller.setCenter(mMyLocationOverlay.getMyLocation());
-            controller.animateTo(mMyLocationOverlay.getMyLocation());
-        }));
+        GeoPoint centerPoint = new GeoPoint(boundingBox.getCenterLatitude(),boundingBox.getCenterLongitude());
 
-        controller.setZoom(6.0);
+        controller.setCenter(centerPoint);
+        controller.animateTo(centerPoint);
 
-        mMap.getOverlays().add(mMyLocationOverlay);
+        //mMyLocationOverlay.enableMyLocation();
+        //mMyLocationOverlay.enableFollowLocation();
+        //mMyLocationOverlay.setDrawAccuracyEnabled(true);
+        //mMyLocationOverlay.runOnFirstFix(() -> ((Activity) mMap.getContext()).runOnUiThread(() -> {
+            //controller.setCenter(hikeRoute.get(0));
+            //controller.animateTo(hikeRoute.get(0));
+        //}));
+
+        controller.setZoom(11.0);
+
+        //mMap.getOverlays().add(mMyLocationOverlay);
     }
 
     // You can add more map-related methods here
@@ -170,7 +177,6 @@ public class OpenStreetMapsHelper implements MapListener {
         polyline.isVisible();
 
 
-
         mMap.getOverlayManager().add(polyline);
         Log.d("TEST", "Polyline added...");
         mMap.invalidate();
@@ -180,6 +186,27 @@ public class OpenStreetMapsHelper implements MapListener {
         return totalDistanceInKm;
     }
 
+    private BoundingBox getBoundingBox(List<GeoPoint> points) {
+        double minLat = Double.MAX_VALUE;
+        double maxLat = Double.MIN_VALUE;
+        double minLon = Double.MAX_VALUE;
+        double maxLon = Double.MIN_VALUE;
 
+        for (GeoPoint point : points) {
+            double latitude = point.getLatitude();
+            double longitude = point.getLongitude();
 
+            minLat = Math.min(minLat, latitude);
+            maxLat = Math.max(maxLat, latitude);
+            minLon = Math.min(minLon, longitude);
+            maxLon = Math.max(maxLon, longitude);
+        }
+
+        return new BoundingBox(maxLat, maxLon, minLat, minLon);
+    }
 }
+
+
+
+
+
