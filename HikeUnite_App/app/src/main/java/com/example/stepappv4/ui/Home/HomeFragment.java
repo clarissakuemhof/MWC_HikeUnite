@@ -40,61 +40,25 @@ import java.util.List;
 public class HomeFragment extends Fragment {
 
     private FragmentHomeBinding binding;
-
-    private TextView stepCountsView;
+    private TextView stepCountsView, quoteText;
     private CircularProgressIndicator progressBar;
 
     private MaterialButtonToggleGroup toggleButtonGroup;
 
-    private Sensor accSensor;
-
+    private Sensor accSensor, stepDetectorSensor;
     private SensorManager sensorManager;
-
     private StepCounterListener sensorListener;
 
-    private Sensor stepDetectorSensor;
-
     private ViewSwitcher viewSwitcher;
-    private Button startButton;
-    private Button stopButton;
-    private TextView quoteText;
+    private Button startButton,stopButton;
+
     private String[] inspirationalQuotes;
 
     private int id;
-
     private GPSHelper gpsHelper;
-
-    private boolean started;
-
-    public boolean isStarted() {
-        return started;
-    }
-
-    public void setStarted(boolean started) {
-        this.started = started;
-    }
-
-    private final Handler handler = new Handler();
-
-    private void sendToDatabase() {
-        if (started) {
-            handler.postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    updateLastLocation();
-                    myDatabaseHelper.insertGPSData(gpsHelper.getLongitude(), gpsHelper.getAltitude(), gpsHelper.getLatitude(), id);
-                    sendToDatabase(); // Schedule the next update
-                }
-            }, 30000); // 30 seconds delay
-        }
-    }
-
-    private void updateLastLocation(){
-        gpsHelper.getAndHandleLastLocation();
-        Log.d("FunctionLog", "Updated Location");
-    }
     private StepAppOpenHelper myDatabaseHelper;
-
+    private boolean started;
+    private final Handler handler = new Handler();
 
 
     public View onCreateView(@NonNull LayoutInflater inflater,
@@ -105,31 +69,32 @@ public class HomeFragment extends Fragment {
         binding = FragmentHomeBinding.inflate(inflater, container, false);
         View root = binding.getRoot();
 
-        stepCountsView = (TextView) root.findViewById(R.id.counter);
-        stepCountsView.setText("0");
+
+//-----------------------GPS Helper Class---------------------------------
         gpsHelper = new GPSHelper(this.getContext());
-
-
+//-----------------------Database Helper Class----------------------------
+        myDatabaseHelper = new StepAppOpenHelper(this.getContext());
+        SQLiteDatabase database = myDatabaseHelper.getWritableDatabase();
+        started = false;
+//----------------------------Progress Bar-------------------------------
         progressBar = (CircularProgressIndicator) root.findViewById(R.id.progressBar);
         progressBar.setMax(50);
         progressBar.setProgress(0);
-
+//---------------------------Accelerometer-------------------------------
         sensorManager = (SensorManager) getActivity().getSystemService(Context.SENSOR_SERVICE);
         accSensor = sensorManager.getDefaultSensor(Sensor.TYPE_LINEAR_ACCELERATION);
 
         stepDetectorSensor = sensorManager.getDefaultSensor(Sensor.TYPE_STEP_DETECTOR);
-
-        myDatabaseHelper = new StepAppOpenHelper(this.getContext());
-        SQLiteDatabase database = myDatabaseHelper.getWritableDatabase();
-
+//----------------------------Creating View-------------------------------
         viewSwitcher = root.findViewById(R.id.viewSwitcher);
         startButton = root.findViewById(R.id.start_button);
         stopButton = root.findViewById(R.id.stop_button);
         quoteText = root.findViewById(R.id.quote_text);
         inspirationalQuotes = getResources().getStringArray(R.array.inspirational_quotes);
+        stepCountsView = (TextView) root.findViewById(R.id.counter);
+        stepCountsView.setText("0");
         setRandomQuote();
 
-        started = false;
 
         startButton.setOnClickListener(new View.OnClickListener(){
             @Override
@@ -140,10 +105,8 @@ public class HomeFragment extends Fragment {
                 }
                 id = myDatabaseHelper.getLastId(myDatabaseHelper.getWritableDatabase()) + 1;
                 myDatabaseHelper.insertHikeData(0, 0, "YourHike"+ id);
-
                 setStarted(true);
                 sendToDatabase();
-
 
             }
         });
@@ -186,8 +149,6 @@ public class HomeFragment extends Fragment {
         return root;
     }
 
-
-
     @Override
     public void onDestroyView() {
         super.onDestroyView();
@@ -201,6 +162,37 @@ public class HomeFragment extends Fragment {
             quoteText.setText(inspirationalQuotes[randomIndex]);
         }
     }
+
+    /**
+     * Setter for is started value
+     * If hike is started the sendToDatabase function will start running
+     * @param started indicates if a hike is started at the moment.
+     */
+    public void setStarted(boolean started) {
+        this.started = started;
+    }
+
+    /**
+     * Function to send the GPS data to the database in an adjustable time interval
+     * Accesses gpsHelper to update the current position and then retrieves the values and inserts them to database
+     */
+    private void sendToDatabase() {
+        if (started) {
+            handler.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    gpsHelper.getAndHandleLastLocation();
+                    Log.d("FunctionLog", "Updated Location");
+                    myDatabaseHelper.insertGPSData(gpsHelper.getLongitude(), gpsHelper.getAltitude(), gpsHelper.getLatitude(), id);
+                    sendToDatabase();
+                }
+            }, 30000); // 30 seconds delay
+        }
+    }
+
+
+
+
 }
 
 class  StepCounterListener implements SensorEventListener{

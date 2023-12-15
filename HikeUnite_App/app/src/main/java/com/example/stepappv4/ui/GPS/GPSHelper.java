@@ -47,13 +47,10 @@ public class GPSHelper {
      * Method to check and request location permissions
      */
     private void checkAndRequestPermissions() {
-        // Check if the app has location permissions
         if (ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION)
                 == PackageManager.PERMISSION_GRANTED) {
-            // Permissions already granted
             getAndHandleLastLocation();
         } else {
-            // Request location permissions
             ActivityCompat.requestPermissions((Activity) context,
                     new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
                     123);
@@ -72,20 +69,13 @@ public class GPSHelper {
                 .addOnSuccessListener(new OnSuccessListener<Location>() {
                     @Override
                     public void onSuccess(Location location) {
-                        // Got last known location. In some rare situations, this can be null.
                         if (location != null) {
-                            // Logic to handle the location object
                             latitude = location.getLatitude();
                             Log.d("GPSHelper", "Latitude: " + location.getLatitude());
-
                             longitude = location.getLongitude();
                             Log.d("GPSHelper", "Longitude: " + location.getLongitude());
-                            // Handle other properties of the location as needed
-
                             altitude = location.getAltitude();
                             Log.d("GPSHelper", "Altitude: " + location.getAltitude());
-                            // Handle other properties of the location as needed
-
                         } else {
                             Log.e("GPSHelper", "Last known location is null");
                         }

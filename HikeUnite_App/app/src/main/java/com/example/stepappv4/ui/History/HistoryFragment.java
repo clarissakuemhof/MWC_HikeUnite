@@ -21,12 +21,11 @@ import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 
 
-import com.anychart.editor.Step;
 import com.example.stepappv4.DataModel;
 import com.example.stepappv4.R;
 import com.example.stepappv4.StepAppOpenHelper;
 import com.example.stepappv4.databinding.FragmentHistoryBinding;
-import com.example.stepappv4.ui.CustomAdapter;
+
 import java.util.ArrayList;
 
 
