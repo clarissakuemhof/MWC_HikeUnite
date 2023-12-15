@@ -72,7 +72,7 @@ public class HomeFragment extends Fragment {
         stepCountsView.setText("0");
 
         progressBar = (CircularProgressIndicator) root.findViewById(R.id.progressBar);
-        progressBar.setMax(50);
+        progressBar.setMax(10000);
         progressBar.setProgress(0);
 
         sensorManager = (SensorManager) getActivity().getSystemService(Context.SENSOR_SERVICE);
