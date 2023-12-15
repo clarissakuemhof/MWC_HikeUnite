@@ -2,6 +2,7 @@ package com.example.stepappv4.ui.History;
 
 import android.database.Cursor;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,6 +11,7 @@ import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.text.DateFormatSymbols;
 import java.util.Calendar;
@@ -21,18 +23,13 @@ import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 
 
-import com.example.stepappv4.DataModel;
 import com.example.stepappv4.R;
 import com.example.stepappv4.StepAppOpenHelper;
 import com.example.stepappv4.databinding.FragmentHistoryBinding;
 
-import java.util.ArrayList;
-
-
 
 public class HistoryFragment extends Fragment {
 
-    private ArrayList<DataModel> dataModels;
     private ListView listView;
     private SimpleCursorAdapter adapter;
 
@@ -57,7 +54,7 @@ public class HistoryFragment extends Fragment {
         View root = binding.getRoot();
 
         // Initialize TextView and Buttons
-        textViewMonth = root.findViewById(R.id.textView5);
+        textViewMonth = root.findViewById(R.id.yourhikeheadline);
         btnPrevMonth = root.findViewById(R.id.btnPrevMonth);
         btnNextMonth = root.findViewById(R.id.btnNextMonth);
         myDatabaseHelper = new StepAppOpenHelper(this.getContext());
@@ -100,15 +97,48 @@ public class HistoryFragment extends Fragment {
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                Bundle bundle = new Bundle();
-                // Pass any necessary data to the ReportFragment using the bundle
-                bundle.putString("itemName", dataModels.get(position).getName());
-                bundle.putString("itemDate", dataModels.get(position).getDate());
-                bundle.putString("itemDuration", dataModels.get(position).getDuration());
+                // Get the cursor at the clicked position
+                Cursor cursor = (Cursor) parent.getItemAtPosition(position);
+                int hikeId;
 
-                navController.navigate(R.id.action_nav_hist_to_nav_gallery, bundle);
+                // Check if the cursor and its data are not null
+                if (cursor != null && cursor.moveToFirst()) {
+                    // Extract the id from the cursor
+                    int nameColumnIndex = cursor.getColumnIndex(StepAppOpenHelper.KEY_NAME);
+
+                    if (nameColumnIndex != -1) {
+                        String hikeName = cursor.getString(nameColumnIndex);
+                        hikeId = myDatabaseHelper.getIdFromName(hikeName);
+
+                        // Create a bundle and navigate only if hikeId is valid
+                        if (hikeId >= 0) {
+                            Bundle bundle = new Bundle();
+                            bundle.putInt("hikeId", hikeId);
+
+                            NavController navController = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment_content_main);
+                            navController.navigate(R.id.action_nav_hist_to_nav_gallery, bundle);
+                        } else {
+                            // Handle the case where the ID is invalid
+                            Log.e("HistoryFragment", "Invalid hikeId: " + hikeId);
+                            Toast.makeText(requireContext(), "No data available", Toast.LENGTH_SHORT).show();
+
+                        }
+                    } else {
+                        // Handle the case where the KEY_NAME column is not found in the cursor
+                        Log.e("HistoryFragment", "KEY_NAME column not found in the cursor");
+                        Toast.makeText(requireContext(), "No data available", Toast.LENGTH_SHORT).show();
+
+                    }
+                } else {
+                    // Handle the case where the cursor is null or empty
+                    Log.e("HistoryFragment", "Cursor is null or empty");
+                    Toast.makeText(requireContext(), "No data available", Toast.LENGTH_SHORT).show();
+
+                }
             }
         });
+
+
 
         return root;
     }

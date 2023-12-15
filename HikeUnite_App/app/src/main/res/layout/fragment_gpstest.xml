@@ -8,7 +8,7 @@
 
 
     <TextView
-        android:id="@+id/textView5"
+        android:id="@+id/yourhikeheadline"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="32dp"
@@ -31,7 +31,7 @@
         app:layout_constraintEnd_toStartOf="@+id/longInfo"
         app:layout_constraintHorizontal_bias="0.364"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textView5"
+        app:layout_constraintTop_toBottomOf="@+id/yourhikeheadline"
         app:layout_constraintVertical_bias="0.0" />
 
     <TextView
@@ -57,7 +57,7 @@
         android:text="Latitude:"
         app:layout_constraintBottom_toTopOf="@+id/longText"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textView5"
+        app:layout_constraintTop_toBottomOf="@+id/yourhikeheadline"
         app:layout_constraintVertical_bias="0.0" />
 
     <TextView
@@ -70,7 +70,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.166"
         app:layout_constraintStart_toEndOf="@+id/latText"
-        app:layout_constraintTop_toBottomOf="@+id/textView5" />
+        app:layout_constraintTop_toBottomOf="@+id/yourhikeheadline" />
 
     <TextView
         android:id="@+id/longInfo"
@@ -126,7 +126,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.488"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textView5"
+        app:layout_constraintTop_toBottomOf="@+id/yourhikeheadline"
         app:layout_constraintVertical_bias="0.889" />
 
     <TextView
