@@ -1,6 +1,7 @@
 package com.example.stepappv4.ui.History;
 
 import android.database.Cursor;
+import android.database.DatabaseUtils;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -100,40 +101,29 @@ public class HistoryFragment extends Fragment {
                 // Get the cursor at the clicked position
                 Cursor cursor = (Cursor) parent.getItemAtPosition(position);
                 int hikeId;
+                int test = position;
+                Log.d("TEST", "POSITION: " + test );
 
-                // Check if the cursor and its data are not null
-                if (cursor != null && cursor.moveToFirst()) {
-                    // Extract the id from the cursor
-                    int nameColumnIndex = cursor.getColumnIndex(StepAppOpenHelper.KEY_NAME);
+                int idColumnIndex = cursor.getColumnIndex("_id");
+                if (idColumnIndex != -1) {
+                    hikeId = cursor.getInt(idColumnIndex);
 
-                    if (nameColumnIndex != -1) {
-                        String hikeName = cursor.getString(nameColumnIndex);
-                        hikeId = myDatabaseHelper.getIdFromName(hikeName);
+                    // Create a bundle and navigate only if hikeId is valid
+                    if (hikeId >= 0) {
+                        Bundle bundle = new Bundle();
+                        bundle.putInt("hikeId", hikeId);
 
-                        // Create a bundle and navigate only if hikeId is valid
-                        if (hikeId >= 0) {
-                            Bundle bundle = new Bundle();
-                            bundle.putInt("hikeId", hikeId);
-
-                            NavController navController = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment_content_main);
-                            navController.navigate(R.id.action_nav_hist_to_nav_gallery, bundle);
-                        } else {
-                            // Handle the case where the ID is invalid
-                            Log.e("HistoryFragment", "Invalid hikeId: " + hikeId);
-                            Toast.makeText(requireContext(), "No data available", Toast.LENGTH_SHORT).show();
-
-                        }
+                        NavController navController = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment_content_main);
+                        navController.navigate(R.id.action_nav_hist_to_nav_gallery, bundle);
                     } else {
-                        // Handle the case where the KEY_NAME column is not found in the cursor
-                        Log.e("HistoryFragment", "KEY_NAME column not found in the cursor");
+                        // Handle the case where the ID is invalid
+                        Log.e("HistoryFragment", "Invalid hikeId: " + hikeId);
                         Toast.makeText(requireContext(), "No data available", Toast.LENGTH_SHORT).show();
-
                     }
                 } else {
-                    // Handle the case where the cursor is null or empty
-                    Log.e("HistoryFragment", "Cursor is null or empty");
+                    // Handle the case where the _id column is not found in the cursor
+                    Log.e("HistoryFragment", "_id column not found in the cursor");
                     Toast.makeText(requireContext(), "No data available", Toast.LENGTH_SHORT).show();
-
                 }
             }
         });
@@ -152,6 +142,9 @@ public class HistoryFragment extends Fragment {
     private void createCursor() {
         // Create a cursor to fetch data from the database
         Cursor cursor = myDatabaseHelper.getHikesForMonth(currentMonthIndex, currentYear);
+
+        // Log the contents of the cursor
+        DatabaseUtils.dumpCursor(cursor);
 
         // Define the columns from which to fetch data
         String[] columns = {
