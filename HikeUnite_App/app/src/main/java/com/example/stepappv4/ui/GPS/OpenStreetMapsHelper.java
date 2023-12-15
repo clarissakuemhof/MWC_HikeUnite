@@ -33,15 +33,13 @@ import java.util.List;
 public class OpenStreetMapsHelper implements MapListener {
 
     private MapView mMap;
-    private IGeoPoint centerPoint;
-    private MyLocationNewOverlay mMyLocationOverlay;
 
     private IMapController controller;
 
 
     private float totalDistanceInKm = 0.0f;
     private float totalDistance = 0.0f;
-    private Location lastLocation;
+
 
     private List<GeoPoint> hikeRoute;
 
@@ -76,7 +74,6 @@ public class OpenStreetMapsHelper implements MapListener {
         mMap.setTileSource(TileSourceFactory.MAPNIK);
         mMap.setMultiTouchControls(true);
 
-        //mMyLocationOverlay = new MyLocationNewOverlay(new GpsMyLocationProvider(mMap.getContext()), mMap);
         controller = mMap.getController();
         BoundingBox boundingBox = getBoundingBox(hikeRoute);
 
@@ -85,53 +82,12 @@ public class OpenStreetMapsHelper implements MapListener {
         controller.setCenter(centerPoint);
         controller.animateTo(centerPoint);
 
-        //mMyLocationOverlay.enableMyLocation();
-        //mMyLocationOverlay.enableFollowLocation();
-        //mMyLocationOverlay.setDrawAccuracyEnabled(true);
-        //mMyLocationOverlay.runOnFirstFix(() -> ((Activity) mMap.getContext()).runOnUiThread(() -> {
-            //controller.setCenter(hikeRoute.get(0));
-            //controller.animateTo(hikeRoute.get(0));
-        //}));
 
         controller.setZoom(11.0);
 
-        //mMap.getOverlays().add(mMyLocationOverlay);
+
     }
 
-    // You can add more map-related methods here
-
-    public MapView getMapView() {
-        return mMap;
-    }
-
-    public IMapController getMapController() {
-        return controller;
-    }
-
-    public MyLocationNewOverlay getMyLocationOverlay() {
-        return mMyLocationOverlay;
-    }
-
-
-    public void onResume() {
-        mMyLocationOverlay.enableMyLocation();
-        mMyLocationOverlay.enableFollowLocation();
-        mMyLocationOverlay.setDrawAccuracyEnabled(true);
-        mMyLocationOverlay.runOnFirstFix(() -> {
-            centerPoint = mMyLocationOverlay.getMyLocation();
-            mMap.getController().setCenter(centerPoint);
-            mMap.getController().animateTo(centerPoint);
-        });
-    }
-
-    public void onPause() {
-        mMyLocationOverlay.disableMyLocation();
-        mMyLocationOverlay.disableFollowLocation();
-    }
-
-    public void onDestroy() {
-        mMap.getOverlays().remove(mMyLocationOverlay);
-    }
 
     @Override
     public boolean onScroll(ScrollEvent event) {
@@ -146,10 +102,11 @@ public class OpenStreetMapsHelper implements MapListener {
         return false;
     }
 
-    public void updateLocation(Location newLocation) {
-        // Your implementation for updating UI or performing actions with the new location
-    }
 
+    /**
+     * This function is used to calculate between the geopoints and returns it in kilometers
+     * It sums up the distances between the GeoPoints in the hikeRoute
+     */
     public void calculateDistance() {
             float[] distance = new float[1];
             for (int i = 0; i < hikeRoute.size() - 1; i++) {
@@ -166,8 +123,9 @@ public class OpenStreetMapsHelper implements MapListener {
 
     }
 
-
-
+    /**
+     * This method adds the Polyline overlay to the map to visualize the hike
+     */
     public void addPolyline(List <GeoPoint> hikeRoute) {
 
         Polyline polyline = new Polyline();
@@ -182,10 +140,19 @@ public class OpenStreetMapsHelper implements MapListener {
         mMap.invalidate();
     }
 
+    /**
+     * Getter for totalDistanceInKm
+     * @return totalDistanceInKm
+     */
     public float getTotalDistanceInKm() {
         return totalDistanceInKm;
     }
 
+    /**
+     * Creates BoundingBox with min and max values for Latitudes and Longitudes in hike route
+     * @param points List with GeoPoints during the hike
+     * @return BoundingBox
+     */
     private BoundingBox getBoundingBox(List<GeoPoint> points) {
         double minLat = Double.MAX_VALUE;
         double maxLat = Double.MIN_VALUE;
