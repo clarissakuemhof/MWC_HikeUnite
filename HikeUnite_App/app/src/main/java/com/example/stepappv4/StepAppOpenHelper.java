@@ -302,7 +302,7 @@ public class StepAppOpenHelper extends SQLiteOpenHelper {
                 double latitude = cursor.getDouble(latitudeIndex);
                 double altitude = cursor.getDouble(altitudeIndex);
 
-                GeoPoint geoPoint = new GeoPoint(longitude, latitude, altitude);
+                GeoPoint geoPoint = new GeoPoint(latitude, longitude, altitude);
                 geoPointMap.put(gpsNum, geoPoint);
 
                 // Track the maximum gpsNum encountered
@@ -320,6 +320,8 @@ public class StepAppOpenHelper extends SQLiteOpenHelper {
         }
 
         database.close();
+
+
         return geoPoints;
     }
 

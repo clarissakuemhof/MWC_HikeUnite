@@ -195,12 +195,12 @@ public class HomeFragment extends Fragment {
     private void insertDummyHikeLuganoToBellinzonaWithGPS() {
         // Insert the hike details
         // Define GPS points for a circular path
-        myDatabaseHelper.insertGPSData( 45.9897, 8.9164,200, id);
-        myDatabaseHelper.insertGPSData( 46.0015, 8.9382,255, id);
-        myDatabaseHelper.insertGPSData( 46.0158, 8.9527,343, id);
-        myDatabaseHelper.insertGPSData( 46.0276, 8.9164,243, id);
-        myDatabaseHelper.insertGPSData( 46.0391, 8.9873,345, id);
-        myDatabaseHelper.insertGPSData( 46.1984, 9.0173,255, id);
+        myDatabaseHelper.insertGPSData( 8.9164, 45.9897,200, id);
+        myDatabaseHelper.insertGPSData( 8.9382, 46.0015,255, id);
+        myDatabaseHelper.insertGPSData( 8.9527, 46.0158,343, id);
+        myDatabaseHelper.insertGPSData( 8.9164, 46.0276,243, id);
+        myDatabaseHelper.insertGPSData( 8.9873, 46.0391,345, id);
+        myDatabaseHelper.insertGPSData( 9.0173, 46.1984,255, id);
 
     }
 
@@ -246,6 +246,7 @@ public class HomeFragment extends Fragment {
             id = myDatabaseHelper.getLastId(myDatabaseHelper.getWritableDatabase()) + 1;
             myDatabaseHelper.insertHikeData(0, 0, "YourHike"+ id);
             //insertDummyHikeLuganoToBellinzonaWithGPS();
+            gpsHelper.getAndHandleLastLocation();
             myDatabaseHelper.insertGPSData(gpsHelper.getLongitude(),gpsHelper.getLatitude(), gpsHelper.getAltitude(),id);
             setStarted(true);
             changeButtonColor(startButton, buttonColor2);
