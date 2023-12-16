@@ -112,11 +112,13 @@
             android:textColor="?attr/colorOnSecondaryContainer"
             android:textSize="20sp"
             app:icon="@drawable/baseline_play_circle_filled_24"
-            app:iconSize = "32dp"
+            app:iconSize="32dp"
             app:iconTint="?attr/colorOnSecondaryContainer"
             app:layout_constraintBottom_toTopOf="@+id/progressBar"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
+
+        <!-- Stop Button -->
         <Button
             android:id="@+id/stop_button"
             android:layout_width="wrap_content"
@@ -127,10 +129,28 @@
             android:textColor="?attr/colorOnSecondaryContainer"
             android:textSize="20sp"
             app:icon="@drawable/baseline_stop_circle_24"
-            app:iconSize = "32dp"
+            app:iconSize="32dp"
             app:iconTint="?attr/colorOnSecondaryContainer"
             app:layout_constraintBottom_toTopOf="@+id/progressBar"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
+
+        <!-- End Button -->
+        <Button
+            android:id="@+id/end_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="52dp"
+            android:backgroundTint="?attr/colorSecondaryContainer"
+            android:text="@string/end"
+            android:textColor="?attr/colorOnSecondaryContainer"
+            android:textSize="20sp"
+            app:icon="@drawable/baseline_stop_circle_24"
+            app:iconSize="32dp"
+            app:iconTint="?attr/colorOnSecondaryContainer"
+            app:layout_constraintBottom_toTopOf="@+id/progressBar"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
     </com.google.android.material.button.MaterialButtonToggleGroup>
 </androidx.constraintlayout.widget.ConstraintLayout>

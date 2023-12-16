@@ -119,6 +119,28 @@ public class StepAppOpenHelper extends SQLiteOpenHelper {
         database.close();
     }
 
+    public void updateHikeData(int id, int newSteps, float newDistance) {
+        SQLiteDatabase database = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+
+        values.put(KEY_STEPS, newSteps);
+        values.put(KEY_DISTANCE, newDistance);
+
+        // Define the WHERE clause to update the specific row by ID
+        String whereClause = KEY_ID + "=?";
+        String[] whereArgs = {String.valueOf(id)};
+
+        // Update the values in the database
+        database.update(TABLE_NAME, values, whereClause, whereArgs);
+
+        Log.d("DatabaseUpdate", "Updated Hike Data - ID: " + id
+                + ", New Steps: " + newSteps
+                + ", New Distance: " + newDistance);
+
+        // Close the database
+        database.close();
+    }
+
     public void insertGPSData(double longitude, double latitude, double altitude, int id) {
         SQLiteDatabase database = this.getWritableDatabase();
         ContentValues values = new ContentValues();

@@ -20,6 +20,7 @@ import android.widget.Toast;
 import android.widget.ViewSwitcher;
 
 import androidx.annotation.NonNull;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 
@@ -27,10 +28,12 @@ import com.example.stepappv4.StepAppOpenHelper;
 import com.example.stepappv4.R;
 import com.example.stepappv4.databinding.FragmentHomeBinding;
 import com.example.stepappv4.ui.GPS.GPSHelper;
+import com.example.stepappv4.ui.GPS.OpenStreetMapsHelper;
 import com.google.android.material.button.MaterialButtonToggleGroup;
 import com.google.android.material.progressindicator.CircularProgressIndicator;
 
 import java.text.SimpleDateFormat;
+import java.util.Objects;
 import java.util.Random;
 import java.util.TimeZone;
 
@@ -50,15 +53,20 @@ public class HomeFragment extends Fragment {
     private StepCounterListener sensorListener;
 
     private ViewSwitcher viewSwitcher;
-    private Button startButton,stopButton;
+    private Button startButton,stopButton, endButton;
 
     private String[] inspirationalQuotes;
 
-    private int id;
+    private int id, steps;
+    private float distance;
     private GPSHelper gpsHelper;
     private StepAppOpenHelper myDatabaseHelper;
     private boolean started;
+
+
+    private boolean haveBreak;
     private final Handler handler = new Handler();
+    private OpenStreetMapsHelper mapsHelper;
 
 
     public View onCreateView(@NonNull LayoutInflater inflater,
@@ -76,6 +84,7 @@ public class HomeFragment extends Fragment {
         myDatabaseHelper = new StepAppOpenHelper(this.getContext());
         SQLiteDatabase database = myDatabaseHelper.getWritableDatabase();
         started = false;
+        haveBreak = false;
 //----------------------------Progress Bar-------------------------------
         progressBar = (CircularProgressIndicator) root.findViewById(R.id.progressBar);
         progressBar.setMax(50);
@@ -89,6 +98,7 @@ public class HomeFragment extends Fragment {
         viewSwitcher = root.findViewById(R.id.viewSwitcher);
         startButton = root.findViewById(R.id.start_button);
         stopButton = root.findViewById(R.id.stop_button);
+        endButton = root.findViewById(R.id.end_button);
         quoteText = root.findViewById(R.id.quote_text);
         inspirationalQuotes = getResources().getStringArray(R.array.inspirational_quotes);
         stepCountsView = (TextView) root.findViewById(R.id.counter);
@@ -103,13 +113,22 @@ public class HomeFragment extends Fragment {
                 if (viewSwitcher.getCurrentView() == root.findViewById(R.id.defaultView)) {
                     viewSwitcher.showNext();
                 }
-                //id = 3;
-                id = myDatabaseHelper.getLastId(myDatabaseHelper.getWritableDatabase()) + 1;
-                myDatabaseHelper.insertHikeData(20.0, 46545, "YourHike"+ id);
-                insertDummyHikeLuganoToBellinzonaWithGPS(1);
-
-                setStarted(true);
-                //sendToDatabase();
+                //insertDummyHikeLuganoToBellinzonaWithGPS(1);
+                if (!haveBreak) {
+                    id = myDatabaseHelper.getLastId(myDatabaseHelper.getWritableDatabase()) + 1;
+                    myDatabaseHelper.insertHikeData(0, 0, "YourHike"+ id);
+                    setStarted(true);
+                    startButton.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.md_theme_dark_inversePrimary));
+                    stopButton.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.md_theme_light_secondaryContainer));
+                    Log.d("BOOLEAN CHANGED", "started: " + started);
+                    sendToDatabase();
+                } else {
+                    setHaveBreak(false);
+                    sendToDatabase();
+                    startButton.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.md_theme_dark_inversePrimary));
+                    stopButton.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.md_theme_light_secondaryContainer));
+                    Log.d("BOOLEAN CHANGED", "haveBreak: " + haveBreak);
+                }
 
             }
         });
@@ -117,11 +136,27 @@ public class HomeFragment extends Fragment {
         stopButton.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View v){
+                if (started) {
+                    setHaveBreak(true);
+                    Log.d("BOOLEAN CHANGED", "HAVE BREAK: " + haveBreak);
+                    stopButton.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.md_theme_dark_inversePrimary));
+                    startButton.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.md_theme_light_secondaryContainer));
+
+                }
+
+
+            }
+        });
+
+        endButton.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View v){
                 if(viewSwitcher.getCurrentView() == root.findViewById(R.id.progressView)){
                     setRandomQuote();
                     viewSwitcher.showPrevious();
                 }
                 setStarted(false);
+                endHike();
             }
         });
 
@@ -187,6 +222,10 @@ public class HomeFragment extends Fragment {
         this.started = started;
     }
 
+    public void setHaveBreak(boolean haveBreak) {
+        this.haveBreak = haveBreak;
+    }
+
     /**
      * Function to send the GPS data to the database in an adjustable time interval
      * Accesses gpsHelper to update the current position and then retrieves the values and inserts them to database
@@ -196,13 +235,26 @@ public class HomeFragment extends Fragment {
             handler.postDelayed(new Runnable() {
                 @Override
                 public void run() {
-                    gpsHelper.getAndHandleLastLocation();
-                    Log.d("FunctionLog", "Updated Location");
-                    myDatabaseHelper.insertGPSData(gpsHelper.getLongitude(), gpsHelper.getAltitude(), gpsHelper.getLatitude(), id);
-                    sendToDatabase();
+                    if (!haveBreak) {
+                        gpsHelper.getAndHandleLastLocation();
+                        Log.d("FunctionLog", "Updated Location");
+                        myDatabaseHelper.insertGPSData(gpsHelper.getLongitude(), gpsHelper.getLatitude(), gpsHelper.getAltitude(), id);
+                        // Check the flag again before scheduling the next call
+                        sendToDatabase();
+                    }
                 }
             }, 30000); // 30 seconds delay
         }
+    }
+
+    private void endHike() {
+        gpsHelper.getAndHandleLastLocation();
+        Log.d("FunctionLog", "Saved last Location");
+        myDatabaseHelper.insertGPSData(gpsHelper.getLongitude(), gpsHelper.getLatitude(), gpsHelper.getAltitude(), id);
+        mapsHelper = new OpenStreetMapsHelper(getContext(),myDatabaseHelper.getGeoPointsById(id));
+        distance = mapsHelper.getTotalDistanceInKm();
+        myDatabaseHelper.updateHikeData(id,steps, distance );
+
     }
 
 

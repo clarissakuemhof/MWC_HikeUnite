@@ -65,6 +65,19 @@ public class OpenStreetMapsHelper implements MapListener {
 
     }
 
+    public OpenStreetMapsHelper(Context context, List<GeoPoint> hikeRoute) {
+        Configuration.getInstance().load(
+                context,
+                context.getSharedPreferences(context.getString(R.string.app_name), Context.MODE_PRIVATE)
+        );
+
+        this.hikeRoute = hikeRoute;
+
+
+        calculateDistance();
+
+    }
+
     public void initMap() {
         Configuration.getInstance().load(
                 mMap.getContext().getApplicationContext(),
