@@ -9,8 +9,6 @@ import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import com.anychart.enums.Anchor;
-
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
@@ -26,7 +24,7 @@ import com.anychart.enums.TooltipPositionMode;
 import com.example.stepappv4.StepAppOpenHelper;
 import com.example.stepappv4.R;
 import com.example.stepappv4.databinding.FragmentReportBinding;
-import com.example.stepappv4.ui.GPS.OpenStreetMapsHelper;
+import com.example.stepappv4.ui.HelperClass.OpenStreetMapsHelper;
 
 import org.osmdroid.views.MapView;
 
@@ -49,7 +47,7 @@ public class ReportFragment extends Fragment {
     private LinearLayout chartLayout;
     private TextView stepsTV, distanceTV, nameTV;
 
-    private boolean showMap = true; // Flag to track whether to show the map or altitude chart
+    private boolean showMap = true;
 
     private FragmentReportBinding binding;
 
@@ -105,10 +103,8 @@ public class ReportFragment extends Fragment {
      */
     private void toggleView() {
         if (showMap) {
-            // If currently showing the map, switch to the altitude chart
             showAltitudeChart();
         } else {
-            // If currently showing the altitude chart, switch to the map
             showMap();
         }
     }

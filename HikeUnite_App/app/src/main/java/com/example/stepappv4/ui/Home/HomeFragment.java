@@ -27,13 +27,12 @@ import androidx.lifecycle.ViewModelProvider;
 import com.example.stepappv4.StepAppOpenHelper;
 import com.example.stepappv4.R;
 import com.example.stepappv4.databinding.FragmentHomeBinding;
-import com.example.stepappv4.ui.GPS.GPSHelper;
-import com.example.stepappv4.ui.GPS.OpenStreetMapsHelper;
+import com.example.stepappv4.ui.HelperClass.GPSHelper;
+import com.example.stepappv4.ui.HelperClass.OpenStreetMapsHelper;
 import com.google.android.material.button.MaterialButtonToggleGroup;
 import com.google.android.material.progressindicator.CircularProgressIndicator;
 
 import java.text.SimpleDateFormat;
-import java.util.Objects;
 import java.util.Random;
 import java.util.TimeZone;
 
@@ -57,7 +56,7 @@ public class HomeFragment extends Fragment {
 
     private String[] inspirationalQuotes;
 
-    private int id, steps;
+    private int id, steps, buttonColor1, buttonColor2;
     private float distance;
     private GPSHelper gpsHelper;
     private StepAppOpenHelper myDatabaseHelper;
@@ -85,6 +84,9 @@ public class HomeFragment extends Fragment {
         SQLiteDatabase database = myDatabaseHelper.getWritableDatabase();
         started = false;
         haveBreak = false;
+//----------------------------ColorsButton-------------------------------
+        buttonColor1 = R.color.md_theme_light_secondaryContainer;
+        buttonColor2 = R.color.md_theme_dark_inversePrimary;
 //----------------------------Progress Bar-------------------------------
         progressBar = (CircularProgressIndicator) root.findViewById(R.id.progressBar);
         progressBar.setMax(50);
@@ -113,23 +115,7 @@ public class HomeFragment extends Fragment {
                 if (viewSwitcher.getCurrentView() == root.findViewById(R.id.defaultView)) {
                     viewSwitcher.showNext();
                 }
-                //insertDummyHikeLuganoToBellinzonaWithGPS(1);
-                if (!haveBreak) {
-                    id = myDatabaseHelper.getLastId(myDatabaseHelper.getWritableDatabase()) + 1;
-                    myDatabaseHelper.insertHikeData(0, 0, "YourHike"+ id);
-                    setStarted(true);
-                    startButton.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.md_theme_dark_inversePrimary));
-                    stopButton.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.md_theme_light_secondaryContainer));
-                    Log.d("BOOLEAN CHANGED", "started: " + started);
-                    sendToDatabase();
-                } else {
-                    setHaveBreak(false);
-                    sendToDatabase();
-                    startButton.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.md_theme_dark_inversePrimary));
-                    stopButton.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.md_theme_light_secondaryContainer));
-                    Log.d("BOOLEAN CHANGED", "haveBreak: " + haveBreak);
-                }
-
+                startHike();
             }
         });
 
@@ -139,8 +125,10 @@ public class HomeFragment extends Fragment {
                 if (started) {
                     setHaveBreak(true);
                     Log.d("BOOLEAN CHANGED", "HAVE BREAK: " + haveBreak);
-                    stopButton.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.md_theme_dark_inversePrimary));
-                    startButton.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.md_theme_light_secondaryContainer));
+                    changeButtonColor(stopButton,buttonColor2);
+                    //stopButton.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.md_theme_dark_inversePrimary));
+                    changeButtonColor(startButton,buttonColor1);
+                    //startButton.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.md_theme_light_secondaryContainer));
 
                 }
 
@@ -155,7 +143,6 @@ public class HomeFragment extends Fragment {
                     setRandomQuote();
                     viewSwitcher.showPrevious();
                 }
-                setStarted(false);
                 endHike();
             }
         });
@@ -201,7 +188,10 @@ public class HomeFragment extends Fragment {
         }
     }
 
-    private void insertDummyHikeLuganoToBellinzonaWithGPS(int id) {
+    /**
+     * Method is used to create dummy data to test map feature
+     */
+    private void insertDummyHikeLuganoToBellinzonaWithGPS() {
         // Insert the hike details
         // Define GPS points for a circular path
         myDatabaseHelper.insertGPSData( 45.9897, 8.9164,200, id);
@@ -222,6 +212,11 @@ public class HomeFragment extends Fragment {
         this.started = started;
     }
 
+    /**
+     * Setter for haveBreak value
+     * If haveBreak is true the app will stop sending the location to the database
+     * @param haveBreak indicates if user makes a break during the hike
+     */
     public void setHaveBreak(boolean haveBreak) {
         this.haveBreak = haveBreak;
     }
@@ -229,36 +224,69 @@ public class HomeFragment extends Fragment {
     /**
      * Function to send the GPS data to the database in an adjustable time interval
      * Accesses gpsHelper to update the current position and then retrieves the values and inserts them to database
+     * ALso checks if user has a break at the moment and stops sending the data if active
      */
     private void sendToDatabase() {
         if (started) {
-            handler.postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    if (!haveBreak) {
-                        gpsHelper.getAndHandleLastLocation();
-                        Log.d("FunctionLog", "Updated Location");
-                        myDatabaseHelper.insertGPSData(gpsHelper.getLongitude(), gpsHelper.getLatitude(), gpsHelper.getAltitude(), id);
-                        // Check the flag again before scheduling the next call
-                        sendToDatabase();
-                    }
+            handler.postDelayed(() -> {
+                if (!haveBreak) {
+                    gpsHelper.getAndHandleLastLocation();
+                    Log.d("FunctionLog", "Updated Location");
+                    myDatabaseHelper.insertGPSData(gpsHelper.getLongitude(), gpsHelper.getLatitude(), gpsHelper.getAltitude(), id);
+                    // Check the flag again before scheduling the next call
+                    sendToDatabase();
                 }
             }, 30000); // 30 seconds delay
         }
     }
 
+    private void startHike() {
+        if (!haveBreak) {
+            id = myDatabaseHelper.getLastId(myDatabaseHelper.getWritableDatabase()) + 1;
+            myDatabaseHelper.insertHikeData(0, 0, "YourHike"+ id);
+            //insertDummyHikeLuganoToBellinzonaWithGPS();
+            myDatabaseHelper.insertGPSData(gpsHelper.getLongitude(),gpsHelper.getLatitude(), gpsHelper.getAltitude(),id);
+            setStarted(true);
+            changeButtonColor(startButton, buttonColor2);
+            changeButtonColor(stopButton,buttonColor1);
+            Log.d("BOOLEAN CHANGED", "started: " + started);
+            sendToDatabase();
+        } else {
+            setHaveBreak(false);
+            sendToDatabase();
+            changeButtonColor(startButton, buttonColor2);
+            changeButtonColor(stopButton,buttonColor1);
+            Log.d("BOOLEAN CHANGED", "haveBreak: " + haveBreak);
+        }
+    }
+
+    /**
+     * This functions handles the end of a hike.
+     * Removes any pending callbacks for the handler and therefore stops calls to database
+     * Saves a last geopoint in the database
+     * calculates distance
+     * updates steps and distance in database
+     */
     private void endHike() {
+        setStarted(false);
+        handler.removeCallbacksAndMessages(null);
         gpsHelper.getAndHandleLastLocation();
         Log.d("FunctionLog", "Saved last Location");
         myDatabaseHelper.insertGPSData(gpsHelper.getLongitude(), gpsHelper.getLatitude(), gpsHelper.getAltitude(), id);
         mapsHelper = new OpenStreetMapsHelper(getContext(),myDatabaseHelper.getGeoPointsById(id));
         distance = mapsHelper.getTotalDistanceInKm();
         myDatabaseHelper.updateHikeData(id,steps, distance );
-
+        changeButtonColor(startButton,buttonColor1);
     }
 
-
-
+    /**
+     * Method to change color of buttons
+     * @param button button you want to change
+     * @param color color you want to set
+     */
+    public void changeButtonColor(Button button, int color){
+        button.setBackgroundColor(ContextCompat.getColor(requireContext(), color));
+    }
 
 }
 
@@ -271,12 +299,9 @@ class  StepCounterListener implements SensorEventListener{
     private double accMag = 0;
     private int lastAddedIndex = 1;
     int stepThreshold = 6;
-
     TextView stepCountsView;
-
     CircularProgressIndicator progressBar;
     private SQLiteDatabase database;
-
     private String timestamp;
     private String day;
     private String hour;
@@ -288,9 +313,6 @@ class  StepCounterListener implements SensorEventListener{
         this.database = databse;
         this.progressBar = progressBar;
     }
-
-
-
 
     @Override
     public void onSensorChanged(SensorEvent sensorEvent) {
@@ -311,9 +333,6 @@ class  StepCounterListener implements SensorEventListener{
                 jdf.setTimeZone(TimeZone.getTimeZone("GMT+2"));
                 String sensorEventDate = jdf.format(timeInMillis);
 
-
-
-
                 if ((currentTimeInMilliSecond - lastSensorUpdate) > 1000)
                 {
                     lastSensorUpdate = currentTimeInMilliSecond;
@@ -324,24 +343,18 @@ class  StepCounterListener implements SensorEventListener{
 
                 accMag = Math.sqrt(x*x+y*y+z*z);
 
-
                 accSeries.add((int) accMag);
-
                 // Get the date, the day and the hour
                 timestamp = sensorEventDate;
                 day = sensorEventDate.substring(0,10);
                 hour = sensorEventDate.substring(11,13);
-
                 //Log.d("SensorEventTimestampInMilliSecond", timestamp);
-
-
                 timestampsSeries.add(timestamp);
                 peakDetection();
 
                 break;
 
         }
-
 
     }
     @Override
@@ -385,8 +398,5 @@ class  StepCounterListener implements SensorEventListener{
             }
         }
     }
-
-
-
 
 }

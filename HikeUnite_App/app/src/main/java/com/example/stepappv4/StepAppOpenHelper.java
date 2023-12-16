@@ -192,55 +192,6 @@ public class StepAppOpenHelper extends SQLiteOpenHelper {
         return timestampFormat.format(Calendar.getInstance().getTime());
     }
 
-        // Load all records in the database
-    public static void loadRecords(Context context){
-        List<String> dates = new LinkedList<String>();
-        StepAppOpenHelper databaseHelper = new StepAppOpenHelper(context);
-        SQLiteDatabase database = databaseHelper.getReadableDatabase();
-
-        String [] columns = new String [] {StepAppOpenHelper.KEY_TIMESTAMP};
-        Cursor cursor = database.query(StepAppOpenHelper.TABLE_NAME, columns, null, null, StepAppOpenHelper.KEY_TIMESTAMP,
-                null, null );
-
-        // iterate over returned elements
-        cursor.moveToFirst();
-        for (int index=0; index < cursor.getCount(); index++){
-            dates.add(cursor.getString(0));
-            cursor.moveToNext();
-        }
-        database.close();
-
-        Log.d("STORED TIMESTAMPS: ", String.valueOf(dates));
-    }
-
-    // load records from a single day
-    public static Integer loadSingleRecord(Context context, String date){
-        List<String> steps = new LinkedList<String>();
-        // Get the readable database
-        StepAppOpenHelper databaseHelper = new StepAppOpenHelper(context);
-        SQLiteDatabase database = databaseHelper.getReadableDatabase();
-
-        String where = StepAppOpenHelper.KEY_DAY + " = ?";
-        String [] whereArgs = { date };
-
-        Cursor cursor = database.query(StepAppOpenHelper.TABLE_NAME, null, where, whereArgs, null,
-                null, null );
-
-        // iterate over returned elements
-        cursor.moveToFirst();
-        for (int index=0; index < cursor.getCount(); index++){
-            steps.add(cursor.getString(0));
-            cursor.moveToNext();
-        }
-        database.close();
-
-        Integer numSteps = steps.size();
-        Log.d("STORED STEPS TODAY: ", String.valueOf(numSteps));
-        return numSteps;
-    }
-
-
-
 
     public static Map<String, Integer> loadStepsByDateForLastWeek(Context context) {
         Map<String, Integer> stepsByDate = new TreeMap<>();
@@ -450,48 +401,6 @@ public class StepAppOpenHelper extends SQLiteOpenHelper {
         return cursor;
     }
 
-    public int getIdFromName(String name) {
-        SQLiteDatabase database = this.getReadableDatabase();
-        int id = 0;
-
-        // Define the columns you want to retrieve
-        String[] projection = {
-                KEY_ID
-                // Add other columns as needed
-        };
-
-        // Define the WHERE clause to filter by name
-        String selection = KEY_NAME + "=?";
-        String[] selectionArgs = {name};
-
-        // Query the "hiking_data" table
-        Cursor cursor = database.query(
-                TABLE_NAME,       // The table name
-                projection,       // The columns to retrieve
-                selection,        // Selection (filter by name)
-                selectionArgs,    // SelectionArgs
-                null,             // GroupBy
-                null,             // Having
-                null              // OrderBy
-        );
-
-        // Check if the cursor has data
-        if (cursor != null && cursor.moveToFirst()) {
-            // Retrieve the ID from the cursor
-            int idIndex = cursor.getColumnIndex(KEY_ID);
-            if (idIndex != -1) {
-                id = cursor.getInt(idIndex);
-            }
-
-            // Close the cursor
-            cursor.close();
-        }
-
-        // Close the database
-        database.close();
-
-        return id;
-    }
 
     public int getStepsDataById(int hikeId) {
         int steps = -1; // Default value if no data is found
@@ -644,62 +553,6 @@ public class StepAppOpenHelper extends SQLiteOpenHelper {
 
         return name;
     }
-
-    public List<Double> getAltitudesForHikeById(int hikeId) {
-        List<Double> altitudeList = new ArrayList<>();
-
-        // Get the readable database
-        SQLiteDatabase database = this.getReadableDatabase();
-
-        try {
-            // Define the columns to retrieve
-            String[] columns = {KEY_ALTITUDE};
-
-            // Define the WHERE clause to filter by hike ID
-            String selection = KEY_ID + "=?";
-            String[] selectionArgs = {String.valueOf(hikeId)};
-
-            // Query the "gps_points" table
-            Cursor cursor = database.query(
-                    TABLE_NAME2,       // The table name
-                    columns,           // The columns to retrieve
-                    selection,         // Selection (filter by hike ID)
-                    selectionArgs,     // SelectionArgs
-                    null,              // GroupBy
-                    null,              // Having
-                    KEY_TIMESTAMP + " ASC" // OrderBy (ascending order of timestamp)
-            );
-
-            // Check if the cursor is not null and contains data
-            if (cursor != null && cursor.moveToFirst()) {
-                // Get the altitude data from the cursor and add it to the list
-                int altitudeIndex = cursor.getColumnIndex(KEY_ALTITUDE);
-                if (altitudeIndex != -1) {
-                    do {
-                        double altitude = cursor.getDouble(altitudeIndex);
-                        altitudeList.add(altitude);
-                    } while (cursor.moveToNext());
-                } else {
-                    Log.e("getAltitudesForHikeById", "Column KEY_ALTITUDE not found in cursor");
-                }
-            } else {
-                Log.e("getAltitudesForHikeById", "Cursor is null or empty");
-            }
-
-            // Close the cursor
-            if (cursor != null) {
-                cursor.close();
-            }
-        } finally {
-            // Close the database in a finally block to ensure it gets closed
-            database.close();
-        }
-
-        return altitudeList;
-    }
-
-
-
 
 
 }
