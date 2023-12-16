@@ -1,5 +1,6 @@
 package com.example.stepappv4.ui.History;
 
+import android.content.Context;
 import android.database.Cursor;
 import android.database.DatabaseUtils;
 import android.os.Bundle;
@@ -14,6 +15,8 @@ import android.widget.SimpleCursorAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.text.DateFormatSymbols;
 import java.util.Calendar;
 import java.util.Locale;
@@ -27,6 +30,7 @@ import androidx.navigation.Navigation;
 import com.example.stepappv4.R;
 import com.example.stepappv4.StepAppOpenHelper;
 import com.example.stepappv4.databinding.FragmentHistoryBinding;
+import com.example.stepappv4.ui.HelperClass.OpenStreetMapsHelper;
 
 
 public class HistoryFragment extends Fragment {
@@ -65,8 +69,7 @@ public class HistoryFragment extends Fragment {
         // Get the current month
         Calendar calendar = Calendar.getInstance();
         currentMonthIndex = calendar.get(Calendar.MONTH);
-        int currentMonth = calendar.get(Calendar.MONTH);
-        int currentYear = calendar.get(Calendar.YEAR);
+
 
 
         // Set initial month
@@ -148,26 +151,54 @@ public class HistoryFragment extends Fragment {
 
         // Define the columns from which to fetch data
         String[] columns = {
-                StepAppOpenHelper.KEY_NAME, // Alias "id" column as "_id"
-                StepAppOpenHelper.KEY_DAY,
-                StepAppOpenHelper.KEY_DISTANCE
+                StepAppOpenHelper.KEY_NAME,
+                //StepAppOpenHelper.KEY_DAY,
+                //StepAppOpenHelper.KEY_DISTANCE
         };
 
-        // Define the views where data should be placed
         int[] to = {
                 R.id.name,
-                R.id.version_number,
-                R.id.type
+                //R.id.version_number,
+                //R.id.type
         };
 
         adapter = new SimpleCursorAdapter(
                 requireContext(),
-                R.layout.list_view_item, // your custom layout for each item
+                R.layout.list_view_item,
                 cursor,
                 columns,
                 to,
                 0
-        );
+        ) {
+            @Override
+            public void bindView(View view, Context context, Cursor cursor) {
+                super.bindView(view, context, cursor);
+
+                int hikeIdIndex = cursor.getColumnIndex("_id");
+                int hikeId = (hikeIdIndex != -1) ? cursor.getInt(hikeIdIndex) : -1;
+
+                OpenStreetMapsHelper mapsHelper = new OpenStreetMapsHelper(getContext(), myDatabaseHelper.getGeoPointsById(hikeId));
+
+                Float distance = BigDecimal.valueOf(mapsHelper.getTotalDistanceInKm())
+                        .setScale(2, RoundingMode.HALF_DOWN)
+                        .floatValue();
+                String distanceS = String.valueOf(distance) + " km";
+                String duration = (hikeId != -1) ? myDatabaseHelper.calculateDuration(hikeId) + " hrs" : "N/A";
+
+                TextView textViewDuration = view.findViewById(R.id.durationTextView);
+                TextView textViewDistance = view.findViewById(R.id.distanceTextView);
+                if (textViewDuration != null) {
+                    textViewDistance.setText(distanceS);
+                } else {
+                    Log.e("bindView", "TextView for distance not found in the layout");
+                }
+                if (textViewDuration != null) {
+                    textViewDuration.setText(duration);
+                } else {
+                    Log.e("bindView", "TextView for duration not found in the layout");
+                }
+            }
+        };
     }
 
     private void updateMonth() {

@@ -142,18 +142,23 @@ public class OpenStreetMapsHelper implements MapListener {
     /**
      * This method adds the Polyline overlay to the map to visualize the hike
      */
-    public void addPolyline(List <GeoPoint> hikeRoute) {
+    public void addPolyline(List<GeoPoint> hikeRoute) {
+        if (hikeRoute != null && hikeRoute.size() > 1) {
+            for (GeoPoint geoPoint : hikeRoute) {
+                Log.d("GeoPoint", "Latitude: " + geoPoint.getLatitude() + ", Longitude: " + geoPoint.getLongitude() + ", Altitude: " + geoPoint.getAltitude());
+            }
 
-        Polyline polyline = new Polyline();
-        polyline.setPoints(hikeRoute);
-        red.setColor(Color.RED); // Set the color to red (adjust as needed)
-        polyline.getOutlinePaint().set(red);
-        polyline.isVisible();
-
-
-        mMap.getOverlayManager().add(polyline);
-        Log.d("TEST", "Polyline added...");
-        mMap.invalidate();
+            Polyline polyline = new Polyline();
+            polyline.setPoints(hikeRoute);
+            polyline.setGeodesic(true); // Add this line to ensure a great circle path
+            red.setColor(Color.RED);
+            polyline.getOutlinePaint().set(red);
+            mMap.getOverlayManager().add(polyline);
+            Log.d("TEST", "Polyline added...");
+            mMap.invalidate();
+        } else {
+            Log.d("TEST", "Invalid hikeRoute for Polyline");
+        }
     }
 
     /**

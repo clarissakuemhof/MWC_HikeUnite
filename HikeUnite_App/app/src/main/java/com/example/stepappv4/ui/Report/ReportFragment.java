@@ -28,6 +28,8 @@ import com.example.stepappv4.ui.HelperClass.OpenStreetMapsHelper;
 
 import org.osmdroid.views.MapView;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.List;
 
 /**
@@ -81,13 +83,12 @@ public class ReportFragment extends Fragment {
 
             myDatabaseHelper = new StepAppOpenHelper(getContext());
             steps = myDatabaseHelper.getStepsDataById(hikeId);
-            distance = myDatabaseHelper.getDistanceDataById(hikeId);
             name = myDatabaseHelper.getNameDataById(hikeId);
             Log.d("Test", "Steps: " + steps);
             Log.d("TAG",String.format(String.valueOf(myDatabaseHelper.getGeoPointsById(hikeId))));
 
             stepsTV.setText(String.format(String.valueOf(steps)));
-            distanceTV.setText(String.format(String.valueOf(distance)));
+            //distanceTV.setText(String.format(String.valueOf(distance)));
             nameTV.setText(name);
 
             myDatabaseHelper = new StepAppOpenHelper(getContext());
@@ -121,6 +122,11 @@ public class ReportFragment extends Fragment {
         Log.d("TAG",String.format(String.valueOf(myDatabaseHelper.getGeoPointsById(hikeId))));
         mapHelper.initMap();
         mapHelper.addPolyline(myDatabaseHelper.getGeoPointsById(hikeId));
+        distance = BigDecimal.valueOf(mapHelper.getTotalDistanceInKm())
+                .setScale(2, RoundingMode.HALF_DOWN)
+                .floatValue();
+        distanceTV.setText(String.format(String.valueOf(distance)) +" km");
+        Log.d("CHECKVALUE", "Distance2: " + distance);
 
         showMap = true;
     }
