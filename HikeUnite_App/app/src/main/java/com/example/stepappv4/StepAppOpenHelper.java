@@ -137,7 +137,7 @@ public class StepAppOpenHelper extends SQLiteOpenHelper {
         database.update(TABLE_NAME, values, whereClause, whereArgs);
 
         Log.d("DatabaseUpdate", "Updated Hike Data - ID: " + id
-                + ", New Steps: " + newSteps;
+                + ", New Steps: " + newSteps);
 
 
         // Close the database
