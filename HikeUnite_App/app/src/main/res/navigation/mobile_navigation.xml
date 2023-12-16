@@ -21,7 +21,7 @@
         android:id="@+id/nav_achievements"
         android:name="com.example.stepappv4.ui.Achievements.AchievementsFragment"
         android:label="Achievements"
-        tools:layout="@layout/fragment_achievements" >
+        tools:layout="@layout/fragment_achievements_old" >
         <action
             android:id="@+id/action_nav_achievements_to_nav_details"
             app:destination="@id/nav_details" />

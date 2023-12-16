@@ -3,6 +3,7 @@ package com.example.stepappv4;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
+import android.database.DatabaseUtils;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
@@ -141,6 +142,23 @@ public class StepAppOpenHelper extends SQLiteOpenHelper {
 
 
         // Close the database
+        database.close();
+    }
+
+    public void updateHikeDistance(int id, float distance) {
+        SQLiteDatabase database = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+
+        values.put(KEY_DISTANCE, distance);
+
+        String whereClause = KEY_ID + "=?";
+        String[] whereArgs = {String.valueOf(id)};
+
+        database.update(TABLE_NAME, values, whereClause, whereArgs);
+
+        Log.d("DatabaseUpdate", "Updated Hike Distance - ID: " + id
+                + ", New Distance: " + distance);
+
         database.close();
     }
 
@@ -568,6 +586,53 @@ public class StepAppOpenHelper extends SQLiteOpenHelper {
         }
 
         return "Null";
+    }
+
+
+    public int getCountOfHikes() {
+
+        try (SQLiteDatabase database = this.getReadableDatabase()) {
+
+            long count = DatabaseUtils.queryNumEntries(database, TABLE_NAME);
+            return (int) count;
+        }
+    }
+
+    public double getTotalDistance() {
+        SQLiteDatabase database = this.getReadableDatabase();
+        double totalDistance = 0;
+
+        try {
+            String[] columns = { "SUM(" + KEY_DISTANCE + ")" };
+
+            Cursor cursor = database.query(
+                    TABLE_NAME,          // The table name
+                    columns,              // The columns to retrieve
+                    null,                 // No specific selection
+                    null,                 // No specific selectionArgs
+                    null,                 // No specific groupBy
+                    null,                 // No specific having
+                    null                  // No specific orderBy
+            );
+            if (cursor != null && cursor.moveToFirst()) {
+                int distanceColumnIndex = cursor.getColumnIndex("SUM(" + KEY_DISTANCE + ")");
+                if (distanceColumnIndex != -1) {
+                    totalDistance = cursor.getDouble(distanceColumnIndex);
+                } else {
+                    Log.e("getTotalDistance", "Column SUM(KEY_DISTANCE) not found in cursor");
+                }
+            } else {
+                Log.e("getTotalDistance", "Cursor is null or empty");
+            }
+
+            if (cursor != null) {
+                cursor.close();
+            }
+        } finally {
+            database.close();
+        }
+
+        return totalDistance;
     }
 
 

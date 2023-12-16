@@ -17,11 +17,21 @@
         android:id="@+id/gridItemText"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Item Name" />
+        android:text="Goal" />
+
+    <TextView
+        android:id="@+id/gridItemText1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:paddingTop="5dp"
+        android:paddingBottom="5dp"
+        android:text="Progress" />
 
     <com.google.android.material.progressindicator.LinearProgressIndicator
         android:id="@+id/achieveProgress3"
         android:layout_width="80dp"
-        android:layout_height="3dp" />
+        android:layout_height="3dp"
+        android:paddingTop="5dp"
+        android:paddingBottom="5dp" />
 
 </LinearLayout>

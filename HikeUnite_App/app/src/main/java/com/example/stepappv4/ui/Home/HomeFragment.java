@@ -1,6 +1,5 @@
 package com.example.stepappv4.ui.Home;
 
-import android.content.ContentValues;
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.hardware.Sensor;
@@ -275,6 +274,9 @@ public class HomeFragment extends Fragment {
         gpsHelper.getAndHandleLastLocation();
         Log.d("FunctionLog", "Saved last Location");
         myDatabaseHelper.insertGPSData(gpsHelper.getLongitude(), gpsHelper.getLatitude(), gpsHelper.getAltitude(), id);
+        mapsHelper = new OpenStreetMapsHelper(getContext(), myDatabaseHelper.getGeoPointsById(id));
+        myDatabaseHelper.updateHikeDistance(id,mapsHelper.getTotalDistanceInKm());
+        Log.d("DEBUG","Updated Distance: " + distance + " for hike with id " + id);
         myDatabaseHelper.updateHikeData(id,steps );
         changeButtonColor(startButton,buttonColor1);
     }
