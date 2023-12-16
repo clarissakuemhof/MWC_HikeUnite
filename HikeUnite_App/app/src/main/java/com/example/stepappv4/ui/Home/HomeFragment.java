@@ -388,7 +388,7 @@ class  StepCounterListener implements SensorEventListener{
         }
 
         List<Integer> valuesInWindow = accSeries.subList(lastAddedIndex,currentSize);
-        List<String> timePointList = timestampsSeries.subList(lastAddedIndex,currentSize);
+        //List<String> timePointList = timestampsSeries.subList(lastAddedIndex,currentSize);
         lastAddedIndex = currentSize;
 
         for (int i = 1; i < valuesInWindow.size()-1; i++) {
@@ -397,17 +397,17 @@ class  StepCounterListener implements SensorEventListener{
 
             if (forwardSlope < 0 && downwardSlope > 0 && valuesInWindow.get(i) > stepThreshold) {
 
-                long timeDifference = getTimeDifference(timePointList.get(i), timePointList.get(i-1));
+                //long timeDifference = getTimeDifference(timePointList.get(i), timePointList.get(i-1));
 
-                if(timeDifference > timeConstraintMillis){
+                //if(timeDifference > timeConstraintMillis){
                     accStepCounter += 1;
                     Log.d("ACC STEPS: ", String.valueOf(accStepCounter));
                     stepCountsView.setText(String.valueOf(accStepCounter));
                     progressBar.setProgress(accStepCounter);
 
 
-                   
-                }
+
+                //}
             }
         }
     }
