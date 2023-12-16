@@ -355,7 +355,7 @@ class  StepCounterListener implements SensorEventListener{
                 smoothAccMag = alpha * accMag + (1- alpha) * smoothAccMag;
 
 
-                accSeries.add((int) smoothAccMag
+                accSeries.add((int) smoothAccMag);
                 // Get the date, the day and the hour
                 timestamp = sensorEventDate;
                 day = sensorEventDate.substring(0,10);
@@ -404,4 +404,6 @@ class  StepCounterListener implements SensorEventListener{
             }
         }
     }
+}
+
 
