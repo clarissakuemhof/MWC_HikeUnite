@@ -6,21 +6,11 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import androidx.annotation.ColorLong;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
-import androidx.lifecycle.ViewModelProvider;
-
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.TimeZone;
-import java.util.TreeMap;
-
 
 import com.anychart.AnyChart;
 import com.anychart.AnyChartView;
@@ -28,111 +18,159 @@ import com.anychart.chart.common.dataentry.DataEntry;
 import com.anychart.chart.common.dataentry.ValueDataEntry;
 import com.anychart.charts.Cartesian;
 import com.anychart.core.cartesian.series.Column;
-import com.anychart.enums.Anchor;
 import com.anychart.enums.HoverMode;
 import com.anychart.enums.Position;
 import com.anychart.enums.TooltipPositionMode;
 import com.example.stepappv4.StepAppOpenHelper;
-import com.example.stepappv4.databinding.FragmentReportBinding;
 import com.example.stepappv4.R;
-import com.example.stepappv4.ui.History.HistoryFragment;
+import com.example.stepappv4.databinding.FragmentReportBinding;
+import com.example.stepappv4.ui.HelperClass.OpenStreetMapsHelper;
+
+import org.osmdroid.views.MapView;
+
+import java.util.List;
+
+/**
+ * This fragments shows detailed data about the hikes
+ * based on the hike id of the list entry we can retrieve the corresponding data from our database
+ */
 
 public class ReportFragment extends Fragment {
 
-    public int todaySteps = 0;
-    TextView numStepsTextView;
-    AnyChartView anyChartView;
+    private int hikeId, steps;
+    private float distance;
+    private String name;
+    private StepAppOpenHelper myDatabaseHelper;
+    private AnyChartView anyChartView;
+    private MapView mMap;
+    private OpenStreetMapsHelper mapHelper;
+    private LinearLayout chartLayout;
+    private TextView stepsTV, distanceTV, nameTV;
 
-    Date cDate = new Date();
-    String current_time = new SimpleDateFormat("yyyy-MM-dd").format(cDate);
-
-    public Map<Integer, Integer> stepsByHour = null;
+    private boolean showMap = true;
 
     private FragmentReportBinding binding;
 
-    public View onCreateView(@NonNull LayoutInflater inflater,
-                             ViewGroup container, Bundle savedInstanceState) {
-
+    @Override
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         binding = FragmentReportBinding.inflate(inflater, container, false);
         View root = binding.getRoot();
 
+        mMap = binding.osmmap;
+        anyChartView = root.findViewById(R.id.anyChartView);
+        chartLayout = root.findViewById(R.id.mapContainer);
+        stepsTV = root.findViewById(R.id.steps);
+        distanceTV = root.findViewById(R.id.distanceTest);
+        nameTV = root.findViewById(R.id.yourhikeheadline);
 
-        // Create column chart
-        anyChartView = root.findViewById(R.id.hourBarChart);
-        anyChartView.setProgressBar(root.findViewById(R.id.loadingBar));
 
-        Cartesian cartesian = createColumnChart();
-        anyChartView.setBackgroundColor("#00000000");
-        anyChartView.setChart(cartesian);
 
+        Button switchButton = root.findViewById(R.id.toggleMapButton);
+
+        switchButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                toggleView();
+            }
+        });
+
+        Bundle bundle = getArguments();
+        if (bundle != null && bundle.containsKey("hikeId")) {
+            hikeId = bundle.getInt("hikeId");
+            Log.d("ID", "ID: " + hikeId);
+
+            myDatabaseHelper = new StepAppOpenHelper(getContext());
+            steps = myDatabaseHelper.getStepsDataById(hikeId);
+            distance = myDatabaseHelper.getDistanceDataById(hikeId);
+            name = myDatabaseHelper.getNameDataById(hikeId);
+            Log.d("Test", "Steps: " + steps);
+            Log.d("TAG",String.format(String.valueOf(myDatabaseHelper.getGeoPointsById(hikeId))));
+
+            stepsTV.setText(String.format(String.valueOf(steps)));
+            distanceTV.setText(String.format(String.valueOf(distance)));
+            nameTV.setText(name);
+
+            myDatabaseHelper = new StepAppOpenHelper(getContext());
+
+            showMap();
+        }
 
         return root;
     }
 
-
-
-    @Override
-    public void onDestroyView() {
-        super.onDestroyView();
-        binding = null;
+    /**
+     * Method to toggle between map and chart. Uses showMap as indicator to decide what to show
+     */
+    private void toggleView() {
+        if (showMap) {
+            showAltitudeChart();
+        } else {
+            showMap();
+        }
     }
 
-    public Cartesian createColumnChart(){
-        //***** Read data from SQLiteDatabase *********/
-        // TODO 1 (YOUR TURN): Get the map with hours and number of steps for today
-        //  from the database and assign it to variable stepsByHour
-        stepsByHour = StepAppOpenHelper.loadStepsByHour(getContext(), current_time);
+    /**
+     * Sets visibility for map to visible and disables the visibility for the chart
+     * Initializes map and Polyline to show Hike
+     */
+    private void showMap() {
+        anyChartView.setVisibility(View.GONE);
+        mMap.setVisibility(View.VISIBLE);
 
-        // TODO 2 (YOUR TURN): Creating a new map that contains hours of the day from 0 to 23 and
-        //  number of steps during each hour set to 0
-        Map<Integer, Integer> graph_map = new TreeMap<>();
-        for(int i =0; i<23; i++){
-            graph_map.put(i, 0);
-        }
+        mapHelper = new OpenStreetMapsHelper(this.getContext(), mMap, myDatabaseHelper.getGeoPointsById(hikeId));
+        Log.d("TAG",String.format(String.valueOf(myDatabaseHelper.getGeoPointsById(hikeId))));
+        mapHelper.initMap();
+        mapHelper.addPolyline(myDatabaseHelper.getGeoPointsById(hikeId));
 
-        // TODO 3 (YOUR TURN): Replace the number of steps for each hour in graph_map
-        //  with the number of steps read from the database
-        graph_map.putAll(stepsByHour);
+        showMap = true;
+    }
 
-        //***** Create column chart using AnyChart library *********/
-        // TODO 4: Create and get the cartesian coordinate system for column chart
+    /**
+     * Sets visibility for chart to visible and disables the visibility for the map
+     * Gets data for chart from database
+     */
+    private void showAltitudeChart() {
+        mMap.setVisibility(View.GONE);
+        chartLayout.setVisibility(View.VISIBLE);
+        anyChartView.setVisibility(View.VISIBLE);
+
+        List<Double> altitudeData = myDatabaseHelper.getAltitudesById(hikeId);
+
+        Cartesian cartesian = createColumnChart(altitudeData);
+        anyChartView.setChart(cartesian);
+
+        showMap = false;
+    }
+
+    /**
+     * Method to draw the chart based on altitude values during the hike
+     * @param altitudeData Points that are saved in a given time interval during the hike
+     * @return chart
+     */
+    private Cartesian createColumnChart(List<Double> altitudeData) {
         Cartesian cartesian = AnyChart.column();
 
-        // TODO 5: Create data entries for x and y axis of the graph
-        List<DataEntry> data = new ArrayList<>();
+        List<DataEntry> data = new java.util.ArrayList<>();
+        for (int i = 0; i < altitudeData.size(); i++) {
+            data.add(new ValueDataEntry(i, altitudeData.get(i)));
+        }
 
-        for (Map.Entry<Integer,Integer> entry : graph_map.entrySet())
-            data.add(new ValueDataEntry(entry.getKey(), entry.getValue()));
-
-        // TODO 6: Add the data to column chart and get the columns
         Column column = cartesian.column(data);
 
-        //***** Modify the UI of the chart *********/
-       // TODO 7 (YOUR TURN): Change the color of column chart and its border
         column.fill("#1EB980");
         column.stroke("#1EB980");
 
-
-        // TODO 8: Modifying properties of tooltip
         column.tooltip()
-                .titleFormat("At hour: {%X}")
-                .format("{%Value} Steps")
-                .anchor(Anchor.RIGHT_BOTTOM);
-
-        // TODO 9 (YOUR TURN): Modify column chart tooltip properties
-        column.tooltip()
-                .position(Position.RIGHT_TOP) .offsetX(0d)
+                .position(Position.RIGHT_TOP)
+                .offsetX(0d)
                 .offsetY(5);
 
-        // Modifying properties of cartesian
         cartesian.tooltip().positionMode(TooltipPositionMode.POINT);
         cartesian.interactivity().hoverMode(HoverMode.BY_X);
         cartesian.yScale().minimum(0);
 
-
-        // TODO 10 (YOUR TURN): Modify the UI of the cartesian
-        cartesian.yAxis(0).title("Number of steps");
-        cartesian.xAxis(0).title("Hour");
+        cartesian.yAxis(0).title("Altitude");
+        cartesian.xAxis(0).title("Point");
         cartesian.background().fill("#00000000");
         cartesian.animation(true);
 

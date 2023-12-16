@@ -1,16 +1,20 @@
 package com.example.stepappv4.ui.History;
 
+import android.database.Cursor;
+import android.database.DatabaseUtils;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ImageButton;
 import android.widget.ListView;
+import android.widget.SimpleCursorAdapter;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.text.DateFormatSymbols;
-import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Locale;
 
@@ -20,20 +24,15 @@ import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 
 
-import com.example.stepappv4.DataModel;
 import com.example.stepappv4.R;
+import com.example.stepappv4.StepAppOpenHelper;
 import com.example.stepappv4.databinding.FragmentHistoryBinding;
-import com.example.stepappv4.ui.CustomAdapter;
-import com.google.android.material.snackbar.Snackbar;
-import java.util.ArrayList;
-
 
 
 public class HistoryFragment extends Fragment {
 
-    private ArrayList<DataModel> dataModels;
     private ListView listView;
-    private CustomAdapter adapter;
+    private SimpleCursorAdapter adapter;
 
     private FragmentHistoryBinding binding;
 
@@ -44,6 +43,10 @@ public class HistoryFragment extends Fragment {
     Calendar calendar = Calendar.getInstance();
     private int currentYear = calendar.get(Calendar.YEAR);
 
+    private StepAppOpenHelper myDatabaseHelper;
+
+
+
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -52,13 +55,19 @@ public class HistoryFragment extends Fragment {
         View root = binding.getRoot();
 
         // Initialize TextView and Buttons
-        textViewMonth = root.findViewById(R.id.textView5);
+        textViewMonth = root.findViewById(R.id.yourhikeheadline);
         btnPrevMonth = root.findViewById(R.id.btnPrevMonth);
         btnNextMonth = root.findViewById(R.id.btnNextMonth);
+        myDatabaseHelper = new StepAppOpenHelper(this.getContext());
+
+
 
         // Get the current month
         Calendar calendar = Calendar.getInstance();
         currentMonthIndex = calendar.get(Calendar.MONTH);
+        int currentMonth = calendar.get(Calendar.MONTH);
+        int currentYear = calendar.get(Calendar.YEAR);
+
 
         // Set initial month
         updateMonth();
@@ -80,30 +89,46 @@ public class HistoryFragment extends Fragment {
             }
         });
         listView = root.findViewById(R.id.list_view_history);
-        dataModels = new ArrayList<>();
+        createCursor();
 
-        // List Entries
-        dataModels.add(new DataModel("My Hike", "23.11.2023", "230"));
-        dataModels.add(new DataModel("My Hike2", "21.11.2023", "345"));
-        dataModels.add(new DataModel("My Hike3", "19.11.2023", "456"));
-        dataModels.add(new DataModel("My Hike4", "15.11.2023", "278"));
-
-        adapter = new CustomAdapter(dataModels, requireContext());
         listView.setAdapter(adapter);
+
         NavController navController = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment_content_main);
 
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                Bundle bundle = new Bundle();
-                // Pass any necessary data to the ReportFragment using the bundle
-                bundle.putString("itemName", dataModels.get(position).getName());
-                bundle.putString("itemDate", dataModels.get(position).getDate());
-                bundle.putString("itemDuration", dataModels.get(position).getDuration());
+                // Get the cursor at the clicked position
+                Cursor cursor = (Cursor) parent.getItemAtPosition(position);
+                int hikeId;
+                int test = position;
+                Log.d("TEST", "POSITION: " + test );
 
-                navController.navigate(R.id.action_nav_hist_to_nav_gallery, bundle);
+                int idColumnIndex = cursor.getColumnIndex("_id");
+                if (idColumnIndex != -1) {
+                    hikeId = cursor.getInt(idColumnIndex);
+
+                    // Create a bundle and navigate only if hikeId is valid
+                    if (hikeId >= 0) {
+                        Bundle bundle = new Bundle();
+                        bundle.putInt("hikeId", hikeId);
+
+                        NavController navController = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment_content_main);
+                        navController.navigate(R.id.action_nav_hist_to_nav_gallery, bundle);
+                    } else {
+                        // Handle the case where the ID is invalid
+                        Log.e("HistoryFragment", "Invalid hikeId: " + hikeId);
+                        Toast.makeText(requireContext(), "No data available", Toast.LENGTH_SHORT).show();
+                    }
+                } else {
+                    // Handle the case where the _id column is not found in the cursor
+                    Log.e("HistoryFragment", "_id column not found in the cursor");
+                    Toast.makeText(requireContext(), "No data available", Toast.LENGTH_SHORT).show();
+                }
             }
         });
+
+
 
         return root;
     }
@@ -112,6 +137,37 @@ public class HistoryFragment extends Fragment {
     public void onDestroyView() {
         super.onDestroyView();
         binding = null;
+    }
+
+    private void createCursor() {
+        // Create a cursor to fetch data from the database
+        Cursor cursor = myDatabaseHelper.getHikesForMonth(currentMonthIndex, currentYear);
+
+        // Log the contents of the cursor
+        DatabaseUtils.dumpCursor(cursor);
+
+        // Define the columns from which to fetch data
+        String[] columns = {
+                StepAppOpenHelper.KEY_NAME, // Alias "id" column as "_id"
+                StepAppOpenHelper.KEY_DAY,
+                StepAppOpenHelper.KEY_DISTANCE
+        };
+
+        // Define the views where data should be placed
+        int[] to = {
+                R.id.name,
+                R.id.version_number,
+                R.id.type
+        };
+
+        adapter = new SimpleCursorAdapter(
+                requireContext(),
+                R.layout.list_view_item, // your custom layout for each item
+                cursor,
+                columns,
+                to,
+                0
+        );
     }
 
     private void updateMonth() {
@@ -134,6 +190,10 @@ public class HistoryFragment extends Fragment {
         }
 
         updateMonth();
+
+        // Refresh the cursor data for the new month
+        adapter.swapCursor(myDatabaseHelper.getHikesForMonth(currentMonthIndex, currentYear));
+
         // Add logic to update the ListView based on the new month if needed
     }
 
@@ -147,6 +207,11 @@ public class HistoryFragment extends Fragment {
         }
 
         updateMonth();
+
+        // Refresh the cursor data for the new month
+        adapter.swapCursor(myDatabaseHelper.getHikesForMonth(currentMonthIndex, currentYear));
+
         // Add logic to update the ListView based on the new month if needed
     }
+
 }
