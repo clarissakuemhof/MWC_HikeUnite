@@ -275,9 +275,7 @@ public class HomeFragment extends Fragment {
         gpsHelper.getAndHandleLastLocation();
         Log.d("FunctionLog", "Saved last Location");
         myDatabaseHelper.insertGPSData(gpsHelper.getLongitude(), gpsHelper.getLatitude(), gpsHelper.getAltitude(), id);
-        mapsHelper = new OpenStreetMapsHelper(getContext(),myDatabaseHelper.getGeoPointsById(id));
-        distance = mapsHelper.getTotalDistanceInKm();
-        myDatabaseHelper.updateHikeData(id,steps, distance );
+        myDatabaseHelper.updateHikeData(id,steps );
         changeButtonColor(startButton,buttonColor1);
     }
 
