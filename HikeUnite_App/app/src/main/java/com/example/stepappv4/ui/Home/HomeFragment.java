@@ -387,13 +387,7 @@ class  StepCounterListener implements SensorEventListener{
                 stepCountsView.setText(String.valueOf(accStepCounter));
                 progressBar.setProgress(accStepCounter);
 
-                ContentValues databaseEntry = new ContentValues();
-                databaseEntry.put(StepAppOpenHelper.KEY_TIMESTAMP, timePointList.get(i));
 
-                databaseEntry.put(StepAppOpenHelper.KEY_DAY, this.day);
-                databaseEntry.put(StepAppOpenHelper.KEY_HOUR, this.hour);
-
-                database.insert(StepAppOpenHelper.TABLE_NAME, null, databaseEntry);
 
             }
         }
