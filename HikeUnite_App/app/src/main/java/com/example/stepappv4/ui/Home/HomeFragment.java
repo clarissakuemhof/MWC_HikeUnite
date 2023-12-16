@@ -89,7 +89,7 @@ public class HomeFragment extends Fragment {
         buttonColor2 = R.color.md_theme_dark_inversePrimary;
 //----------------------------Progress Bar-------------------------------
         progressBar = (CircularProgressIndicator) root.findViewById(R.id.progressBar);
-        progressBar.setMax(50);
+        progressBar.setMax(10000);
         progressBar.setProgress(0);
 //---------------------------Accelerometer-------------------------------
         sensorManager = (SensorManager) getActivity().getSystemService(Context.SENSOR_SERVICE);
@@ -297,6 +297,11 @@ class  StepCounterListener implements SensorEventListener{
     ArrayList<Integer> accSeries = new ArrayList<Integer>();
     ArrayList<String> timestampsSeries = new ArrayList<String>();
     private double accMag = 0;
+    // Everything in double since it's more precise (32-bit FP < 64-bit FP)
+    private double smoothAccMag = 0;
+    // the value requires imperative testing
+    // value is between 0 and 1
+    private double alpha = 0.8;
     private int lastAddedIndex = 1;
     int stepThreshold = 6;
     TextView stepCountsView;
@@ -307,10 +312,10 @@ class  StepCounterListener implements SensorEventListener{
     private String hour;
 
 
-    public StepCounterListener(TextView stepCountsView, CircularProgressIndicator progressBar,  SQLiteDatabase databse)
+    public StepCounterListener(TextView stepCountsView, CircularProgressIndicator progressBar,  SQLiteDatabase database)
     {
         this.stepCountsView = stepCountsView;
-        this.database = databse;
+        this.database = database;
         this.progressBar = progressBar;
     }
 
@@ -340,10 +345,17 @@ class  StepCounterListener implements SensorEventListener{
                     //Log.d("Acc. Event", "last sensor update at " + String.valueOf(sensorEventDate) + sensorRawValues);
                 }
 
-
+                // Calculate the acceleration vector
                 accMag = Math.sqrt(x*x+y*y+z*z);
 
                 accSeries.add((int) accMag);
+                // Add a low-pass filter to smooth and to reduce noise
+                // alpha = smoothing factor
+                // (1- alpha) = weight assigned for the smoothAccMAg
+                smoothAccMag = alpha * accMag + (1- alpha) * smoothAccMag;
+
+
+                accSeries.add((int) smoothAccMag
                 // Get the date, the day and the hour
                 timestamp = sensorEventDate;
                 day = sensorEventDate.substring(0,10);
@@ -393,4 +405,3 @@ class  StepCounterListener implements SensorEventListener{
         }
     }
 
-}
