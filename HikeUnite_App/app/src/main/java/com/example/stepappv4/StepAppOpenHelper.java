@@ -10,15 +10,18 @@ import android.widget.Toast;
 
 import org.osmdroid.util.GeoPoint;
 
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.concurrent.TimeUnit;
 
 
 public class StepAppOpenHelper extends SQLiteOpenHelper {
@@ -454,58 +457,6 @@ public class StepAppOpenHelper extends SQLiteOpenHelper {
         return steps;
     }
 
-
-    public float getDistanceDataById(int hikeId) {
-        float distance = -1; // Default value if no data is found
-
-        SQLiteDatabase database = this.getReadableDatabase();
-        Cursor cursor = null;
-
-        try {
-            // Define the columns to retrieve
-            String[] columns = {KEY_DISTANCE};
-
-            // Define the WHERE clause to filter by hike ID
-            String selection = KEY_ID + "=?";
-            String[] selectionArgs = {String.valueOf(hikeId)};
-
-            // Query the "hiking_data" table
-            cursor = database.query(
-                    TABLE_NAME,        // The table name
-                    columns,            // The columns to retrieve
-                    selection,          // Selection (filter by hike ID)
-                    selectionArgs,      // SelectionArgs
-                    null,               // GroupBy
-                    null,               // Having
-                    null                // No specific ordering needed for a single value
-            );
-
-            // Check if the cursor is not null and contains data
-            if (cursor != null && cursor.moveToFirst()) {
-                // Get the steps data from the cursor
-                int stepsColumnIndex = cursor.getColumnIndex(KEY_DISTANCE);
-                if (stepsColumnIndex != -1) {
-                    distance = cursor.getInt(stepsColumnIndex);
-                } else {
-                    Log.e("getStepsDataById", "Column KEY_DISTANCE not found in cursor");
-                }
-            } else {
-                Log.e("getStepsDataById", "Cursor is null or empty");
-            }
-        } finally {
-            // Close the cursor in a finally block to ensure it gets closed
-            if (cursor != null) {
-                cursor.close();
-            }
-        }
-
-        // Close the database
-        database.close();
-
-        return distance;
-    }
-
-
     public String getNameDataById(int hikeId) {
         String name = "your hike"; // Default value if no data is found
 
@@ -554,6 +505,69 @@ public class StepAppOpenHelper extends SQLiteOpenHelper {
         database.close();
 
         return name;
+    }
+
+    public List<String> getTimestampsById(int id) {
+        SQLiteDatabase database = this.getReadableDatabase();
+        List<String> timestamps = new ArrayList<>();
+
+        String[] columns = {KEY_TIMESTAMP};
+        String selection = KEY_ID + "=?";
+        String[] selectionArgs = {String.valueOf(id)};
+
+        Cursor cursor = database.query(TABLE_NAME2, columns, selection, selectionArgs, null, null, null);
+
+        if (cursor != null && cursor.moveToFirst()) {
+            do {
+                int timestampIndex = cursor.getColumnIndex(KEY_TIMESTAMP);
+
+                if (timestampIndex != -1) {
+                    String timestamp = cursor.getString(timestampIndex);
+                    timestamps.add(timestamp);
+                } else {
+                    Log.w("Timestamps", "Column KEY_TIMESTAMP not found in cursor.");
+                }
+            } while (cursor.moveToNext());
+
+            cursor.close();
+        }
+
+        database.close();
+        return timestamps;
+    }
+
+    // Method to calculate the duration based on the first and last timestamps
+    public String calculateDuration(int id) {
+        List<String> timestamps = getTimestampsById(id);
+
+        if (timestamps.size() >= 2) {
+            // Get the first and last timestamps
+            String firstTimestamp = timestamps.get(0);
+            String lastTimestamp = timestamps.get(timestamps.size() - 1);
+
+            // Parse the timestamps to Date objects
+            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
+            try {
+                Date firstDate = dateFormat.parse(firstTimestamp);
+                Date lastDate = dateFormat.parse(lastTimestamp);
+
+                // Calculate the time difference in milliseconds
+                assert lastDate != null;
+                assert firstDate != null;
+                long timeDifference = lastDate.getTime() - firstDate.getTime();
+
+                // Convert milliseconds to hours and minutes
+                long hours = TimeUnit.MILLISECONDS.toHours(timeDifference);
+                long minutes = TimeUnit.MILLISECONDS.toMinutes(timeDifference) % 60;
+
+                return String.format(Locale.getDefault(), "%02d:%02d", hours, minutes);
+
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
+        }
+
+        return "Null";
     }
 
 
