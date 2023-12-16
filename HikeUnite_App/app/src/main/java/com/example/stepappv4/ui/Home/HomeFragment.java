@@ -165,7 +165,7 @@ class  StepCounterListener implements SensorEventListener{
     // value is between 0 and 1
     private double alpha = 0.8;
     private int lastAddedIndex = 1;
-    int stepThreshold = 6;
+    int stepThreshold = 4;
 
     TextView stepCountsView;
 
