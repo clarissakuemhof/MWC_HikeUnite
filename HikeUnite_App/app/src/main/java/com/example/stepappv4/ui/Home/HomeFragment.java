@@ -275,8 +275,10 @@ public class HomeFragment extends Fragment {
         gpsHelper.getAndHandleLastLocation();
         Log.d("FunctionLog", "Saved last Location");
         myDatabaseHelper.insertGPSData(gpsHelper.getLongitude(), gpsHelper.getLatitude(), gpsHelper.getAltitude(), id);
-        myDatabaseHelper.updateHikeData(id,steps );
+        myDatabaseHelper.updateHikeData(id, sensorListener.getAccStepCounter() );
         changeButtonColor(startButton,buttonColor1);
+        Log.d("Steps", "Step count: " + sensorListener.getAccStepCounter() );
+        System.out.println(sensorListener.getAccStepCounter());
     }
 
     /**
@@ -310,13 +312,17 @@ class  StepCounterListener implements SensorEventListener{
     private String timestamp;
     private String day;
     private String hour;
-
+    private long lastStepTime = 0;
 
     public StepCounterListener(TextView stepCountsView, CircularProgressIndicator progressBar,  SQLiteDatabase database)
     {
         this.stepCountsView = stepCountsView;
         this.database = database;
         this.progressBar = progressBar;
+    }
+
+    public int getAccStepCounter(){
+        return accStepCounter;
     }
 
     @Override
@@ -387,7 +393,6 @@ class  StepCounterListener implements SensorEventListener{
         }
 
         List<Integer> valuesInWindow = accSeries.subList(lastAddedIndex,currentSize);
-        //List<String> timePointList = timestampsSeries.subList(lastAddedIndex,currentSize);
         lastAddedIndex = currentSize;
 
         for (int i = 1; i < valuesInWindow.size()-1; i++) {
@@ -395,33 +400,16 @@ class  StepCounterListener implements SensorEventListener{
             int downwardSlope = valuesInWindow.get(i) - valuesInWindow.get(i - 1);
 
             if (forwardSlope < 0 && downwardSlope > 0 && valuesInWindow.get(i) > stepThreshold) {
+                    long currentTime = System.currentTimeMillis();
 
-                //long timeDifference = getTimeDifference(timePointList.get(i), timePointList.get(i-1));
-
-                //if(timeDifference > timeConstraintMillis){
-                    accStepCounter += 1;
-                    Log.d("ACC STEPS: ", String.valueOf(accStepCounter));
-                    stepCountsView.setText(String.valueOf(accStepCounter));
-                    progressBar.setProgress(accStepCounter);
-
-
-
-                //}
+                    if(currentTime - lastStepTime > timeConstraintMillis) {
+                        accStepCounter += 1;
+                        Log.d("ACC STEPS: ", String.valueOf(accStepCounter));
+                        stepCountsView.setText(String.valueOf(accStepCounter));
+                        progressBar.setProgress(accStepCounter);
+                    }
             }
         }
     }
-    private long getTimeDifference(String time1, String time2){
-        try {
-            SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss:SSS");
-            format.setTimeZone(TimeZone.getTimeZone("GMT+2"));
 
-            long timestamp1 = format.parse(time1).getTime();
-            long timestamp2 = format.parse(time2).getTime();
-
-            return timestamp1 - timestamp2;
-        } catch (ParseException e) {
-            e.printStackTrace();
-            return 0;
-        }
-    }
 }
