@@ -1,6 +1,7 @@
 package com.example.stepappv4.ui.HelperClass;
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.Handler;
 import android.util.Log;
 import android.widget.Button;
@@ -55,10 +56,10 @@ public class HikeHelper {
             changeButtonColor(startButton, buttonColor2);
             changeButtonColor(stopButton,buttonColor1);
             Log.d("BOOLEAN CHANGED", "started: " + started);
-            sendToDatabase(5);
+            sendToDatabase(5,false);
         } else if (haveBreak && started){
             setHaveBreak(false);
-            sendToDatabase(5);
+            sendToDatabase(5, false);
             changeButtonColor(startButton, buttonColor2);
             changeButtonColor(stopButton,buttonColor1);
             Log.d("BOOLEAN CHANGED", "haveBreak: " + haveBreak);
@@ -83,6 +84,9 @@ public class HikeHelper {
         myDatabaseHelper.updateHikeDistance(id,mapsHelper.getTotalDistanceInKm());
         //Log.d("DEBUG","Updated Distance: " + distance + " for hike with id " + id);
 
+        Log.d("TEST", "sendToDatabase");
+        sendToDatabase(0, true);
+
 
         changeButtonColor(startButton,buttonColor1);
         if (sensorListener != null){
@@ -102,18 +106,23 @@ public class HikeHelper {
      * Accesses gpsHelper to update the current position and then retrieves the values and inserts them to database
      * ALso checks if user has a break at the moment and stops sending the data if active
      */
-    private void sendToDatabase(int seconds) {
-        if (started) {
-            handler.postDelayed(() -> {
-                if (!haveBreak) {
-                    myGPSHelper.getAndHandleLastLocation();
-                    Log.d("FunctionLog", "Updated Location");
-                    myDatabaseHelper.insertGPSData(myGPSHelper.getLongitude(), myGPSHelper.getLatitude(), myGPSHelper.getAltitude(), id);
-                    sendToDatabase(seconds);
-                }
-            }, seconds * 1000L);
+    private void sendToDatabase(int seconds, boolean stopService) {
+        Log.d("TEST", "sendUpdateToDatabase");
+        Intent serviceIntent = new Intent(context, HikeService.class);
+        serviceIntent.putExtra("id", id);
+        serviceIntent.putExtra("seconds", seconds);
+        serviceIntent.putExtra("started", started);
+        serviceIntent.putExtra("haveBreak", haveBreak);
+        if (stopService) {
+            // Add an extra to indicate that the service should be stopped
+            serviceIntent.putExtra("stopService", true);
         }
+
+        ContextCompat.startForegroundService(context, serviceIntent);
+
     }
+
+
 
     /**
      * Method to change color of buttons
@@ -131,6 +140,8 @@ public class HikeHelper {
             changeButtonColor(stopButton,buttonColor2);
             //stopButton.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.md_theme_dark_inversePrimary));
             changeButtonColor(startButton,buttonColor1);
+            Log.d("TEST", "sendToDatabase");
+            sendToDatabase(0, true);
             //startButton.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.md_theme_light_secondaryContainer));
 
         }
