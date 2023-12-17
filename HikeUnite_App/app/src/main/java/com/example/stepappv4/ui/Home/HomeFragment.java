@@ -154,6 +154,9 @@ public class HomeFragment extends Fragment {
                 id = myDatabaseHelper.getLastId(myDatabaseHelper.getWritableDatabase()) + 1;
                 myDatabaseHelper.insertHikeData();
                 insertDummyHikeLuganoToBellinzonaWithGPS();
+                mapsHelper = new OpenStreetMapsHelper(getContext(), myDatabaseHelper.getGeoPointsById(id));
+                myDatabaseHelper.updateHikeDistance(id,mapsHelper.getTotalDistanceInKm());
+                Log.d("DEBUG","Updated Distance: " + distance + " for hike with id " + id);
 
             }
         });

@@ -17,9 +17,9 @@ import java.util.List;
 public class GridAdapter extends BaseAdapter {
 
     private Context mContext;
-    private List<Archievement> mData;
+    private List<Achievement> mData;
 
-    public GridAdapter(Context context, List<Archievement> data) {
+    public GridAdapter(Context context, List<Achievement> data) {
         mContext = context;
         mData = data;
     }
@@ -51,7 +51,7 @@ public class GridAdapter extends BaseAdapter {
         TextView progressTV = convertView.findViewById(R.id.gridItemText1);
         LinearProgressIndicator progressIndicator = convertView.findViewById(R.id.achieveProgress3);
 
-        Archievement item = mData.get(position);
+        Achievement item = mData.get(position);
 
         if (!item.isReachedMax()){
             imageView.setImageResource(R.drawable.baseline_stars_24);

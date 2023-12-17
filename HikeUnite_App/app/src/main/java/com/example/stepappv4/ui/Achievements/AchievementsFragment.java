@@ -29,7 +29,7 @@ public class AchievementsFragment extends Fragment {
 
         GridView gridView = root.findViewById(R.id.gridView);
 
-        List<Archievement> gridItems = getGridItems();
+        List<Achievement> gridItems = getGridItems();
 
         GridAdapter gridAdapter = new GridAdapter(getContext(), gridItems);
         gridView.setAdapter(gridAdapter);
@@ -43,17 +43,17 @@ public class AchievementsFragment extends Fragment {
      *
      * @return list with possible achievements
      */
-    private List<Archievement> getGridItems() {
-        List<Archievement> items = new ArrayList<>();
-        items.add(new Archievement(10,myDatabaseHelper.getCountOfHikes(), "Do 10 Hikes",1) );
-        items.add(new Archievement(25,myDatabaseHelper.getCountOfHikes(), "Do 25 Hikes",2) );
-        items.add(new Archievement(50,myDatabaseHelper.getCountOfHikes(), "Do 50 Hikes",3) );
-        items.add(new Archievement(25, (int) myDatabaseHelper.getTotalDistance(), "Go 25 km",1));
-        items.add(new Archievement(50,(int) myDatabaseHelper.getTotalDistance(), "Go 50 km",2));
-        items.add(new Archievement(100,(int) myDatabaseHelper.getTotalDistance(), "Go 100 km",3));
-        items.add(new Archievement(50000, (int) myDatabaseHelper.getTotalSteps(), "Go 50000 Steps",1));
-        items.add(new Archievement(100000,(int) myDatabaseHelper.getTotalSteps(), "Go 100000 Steps",2));
-        items.add(new Archievement(150000,(int) myDatabaseHelper.getTotalSteps(), "Go 100000 Steps",3));
+    private List<Achievement> getGridItems() {
+        List<Achievement> items = new ArrayList<>();
+        items.add(new Achievement(10,myDatabaseHelper.getCountOfHikes(), "Do 10 Hikes",1) );
+        items.add(new Achievement(25,myDatabaseHelper.getCountOfHikes(), "Do 25 Hikes",2) );
+        items.add(new Achievement(50,myDatabaseHelper.getCountOfHikes(), "Do 50 Hikes",3) );
+        items.add(new Achievement(25, (int) myDatabaseHelper.getTotalDistance(), "Go 25 km",1));
+        items.add(new Achievement(50,(int) myDatabaseHelper.getTotalDistance(), "Go 50 km",2));
+        items.add(new Achievement(100,(int) myDatabaseHelper.getTotalDistance(), "Go 100 km",3));
+        items.add(new Achievement(50000, (int) myDatabaseHelper.getTotalSteps(), "Go 50000 Steps",1));
+        items.add(new Achievement(100000,(int) myDatabaseHelper.getTotalSteps(), "Go 100000 Steps",2));
+        items.add(new Achievement(150000,(int) myDatabaseHelper.getTotalSteps(), "Go 100000 Steps",3));
         return items;
     }
 
