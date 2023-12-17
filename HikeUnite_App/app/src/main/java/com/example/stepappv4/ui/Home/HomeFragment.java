@@ -1,6 +1,9 @@
 package com.example.stepappv4.ui.Home;
 
+import android.content.ComponentName;
 import android.content.Context;
+import android.content.Intent;
+import android.content.ServiceConnection;
 import android.database.sqlite.SQLiteDatabase;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
@@ -8,6 +11,7 @@ import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.IBinder;
 import android.os.SystemClock;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -66,6 +70,40 @@ public class HomeFragment extends Fragment {
     private boolean haveBreak;
     private final Handler handler = new Handler();
     private OpenStreetMapsHelper mapsHelper;
+    private StepCountingService stepCountingService;
+    private boolean isBound = false;
+
+    private ServiceConnection serviceConnection = new ServiceConnection() {
+        @Override
+        public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
+            StepCountingService.StepCountingBinder binder = (StepCountingService.StepCountingBinder) iBinder;
+            stepCountingService = binder.getService();
+            isBound = true;
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName componentName) {
+            isBound = false;
+        }
+    };
+
+    @Override
+    public void onCreate(Bundle savedInstanceState){
+        super.onCreate(savedInstanceState);
+
+        Intent serviceIntent = new Intent(requireContext(), StepCountingService.class);
+        requireContext().startService(serviceIntent);
+        requireContext().bindService(serviceIntent, serviceConnection, Context.BIND_AUTO_CREATE);
+    }
+
+    @Override
+    public void onDestroy(){
+        super.onDestroy();
+        if(isBound){
+            requireContext().unbindService(serviceConnection);
+            isBound = false;
+        }
+    }
 
 
     public View onCreateView(@NonNull LayoutInflater inflater,
@@ -300,7 +338,7 @@ public class HomeFragment extends Fragment {
 class  StepCounterListener implements SensorEventListener{
 
     private long lastSensorUpdate = 0;
-    public static int accStepCounter = 0;
+    private int accStepCounter = 0;
     ArrayList<Integer> accSeries = new ArrayList<Integer>();
     ArrayList<String> timestampsSeries = new ArrayList<String>();
     private double accMag = 0;
@@ -327,7 +365,12 @@ class  StepCounterListener implements SensorEventListener{
     }
 
     public int getAccStepCounter(){
+
         return accStepCounter;
+    }
+
+    public void incrementStepCounter(){
+        accStepCounter++;
     }
 
     @Override
