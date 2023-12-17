@@ -404,6 +404,7 @@ class  StepCounterListener implements SensorEventListener{
 
                     if(currentTime - lastStepTime > timeConstraintMillis) {
                         accStepCounter += 1;
+                        lastStepTime = currentTime;
                         Log.d("ACC STEPS: ", String.valueOf(accStepCounter));
                         stepCountsView.setText(String.valueOf(accStepCounter));
                         progressBar.setProgress(accStepCounter);
