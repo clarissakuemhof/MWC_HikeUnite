@@ -3,6 +3,7 @@ package com.example.stepappv4;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
+import android.database.DatabaseUtils;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
@@ -47,7 +48,12 @@ public class StepAppOpenHelper extends SQLiteOpenHelper {
     public static final String KEY_STEPS = "steps";
 
 
-
+    /**
+     * Constructor for StepAppOpenHelper
+     * use onUpgrade to delete tables and then switch back to onCreate
+     *
+     * @param context context of current app
+     */
     public StepAppOpenHelper (Context context)
     {
         super(context,DATABASE_NAME,null,DATABASE_VERSION);
@@ -72,7 +78,14 @@ public class StepAppOpenHelper extends SQLiteOpenHelper {
     }
 
 
-
+    /**
+     * Method to create hiking_data table if it not already exists
+     * Consists of: KEY_ID = unique identifier of row
+     *              KEY_DAY = day of the hike
+     *              KEY_NAME = name of the hike
+     *              KEY_DISTANCE = total walked distance during hike
+     *              KEY_STEPS = total steps during hike
+     */
     public static final String CREATE_TABLE_SQL = "CREATE TABLE IF NOT EXISTS " + TABLE_NAME +"  (" +
             KEY_ID + " INTEGER PRIMARY KEY, " +
             KEY_DAY + " TEXT, " +
@@ -80,70 +93,109 @@ public class StepAppOpenHelper extends SQLiteOpenHelper {
             KEY_DISTANCE + " REAL, " +
             KEY_STEPS + " INTEGER);";
 
+    /**
+     * Method to create gps_points table if it not already exists
+     * Consists of: KEY_GPS_NUM = unique identifier of row
+     *              KEY_TIMESTAMP = timestamp of location tracking
+     *              KEY_LONGITUDE = longitude value
+     *              KEY_LATITUDE = latitude value
+     *              KEY_ALTITUDE = altitude value
+     */
     public static final String CREATE_TABLE_GPS = "CREATE TABLE IF NOT EXISTS " + TABLE_NAME2 + " (" +
             KEY_GPS_NUM + " INTEGER PRIMARY KEY, " +
-            KEY_DAY + " TEXT, " +
-            KEY_HOUR + " TEXT, " +
+            //KEY_DAY + " TEXT, " +
+            //KEY_HOUR + " TEXT, " +
             KEY_TIMESTAMP + " TEXT, " +
             KEY_ID + " INTEGER, " +
             KEY_LONGITUDE + " REAL, " +
             KEY_LATITUDE + " REAL, " +
             KEY_ALTITUDE + " REAL);";
 
-    // Call this method every 10 minutes to save the relevant data during the hike
-    public void insertHikeData(double distance, int steps, String name) {
+
+    /**
+     * Method to create new hike in hiking_data table
+     * automatically adds unique id and name to hike
+     */
+    public void insertHikeData() {
         SQLiteDatabase database = this.getWritableDatabase();
         ContentValues values = new ContentValues();
 
-        // Get the last id from the database
         int lastId = getLastId(database);
 
-        // Increment the last id to assign a new one
         int newId = lastId + 1;
+        String name = "Your Hike"+ newId;
 
-        // Get current timestamp
         String timestamp = getCurrentTimestamp();
 
         values.put(KEY_ID, newId);
         values.put(KEY_DAY, getCurrentDate());
-        values.put(KEY_DISTANCE, distance);
-        values.put(KEY_STEPS, steps);
+        values.put(KEY_DISTANCE, 0);
+        values.put(KEY_STEPS, 0);
         values.put(KEY_NAME, name);
 
-        // Insert the values into the database
         database.insert(TABLE_NAME, null, values);
         Log.d("DatabaseInsert", "Inserted GPS data: "
                 + ", ID: " + newId
-                + ", Distance: " + distance
-                + ", steps: " + steps
+                + ", Distance: " + 0
+                + ", steps: " + 0
                 + ", Timestamp: " + timestamp);
-
-        // Close the database
         database.close();
     }
 
+    /**
+     * This method is used to update the steps value of a certain hike
+     *
+     * @param id hike you want to update
+     * @param newSteps new value for steps
+     */
     public void updateHikeData(int id, int newSteps) {
         SQLiteDatabase database = this.getWritableDatabase();
         ContentValues values = new ContentValues();
 
         values.put(KEY_STEPS, newSteps);
 
-
-        // Define the WHERE clause to update the specific row by ID
         String whereClause = KEY_ID + "=?";
         String[] whereArgs = {String.valueOf(id)};
 
-        // Update the values in the database
         database.update(TABLE_NAME, values, whereClause, whereArgs);
 
         Log.d("DatabaseUpdate", "Updated Hike Data - ID: " + id
                 + ", New Steps: " + newSteps);
 
-
-        // Close the database
         database.close();
     }
 
+    /**
+     * This method is used to update the distance value of a certain hike
+     *
+     * @param id hike you want to update
+     * @param distance new distance value
+     */
+    public void updateHikeDistance(int id, float distance) {
+        SQLiteDatabase database = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+
+        values.put(KEY_DISTANCE, distance);
+
+        String whereClause = KEY_ID + "=?";
+        String[] whereArgs = {String.valueOf(id)};
+
+        database.update(TABLE_NAME, values, whereClause, whereArgs);
+
+        Log.d("DatabaseUpdate", "Updated Hike Distance - ID: " + id
+                + ", New Distance: " + distance);
+
+        database.close();
+    }
+
+    /**
+     * Method to save GeoData in the gps_point table
+     *
+     * @param longitude longitude value of location
+     * @param latitude latitude value of location
+     * @param altitude altitude value of location
+     * @param id id of hike that is connected to location data
+     */
     public void insertGPSData(double longitude, double latitude, double altitude, int id) {
         SQLiteDatabase database = this.getWritableDatabase();
         ContentValues values = new ContentValues();
@@ -158,8 +210,8 @@ public class StepAppOpenHelper extends SQLiteOpenHelper {
         String timestamp = getCurrentTimestamp();
 
         values.put(KEY_GPS_NUM, newGpsNum);
-        values.put(KEY_DAY, getCurrentDate());
-        values.put(KEY_HOUR, getCurrentHour());
+        //values.put(KEY_DAY, getCurrentDate());
+        //values.put(KEY_HOUR, getCurrentHour());
         values.put(KEY_TIMESTAMP, timestamp);
         values.put(KEY_ID, id);
         values.put(KEY_LONGITUDE, longitude);
@@ -179,61 +231,10 @@ public class StepAppOpenHelper extends SQLiteOpenHelper {
         database.close();
 
     }
-    // Utility methods for date and time
-    private String getCurrentDate() {
-        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
-        return dateFormat.format(Calendar.getInstance().getTime());
-    }
-
-    private String getCurrentHour() {
-        SimpleDateFormat hourFormat = new SimpleDateFormat("HH:mm", Locale.getDefault());
-        return hourFormat.format(Calendar.getInstance().getTime());
-    }
-
-    private String getCurrentTimestamp() {
-        SimpleDateFormat timestampFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
-        return timestampFormat.format(Calendar.getInstance().getTime());
-    }
-
-
-    public static Map<String, Integer> loadStepsByDateForLastWeek(Context context) {
-        Map<String, Integer> stepsByDate = new TreeMap<>();
-
-        // Get the readable database
-        SQLiteDatabase database = new StepAppOpenHelper(context).getReadableDatabase();
-
-        // Calculate the date seven days ago from the current date
-        Calendar calendar = Calendar.getInstance();
-        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
-
-        for (int i = 0; i < 7; i++) {
-            String date = dateFormat.format(calendar.getTime());
-
-            // Query to retrieve steps for a specific date
-            Cursor cursor = database.rawQuery("SELECT COUNT(*) FROM num_steps WHERE day = ?", new String[]{date});
-
-            // Check for data in the cursor and retrieve the step count for each date
-            if (cursor != null && cursor.moveToFirst()) {
-                int stepsCount = cursor.getInt(0);
-                stepsByDate.put(date, stepsCount);
-            }
-
-            // Move to the previous day for the next iteration
-            calendar.add(Calendar.DAY_OF_YEAR, -1);
-
-            if (cursor != null) {
-                cursor.close();
-            }
-        }
-
-        database.close();
-        return stepsByDate;
-    }
-
-
 
     /**
      * Function to get the last gpsnum entry in the gps_points table
+     *
      * @param database database you want to access
      * @return last gps entry in the table
      */
@@ -251,10 +252,10 @@ public class StepAppOpenHelper extends SQLiteOpenHelper {
 
     /**
      * Function to get the last id entry in the hiking_data table
+     *
      * @param database database you want to access
      * @return last id entry in the table
      */
-    // Helper method to get the last id from the database
     public int getLastId(SQLiteDatabase database) {
         int lastId = 0;
         Cursor cursor = database.rawQuery("SELECT MAX(" + KEY_ID + ") FROM " + TABLE_NAME, null);
@@ -270,7 +271,7 @@ public class StepAppOpenHelper extends SQLiteOpenHelper {
 
     /**
      * This function provides a list of GeoPoints linked to a certain hike by id. We extract the longitude
-     * and latitude from each entry identified by the same gpsnum to get matching pairs.
+     * and latitude from each entry identified by the same gpssum to get matching pairs.
      *
      * @param id id of the hike
      * @return list of GeoPoints with gps data
@@ -308,11 +309,9 @@ public class StepAppOpenHelper extends SQLiteOpenHelper {
                 GeoPoint geoPoint = new GeoPoint(latitude, longitude, altitude);
                 geoPointMap.put(gpsNum, geoPoint);
 
-                // Track the maximum gpsNum encountered
                 maxGpsNum = Math.max(maxGpsNum, gpsNum);
             } while (cursor.moveToNext());
 
-            // Ensure the GeoPoint list is ordered from 0 to maxGpsNum - 1
             for (int i = 0; i <= maxGpsNum; i++) {
                 if (geoPointMap.containsKey(i)) {
                     geoPoints.add(geoPointMap.get(i));
@@ -321,15 +320,14 @@ public class StepAppOpenHelper extends SQLiteOpenHelper {
 
             cursor.close();
         }
-
         database.close();
-
 
         return geoPoints;
     }
 
     /**
      * This function returns a list of altitude values linked to a certain hike
+     *
      * @param id is the id of the hike
      * @return list with altitude values
      */
@@ -362,12 +360,16 @@ public class StepAppOpenHelper extends SQLiteOpenHelper {
         return altitudeList;
     }
 
-
-    // Method to get hikes from the "hiking_data" table for a specific month
+    /**
+     * This method returns a cursor with all the hikes of a certain month. Used to display the hikes in the history fragment
+     *
+     * @param month month for hike display
+     * @param year year for hike display
+     * @return cursor with all hike data of this month
+     */
     public Cursor getHikesForMonth(int month, int year) {
         SQLiteDatabase db = this.getReadableDatabase();
 
-        // Calculate the start and end dates for the specified month
         Calendar cal = Calendar.getInstance();
         cal.set(Calendar.MONTH, month);
         cal.set(Calendar.YEAR, year);
@@ -377,59 +379,58 @@ public class StepAppOpenHelper extends SQLiteOpenHelper {
         cal.set(Calendar.DAY_OF_MONTH, cal.getActualMaximum(Calendar.DAY_OF_MONTH));
         String endDate = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(cal.getTime());
 
-        // Define the columns you want to retrieve
+
         String[] projection = {
                 KEY_ID + " AS _id",
                 KEY_NAME,
                 KEY_DAY,
                 KEY_DISTANCE
-                // Add other columns as needed
+
         };
 
-        // Define the WHERE clause to filter by month
         String selection = KEY_DAY + " BETWEEN ? AND ?";
         String[] selectionArgs = {startDate, endDate};
 
-        // Query the "hiking_data" table
         Cursor cursor = db.query(
-                TABLE_NAME,       // The table name
-                projection,       // The columns to retrieve
-                selection,        // Selection (filter by month)
-                selectionArgs,    // SelectionArgs
-                null,             // GroupBy
-                null,             // Having
-                KEY_DAY + " DESC" // OrderBy (assuming you want to order by date)
+                TABLE_NAME,
+                projection,
+                selection,
+                selectionArgs,
+                null,
+                null,
+                KEY_DAY + " DESC"
         );
-
-        // Note: If you have additional WHERE clauses, you can append them using "AND" in the selection.
 
         return cursor;
     }
 
 
+    /**
+     * This method returns the step count of a certain hike from the hiking_data table
+     *
+     * @param hikeId identifies the hike
+     * @return stepcount of this hike
+     */
     public int getStepsDataById(int hikeId) {
-        int steps = -1; // Default value if no data is found
+        int steps = -1;
 
         SQLiteDatabase database = this.getReadableDatabase();
         Cursor cursor = null;
 
         try {
-            // Define the columns to retrieve
             String[] columns = {KEY_STEPS};
 
-            // Define the WHERE clause to filter by hike ID
             String selection = KEY_ID + "=?";
             String[] selectionArgs = {String.valueOf(hikeId)};
 
-            // Query the "hiking_data" table
             cursor = database.query(
-                    TABLE_NAME,        // The table name
-                    columns,            // The columns to retrieve
-                    selection,          // Selection (filter by hike ID)
-                    selectionArgs,      // SelectionArgs
-                    null,               // GroupBy
-                    null,               // Having
-                    null                // No specific ordering needed for a single value
+                    TABLE_NAME,
+                    columns,
+                    selection,
+                    selectionArgs,
+                    null,
+                    null,
+                    null
             );
 
             // Check if the cursor is not null and contains data
@@ -445,46 +446,46 @@ public class StepAppOpenHelper extends SQLiteOpenHelper {
                 Log.e("getStepsDataById", "Cursor is null or empty");
             }
         } finally {
-            // Close the cursor in a finally block to ensure it gets closed
             if (cursor != null) {
                 cursor.close();
             }
         }
 
-        // Close the database
         database.close();
 
         return steps;
     }
 
+    /**
+     * This method returns the name of a hike based on the id
+     * Sets default value if no name is found
+     *
+     * @param hikeId identifies the hike
+     * @return name of the hike
+     */
     public String getNameDataById(int hikeId) {
-        String name = "your hike"; // Default value if no data is found
+        String name = "your hike";
 
         SQLiteDatabase database = this.getReadableDatabase();
         Cursor cursor = null;
 
         try {
-            // Define the columns to retrieve
             String[] columns = {KEY_NAME};
 
-            // Define the WHERE clause to filter by hike ID
             String selection = KEY_ID + "=?";
             String[] selectionArgs = {String.valueOf(hikeId)};
 
-            // Query the "hiking_data" table
             cursor = database.query(
-                    TABLE_NAME,        // The table name
-                    columns,            // The columns to retrieve
-                    selection,          // Selection (filter by hike ID)
-                    selectionArgs,      // SelectionArgs
-                    null,               // GroupBy
-                    null,               // Having
-                    null                // No specific ordering needed for a single value
+                    TABLE_NAME,
+                    columns,
+                    selection,
+                    selectionArgs,
+                    null,
+                    null,
+                    null
             );
 
-            // Check if the cursor is not null and contains data
             if (cursor != null && cursor.moveToFirst()) {
-                // Get the steps data from the cursor
                 int stepsColumnIndex = cursor.getColumnIndex(KEY_NAME);
                 if (stepsColumnIndex != -1) {
                     name = cursor.getString(stepsColumnIndex);
@@ -495,18 +496,22 @@ public class StepAppOpenHelper extends SQLiteOpenHelper {
                 Log.e("getStepsDataById", "Cursor is null or empty");
             }
         } finally {
-            // Close the cursor in a finally block to ensure it gets closed
             if (cursor != null) {
                 cursor.close();
             }
         }
-
-        // Close the database
         database.close();
 
         return name;
     }
 
+    /**
+     * This method gets all timestamps of a certain hike in the gps_points table
+     * identified by id
+     *
+     * @param id used to identify hike
+     * @return list with all timestamps
+     */
     public List<String> getTimestampsById(int id) {
         SQLiteDatabase database = this.getReadableDatabase();
         List<String> timestamps = new ArrayList<>();
@@ -536,27 +541,30 @@ public class StepAppOpenHelper extends SQLiteOpenHelper {
         return timestamps;
     }
 
-    // Method to calculate the duration based on the first and last timestamps
+
+    /**
+     * This method calculates the duration of a hike based on the first and the last timestamp of this hike
+     * the hike is identified by the id and uses getTimestampsById to create list of timestamps
+     *
+     * @param id identifies hike
+     * @return duration of hike in hrs and minutes
+     */
     public String calculateDuration(int id) {
         List<String> timestamps = getTimestampsById(id);
 
         if (timestamps.size() >= 2) {
-            // Get the first and last timestamps
             String firstTimestamp = timestamps.get(0);
             String lastTimestamp = timestamps.get(timestamps.size() - 1);
 
-            // Parse the timestamps to Date objects
             SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
             try {
                 Date firstDate = dateFormat.parse(firstTimestamp);
                 Date lastDate = dateFormat.parse(lastTimestamp);
 
-                // Calculate the time difference in milliseconds
                 assert lastDate != null;
                 assert firstDate != null;
                 long timeDifference = lastDate.getTime() - firstDate.getTime();
 
-                // Convert milliseconds to hours and minutes
                 long hours = TimeUnit.MILLISECONDS.toHours(timeDifference);
                 long minutes = TimeUnit.MILLISECONDS.toMinutes(timeDifference) % 60;
 
@@ -569,6 +577,138 @@ public class StepAppOpenHelper extends SQLiteOpenHelper {
 
         return "Null";
     }
+
+    /**
+     * Function to count all hikes in the hiking_data table
+     *
+     * @return count of hikes
+     */
+    public int getCountOfHikes() {
+
+        try (SQLiteDatabase database = this.getReadableDatabase()) {
+
+            long count = DatabaseUtils.queryNumEntries(database, TABLE_NAME);
+            return (int) count;
+        }
+    }
+
+    /**
+     * Function to sum up all distance values in the hiking_data table
+     * checks if cursor is not null and if not sums up steps and returns sum
+     *
+     * @return sum of total distance
+     */
+    public double getTotalDistance() {
+        SQLiteDatabase database = this.getReadableDatabase();
+        double totalDistance = 0;
+
+        try {
+            String[] columns = { "SUM(" + KEY_DISTANCE + ")" };
+            Cursor cursor = database.query(
+                    TABLE_NAME,
+                    columns,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null
+            );
+            if (cursor != null && cursor.moveToFirst()) {
+                int distanceColumnIndex = cursor.getColumnIndex("SUM(" + KEY_DISTANCE + ")");
+                if (distanceColumnIndex != -1) {
+                    totalDistance = cursor.getDouble(distanceColumnIndex);
+                } else {
+                    Log.e("getTotalDistance", "Column SUM(KEY_DISTANCE) not found in cursor");
+                }
+            } else {
+                Log.e("getTotalDistance", "Cursor is null or empty");
+            }
+
+            if (cursor != null) {
+                cursor.close();
+            }
+        } finally {
+            database.close();
+        }
+
+        return totalDistance;
+    }
+
+    /**
+     * Function to sum up all steps in the hiking_data table
+     * checks if cursor is not null and if not sums up steps and returns sum
+     *
+     * @return sum of all steps
+     */
+    public int getTotalSteps() {
+        SQLiteDatabase database = this.getReadableDatabase();
+        int totalSteps = 0;
+
+        try {
+            String[] columns = { "SUM(" + KEY_STEPS + ")" };
+            Cursor cursor = database.query(
+                    TABLE_NAME,
+                    columns,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null
+            );
+
+            // Check if the cursor is not null and contains data
+            if (cursor != null && cursor.moveToFirst()) {
+                // Get the sum of steps from the cursor
+                int stepsColumnIndex = cursor.getColumnIndex("SUM(" + KEY_STEPS + ")");
+                if (stepsColumnIndex != -1) {
+                    totalSteps = cursor.getInt(stepsColumnIndex);
+                } else {
+                    Log.e("getTotalSteps", "Column SUM(KEY_STEPS) not found in cursor");
+                }
+            } else {
+                Log.e("getTotalSteps", "Cursor is null or empty");
+            }
+
+            if (cursor != null) {
+                cursor.close();
+            }
+        } finally {
+            database.close();
+        }
+
+        return totalSteps;
+    }
+
+    /**
+     * Gets the current date in the format "yyyy-MM-dd".
+     *
+     * @return The current date in the format "yyyy-MM-dd".
+     */
+    private String getCurrentDate() {
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
+        return dateFormat.format(Calendar.getInstance().getTime());
+    }
+
+    /**
+     * Gets the current hour in the 24-hour format "HH:mm".
+     *
+     * @return The current hour in the 24-hour format "HH:mm".
+     */
+    private String getCurrentHour() {
+        SimpleDateFormat hourFormat = new SimpleDateFormat("HH:mm", Locale.getDefault());
+        return hourFormat.format(Calendar.getInstance().getTime());
+    }
+
+    /**
+     * Gets the current timestamp in the format "yyyy-MM-dd HH:mm:ss".
+     *
+     * @return The current timestamp in the format "yyyy-MM-dd HH:mm:ss".
+     */
+    private String getCurrentTimestamp() {
+        SimpleDateFormat timestampFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
+        return timestampFormat.format(Calendar.getInstance().getTime());
+    }
+
 
 
 }

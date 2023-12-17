@@ -7,6 +7,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.content.Intent;
 import android.app.Dialog;
+import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.ImageButton;
@@ -18,145 +19,59 @@ import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 
 import com.example.stepappv4.R;
+import com.example.stepappv4.StepAppOpenHelper;
 import com.example.stepappv4.databinding.FragmentAchievementsBinding;
 import com.google.android.material.progressindicator.LinearProgressIndicator;
 
+import java.util.ArrayList;
+import java.util.List;
 
+/**
+ * Fragment that displays achievements. Simple fragment with a grid view that displays achievements
+ */
 public class AchievementsFragment extends Fragment {
 
-    private LinearProgressIndicator progressBar;
-    ImageView icon;
-
     private FragmentAchievementsBinding binding;
+    private StepAppOpenHelper myDatabaseHelper;
 
     public View onCreateView(LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
+        myDatabaseHelper = new StepAppOpenHelper(getContext());
+
         NavController navController = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment_content_main);
 
         binding = FragmentAchievementsBinding.inflate(inflater, container, false);
         View root = binding.getRoot();
 
-        progressBar = (LinearProgressIndicator) root.findViewById(R.id.achieveProgress);
-        progressBar.setMax(5000);
-        progressBar.setProgress(342);
+        GridView gridView = root.findViewById(R.id.gridView);
 
-        progressBar = (LinearProgressIndicator) root.findViewById(R.id.achieveProgress2);
-        progressBar.setMax(10);
-        progressBar.setProgress(3);
+        List<Archievement> gridItems = getGridItems();
 
-        progressBar = (LinearProgressIndicator) root.findViewById(R.id.achieveProgress3);
-        progressBar.setMax(100);
-        progressBar.setProgress(32);
-
-        progressBar = (LinearProgressIndicator) root.findViewById(R.id.achieveProgress4);
-        progressBar.setMax(5000);
-        progressBar.setProgress(2756);
-
-        progressBar = (LinearProgressIndicator) root.findViewById(R.id.achieveProgress5);
-        progressBar.setMax(100);
-        progressBar.setProgress(89);
-
-        progressBar = (LinearProgressIndicator) root.findViewById(R.id.achieveProgress6);
-        progressBar.setMax(100);
-        progressBar.setProgress(67);
-
-        progressBar = (LinearProgressIndicator) root.findViewById(R.id.achieveProgress7);
-        progressBar.setMax(5000);
-        progressBar.setProgress(4565);
-
-        icon = root.findViewById(R.id.challenge1);
-        icon.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Bundle bundle = new Bundle();
-                bundle.putInt("badgeNumber", 1);
-                navController.navigate(R.id.action_nav_achievements_to_nav_details, bundle);
-            }
-        });
-
-        icon = root.findViewById(R.id.challenge4);
-        icon.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Bundle bundle = new Bundle();
-                bundle.putInt("badgeNumber", 4);
-                navController.navigate(R.id.action_nav_achievements_to_nav_details, bundle);
-            }
-        });
-
-        icon = root.findViewById(R.id.challenge3);
-        icon.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Bundle bundle = new Bundle();
-                bundle.putInt("badgeNumber", 3);
-                navController.navigate(R.id.action_nav_achievements_to_nav_details, bundle);
-            }
-        });
-
-        icon = root.findViewById(R.id.challenge2);
-        icon.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Bundle bundle = new Bundle();
-                bundle.putInt("badgeNumber", 2);
-                navController.navigate(R.id.action_nav_achievements_to_nav_details, bundle);
-            }
-        });
-
-        icon = root.findViewById(R.id.challenge6);
-        icon.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Bundle bundle = new Bundle();
-                bundle.putInt("badgeNumber", 6);
-                navController.navigate(R.id.action_nav_achievements_to_nav_details, bundle);
-            }
-        });
-
-        icon = root.findViewById(R.id.challenge8);
-        icon.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Bundle bundle = new Bundle();
-                bundle.putInt("badgeNumber", 8);
-                navController.navigate(R.id.action_nav_achievements_to_nav_details, bundle);
-            }
-        });
-
-        icon = root.findViewById(R.id.challenge9);
-        icon.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Bundle bundle = new Bundle();
-                bundle.putInt("badgeNumber", 9);
-                navController.navigate(R.id.action_nav_achievements_to_nav_details, bundle);
-            }
-        });
-        icon = root.findViewById(R.id.challenge7);
-        icon.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Bundle bundle = new Bundle();
-                bundle.putInt("badgeNumber", 7);
-                navController.navigate(R.id.action_nav_achievements_to_nav_details, bundle);
-            }
-        });
-
-        icon = root.findViewById(R.id.challenge5);
-        icon.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Bundle bundle = new Bundle();
-                bundle.putInt("badgeNumber", 5);
-                navController.navigate(R.id.action_nav_achievements_to_nav_details, bundle);
-            }
-        });
+        GridAdapter gridAdapter = new GridAdapter(getContext(), gridItems);
+        gridView.setAdapter(gridAdapter);
 
         return root;
     }
 
-
+    /**
+     * This method is used to create our achievements
+     * it takes the data from the database to display the progress
+     *
+     * @return list with possible achievements
+     */
+    private List<Archievement> getGridItems() {
+        List<Archievement> items = new ArrayList<>();
+        items.add(new Archievement(10,myDatabaseHelper.getCountOfHikes(), "Do 10 Hikes",1) );
+        items.add(new Archievement(25,myDatabaseHelper.getCountOfHikes(), "Do 25 Hikes",2) );
+        items.add(new Archievement(50,myDatabaseHelper.getCountOfHikes(), "Do 50 Hikes",3) );
+        items.add(new Archievement(25, (int) myDatabaseHelper.getTotalDistance(), "Go 25 km",1));
+        items.add(new Archievement(50,(int) myDatabaseHelper.getTotalDistance(), "Go 50 km",2));
+        items.add(new Archievement(100,(int) myDatabaseHelper.getTotalDistance(), "Go 100 km",3));
+        items.add(new Archievement(50000, (int) myDatabaseHelper.getTotalSteps(), "Go 50000 Steps",1));
+        items.add(new Archievement(100000,(int) myDatabaseHelper.getTotalSteps(), "Go 100000 Steps",2));
+        items.add(new Archievement(150000,(int) myDatabaseHelper.getTotalSteps(), "Go 100000 Steps",3));
+        return items;
+    }
 
     @Override
     public void onDestroyView() {
