@@ -635,5 +635,49 @@ public class StepAppOpenHelper extends SQLiteOpenHelper {
         return totalDistance;
     }
 
+    public int getTotalSteps() {
+        SQLiteDatabase database = this.getReadableDatabase();
+        int totalSteps = 0;
+
+        try {
+            // Define the columns to retrieve
+            String[] columns = { "SUM(" + KEY_STEPS + ")" };
+
+            // Query the "hiking_data" table to get the sum of steps
+            Cursor cursor = database.query(
+                    TABLE_NAME,          // The table name
+                    columns,              // The columns to retrieve
+                    null,                 // No specific selection
+                    null,                 // No specific selectionArgs
+                    null,                 // No specific groupBy
+                    null,                 // No specific having
+                    null                  // No specific orderBy
+            );
+
+            // Check if the cursor is not null and contains data
+            if (cursor != null && cursor.moveToFirst()) {
+                // Get the sum of steps from the cursor
+                int stepsColumnIndex = cursor.getColumnIndex("SUM(" + KEY_STEPS + ")");
+                if (stepsColumnIndex != -1) {
+                    totalSteps = cursor.getInt(stepsColumnIndex);
+                } else {
+                    Log.e("getTotalSteps", "Column SUM(KEY_STEPS) not found in cursor");
+                }
+            } else {
+                Log.e("getTotalSteps", "Cursor is null or empty");
+            }
+
+            if (cursor != null) {
+                cursor.close();
+            }
+        } finally {
+            // Close the database in a finally block to ensure it gets closed
+            database.close();
+        }
+
+        return totalSteps;
+    }
+
+
 
 }
