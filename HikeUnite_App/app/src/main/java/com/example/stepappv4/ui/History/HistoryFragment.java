@@ -9,6 +9,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
+import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
@@ -41,8 +42,9 @@ public class HistoryFragment extends Fragment {
     private FragmentHistoryBinding binding;
 
     private TextView textViewMonth;
-    private ImageButton btnPrevMonth;
-    private ImageButton btnNextMonth;
+    private ImageButton btnPrevMonth,btnNextMonth;
+
+    private Button deleteDatabseButton;
     private int currentMonthIndex = 0;
     Calendar calendar = Calendar.getInstance();
     private int currentYear = calendar.get(Calendar.YEAR);
@@ -58,26 +60,18 @@ public class HistoryFragment extends Fragment {
         binding = FragmentHistoryBinding.inflate(inflater, container, false);
         View root = binding.getRoot();
 
-        // Initialize TextView and Buttons
         textViewMonth = root.findViewById(R.id.yourhikeheadline);
         btnPrevMonth = root.findViewById(R.id.btnPrevMonth);
         btnNextMonth = root.findViewById(R.id.btnNextMonth);
+        deleteDatabseButton = root.findViewById(R.id.deleteDatabase);
         myDatabaseHelper = new StepAppOpenHelper(this.getContext());
 
 
-
-        // Get the current month
         Calendar calendar = Calendar.getInstance();
         currentMonthIndex = calendar.get(Calendar.MONTH);
 
-
-
-        // Set initial month
         updateMonth();
 
-        // Add your ListView initialization and population logic here
-
-        // Set click listeners for navigation buttons
         btnPrevMonth.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -128,6 +122,13 @@ public class HistoryFragment extends Fragment {
                     Log.e("HistoryFragment", "_id column not found in the cursor");
                     Toast.makeText(requireContext(), "No data available", Toast.LENGTH_SHORT).show();
                 }
+            }
+        });
+
+        deleteDatabseButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                myDatabaseHelper.onUpgrade(myDatabaseHelper.getWritableDatabase(),0,0);
             }
         });
 
