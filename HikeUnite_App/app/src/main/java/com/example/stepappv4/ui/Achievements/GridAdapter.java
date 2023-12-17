@@ -77,6 +77,8 @@ public class GridAdapter extends BaseAdapter {
         progressIndicator.setMax(item.getProgressBarMax());
         progressIndicator.setProgress(item.getProgress());
 
+
+
         return convertView;
     }
 }

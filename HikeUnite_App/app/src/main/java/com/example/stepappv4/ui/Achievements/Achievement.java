@@ -2,6 +2,9 @@ package com.example.stepappv4.ui.Achievements;
 
 import android.util.Log;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+
 /**
  * Class to create achievements
  * no sources needed because its just a simple class and i know how to code this
@@ -29,7 +32,7 @@ public class Achievement {
         this.goal = goal;
         this.reachedMax = false;
         this.level = level;
-        this.yourProgress = progress + " out of " + progressBarMax;
+        roundProgressValues();
         checkProgress();
     }
 
@@ -95,6 +98,7 @@ public class Achievement {
     private void checkProgress() {
         if (progress >= progressBarMax) {
             setReachedMax(true);
+            yourProgress = "Done";
         }
     }
 
@@ -106,6 +110,21 @@ public class Achievement {
     public int getLevel() {
         Log.d("DEBUG", "Level: " + level);
         return level;
+    }
+
+    private void roundProgressValues(){
+        if (progress > 1000 && progressBarMax > 1000){
+            float roundedProgress = BigDecimal.valueOf(progress/1000)
+                    .setScale(2, RoundingMode.HALF_DOWN)
+                    .floatValue();
+
+            this.yourProgress = roundedProgress + " out of " +progressBarMax/1000 + "k";
+
+        } else if (progress < 1000 && progressBarMax > 1000 ){
+            this.yourProgress = progress + " out of " +progressBarMax/1000 + "k";
+        } else {
+            this.yourProgress = progress + " out of " + progressBarMax;
+        }
     }
 
 
