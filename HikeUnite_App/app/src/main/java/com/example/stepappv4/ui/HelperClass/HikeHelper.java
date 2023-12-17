@@ -5,6 +5,7 @@ import android.os.Handler;
 import android.util.Log;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.core.content.ContextCompat;
 
@@ -43,7 +44,7 @@ public class HikeHelper {
 
 
     public void startHike() {
-        if (!haveBreak) {
+        if (!haveBreak && !started) {
             myGPSHelper.getAndHandleLastLocation();
             id = myDatabaseHelper.getLastId(myDatabaseHelper.getWritableDatabase()) + 1;
             myDatabaseHelper.insertHikeData();
@@ -55,7 +56,7 @@ public class HikeHelper {
             changeButtonColor(stopButton,buttonColor1);
             Log.d("BOOLEAN CHANGED", "started: " + started);
             sendToDatabase(5);
-        } else {
+        } else if (haveBreak && started){
             setHaveBreak(false);
             sendToDatabase(5);
             changeButtonColor(startButton, buttonColor2);
@@ -82,11 +83,18 @@ public class HikeHelper {
         myDatabaseHelper.updateHikeDistance(id,mapsHelper.getTotalDistanceInKm());
         //Log.d("DEBUG","Updated Distance: " + distance + " for hike with id " + id);
 
-        myDatabaseHelper.updateHikeData(id, sensorListener.getAccStepCounter() );
 
         changeButtonColor(startButton,buttonColor1);
-        Log.d("Steps", "Step count: " + sensorListener.getAccStepCounter() );
-        System.out.println(sensorListener.getAccStepCounter());
+        if (sensorListener != null){
+            myDatabaseHelper.updateHikeData(id, sensorListener.getAccStepCounter() );
+            Log.d("Steps", "Step count: " + sensorListener.getAccStepCounter() );
+            System.out.println(sensorListener.getAccStepCounter());
+        } else {
+            Log.e("WARNING", "No SensorListener active");
+            Toast.makeText(context, "No active hike", Toast.LENGTH_SHORT).show();
+        }
+
+
     }
 
     /**
@@ -155,17 +163,6 @@ public class HikeHelper {
         return myDatabaseHelper;
     }
 
-    public void setMyDatabaseHelper(StepAppOpenHelper myDatabaseHelper) {
-        this.myDatabaseHelper = myDatabaseHelper;
-    }
-
-    public GPSHelper getMyGPSHelper() {
-        return myGPSHelper;
-    }
-
-    public void setMyGPSHelper(GPSHelper myGPSHelper) {
-        this.myGPSHelper = myGPSHelper;
-    }
 
     public int getId() {
         return id;
@@ -175,44 +172,21 @@ public class HikeHelper {
         this.id = id;
     }
 
-    public int getButtonColor1() {
-        return buttonColor1;
-    }
-
     public void setButtonColor1(int buttonColor1) {
         this.buttonColor1 = buttonColor1;
     }
 
-    public int getButtonColor2() {
-        return buttonColor2;
-    }
 
     public void setButtonColor2(int buttonColor2) {
         this.buttonColor2 = buttonColor2;
-    }
-
-    public boolean isStarted() {
-        return started;
     }
 
     public void setStarted(boolean started) {
         this.started = started;
     }
 
-    public boolean isHaveBreak() {
-        return haveBreak;
-    }
-
     public void setHaveBreak(boolean haveBreak) {
         this.haveBreak = haveBreak;
-    }
-
-    public OpenStreetMapsHelper getMapsHelper() {
-        return mapsHelper;
-    }
-
-    public void setMapsHelper(OpenStreetMapsHelper mapsHelper) {
-        this.mapsHelper = mapsHelper;
     }
 
     public void setRandomQuote(TextView quoteText) {
