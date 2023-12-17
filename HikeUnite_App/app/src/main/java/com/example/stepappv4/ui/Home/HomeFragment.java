@@ -384,7 +384,7 @@ class  StepCounterListener implements SensorEventListener{
     private void peakDetection() {
 
         int windowSize = 20;
-        long timeConstraintMillis = 19;
+        long timeConstraintMillis = 500;
         /* Peak detection algorithm derived from: A Step Counter Service for Java-Enabled Devices Using a Built-In Accelerometer Mladenov et al.
          */
         int currentSize = accSeries.size(); // get the length of the series
@@ -401,6 +401,7 @@ class  StepCounterListener implements SensorEventListener{
 
             if (forwardSlope < 0 && downwardSlope > 0 && valuesInWindow.get(i) > stepThreshold) {
                     long currentTime = System.currentTimeMillis();
+                    // Log.d("Clock", "currentTime - lastStepTime: " + (currentTime - lastStepTime));
 
                     if(currentTime - lastStepTime > timeConstraintMillis) {
                         accStepCounter += 1;
