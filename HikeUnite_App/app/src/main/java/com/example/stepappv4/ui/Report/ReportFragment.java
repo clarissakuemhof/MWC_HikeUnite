@@ -137,6 +137,9 @@ public class ReportFragment extends Fragment {
         chartLayout.setVisibility(View.VISIBLE);
         anyChartView.setVisibility(View.VISIBLE);
 
+        stepsTV.setText(String.valueOf(myDatabaseHelper.getTotalAltitudeGained(hikeId)));
+        distanceTV.setText(String.valueOf(myDatabaseHelper.getTotalAltitudeLost(hikeId)));
+
         List<Double> altitudeData = myDatabaseHelper.getAltitudesById(hikeId);
 
         Cartesian cartesian = createColumnChart(altitudeData);

@@ -52,7 +52,7 @@ public class HomeFragment extends Fragment {
     private StepCounterListener sensorListener;
 
     private ViewSwitcher viewSwitcher;
-    private Button startButton,stopButton, endButton;
+    private Button startButton,stopButton, endButton, dummyHike;
 
     private String[] inspirationalQuotes;
 
@@ -102,6 +102,7 @@ public class HomeFragment extends Fragment {
         stopButton = root.findViewById(R.id.stop_button);
         endButton = root.findViewById(R.id.end_button);
         quoteText = root.findViewById(R.id.quote_text);
+        dummyHike = root.findViewById(R.id.InsertDummyHike);
         inspirationalQuotes = getResources().getStringArray(R.array.inspirational_quotes);
         stepCountsView = (TextView) root.findViewById(R.id.counter);
         stepCountsView.setText("0");
@@ -144,6 +145,16 @@ public class HomeFragment extends Fragment {
                     viewSwitcher.showPrevious();
                 }
                 endHike();
+            }
+        });
+
+        dummyHike.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                id = myDatabaseHelper.getLastId(myDatabaseHelper.getWritableDatabase()) + 1;
+                myDatabaseHelper.insertHikeData();
+                insertDummyHikeLuganoToBellinzonaWithGPS();
+
             }
         });
 
