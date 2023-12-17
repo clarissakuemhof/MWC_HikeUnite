@@ -31,6 +31,7 @@ public class GPSHelper {
     /**
      * Constructor method for the GPS Helper
      * Saves the current location during the creation
+     *
      * @param context of activity/fragment where helper is created
      */
     public GPSHelper(Context context) {
@@ -84,6 +85,7 @@ public class GPSHelper {
 
     /**
      * Getter for longitude
+     *
      * @return longitude value
      */
     public double getLongitude() {
@@ -92,6 +94,7 @@ public class GPSHelper {
 
     /**
      * Getter for latitude
+     *
      * @return latitude value
      */
     public double getLatitude() {
@@ -100,6 +103,7 @@ public class GPSHelper {
 
     /**
      * Getter for altitude
+     *
      * @return altitude value
      */
     public double getAltitude() {

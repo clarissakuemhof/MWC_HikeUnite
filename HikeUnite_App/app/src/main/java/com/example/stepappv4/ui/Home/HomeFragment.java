@@ -243,7 +243,7 @@ public class HomeFragment extends Fragment {
     private void startHike() {
         if (!haveBreak) {
             id = myDatabaseHelper.getLastId(myDatabaseHelper.getWritableDatabase()) + 1;
-            myDatabaseHelper.insertHikeData(0, 0, "YourHike"+ id);
+            myDatabaseHelper.insertHikeData();
             //insertDummyHikeLuganoToBellinzonaWithGPS();
             gpsHelper.getAndHandleLastLocation();
             myDatabaseHelper.insertGPSData(gpsHelper.getLongitude(),gpsHelper.getLatitude(), gpsHelper.getAltitude(),id);

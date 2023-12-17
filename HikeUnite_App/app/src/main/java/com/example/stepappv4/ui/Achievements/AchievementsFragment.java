@@ -26,7 +26,9 @@ import com.google.android.material.progressindicator.LinearProgressIndicator;
 import java.util.ArrayList;
 import java.util.List;
 
-
+/**
+ * Fragment that displays achievements. Simple fragment with a grid view that displays achievements
+ */
 public class AchievementsFragment extends Fragment {
 
     private FragmentAchievementsBinding binding;
@@ -51,6 +53,12 @@ public class AchievementsFragment extends Fragment {
         return root;
     }
 
+    /**
+     * This method is used to create our achievements
+     * it takes the data from the database to display the progress
+     *
+     * @return list with possible achievements
+     */
     private List<Archievement> getGridItems() {
         List<Archievement> items = new ArrayList<>();
         items.add(new Archievement(10,myDatabaseHelper.getCountOfHikes(), "Do 10 Hikes",1) );
@@ -64,8 +72,6 @@ public class AchievementsFragment extends Fragment {
         items.add(new Archievement(150000,(int) myDatabaseHelper.getTotalSteps(), "Go 100000 Steps",3));
         return items;
     }
-
-
 
     @Override
     public void onDestroyView() {
