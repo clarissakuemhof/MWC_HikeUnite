@@ -226,17 +226,16 @@ public class HomeFragment extends Fragment {
      * Accesses gpsHelper to update the current position and then retrieves the values and inserts them to database
      * ALso checks if user has a break at the moment and stops sending the data if active
      */
-    private void sendToDatabase() {
+    private void sendToDatabase(int seconds) {
         if (started) {
             handler.postDelayed(() -> {
                 if (!haveBreak) {
                     gpsHelper.getAndHandleLastLocation();
                     Log.d("FunctionLog", "Updated Location");
                     myDatabaseHelper.insertGPSData(gpsHelper.getLongitude(), gpsHelper.getLatitude(), gpsHelper.getAltitude(), id);
-                    // Check the flag again before scheduling the next call
-                    sendToDatabase();
+                    sendToDatabase(5);
                 }
-            }, 30000); // 30 seconds delay
+            }, seconds* 1000L);
         }
     }
 
@@ -251,10 +250,10 @@ public class HomeFragment extends Fragment {
             changeButtonColor(startButton, buttonColor2);
             changeButtonColor(stopButton,buttonColor1);
             Log.d("BOOLEAN CHANGED", "started: " + started);
-            sendToDatabase();
+            sendToDatabase(5);
         } else {
             setHaveBreak(false);
-            sendToDatabase();
+            sendToDatabase(5);
             changeButtonColor(startButton, buttonColor2);
             changeButtonColor(stopButton,buttonColor1);
             Log.d("BOOLEAN CHANGED", "haveBreak: " + haveBreak);
