@@ -39,7 +39,7 @@ public class AchievementsFragment extends Fragment {
         gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                Toast.makeText(getContext(), "Move on, nothing to see here", Toast.LENGTH_LONG).show();
+                Toast.makeText(getContext(), "Move on, nothing to see here", Toast.LENGTH_SHORT).show();
 
             }
         });
