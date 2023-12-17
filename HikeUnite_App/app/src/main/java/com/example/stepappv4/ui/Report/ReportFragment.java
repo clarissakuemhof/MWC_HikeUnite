@@ -65,8 +65,6 @@ public class ReportFragment extends Fragment {
         distanceTV = root.findViewById(R.id.distanceTest);
         nameTV = root.findViewById(R.id.yourhikeheadline);
 
-
-
         Button switchButton = root.findViewById(R.id.toggleMapButton);
 
         switchButton.setOnClickListener(new View.OnClickListener() {
@@ -88,7 +86,6 @@ public class ReportFragment extends Fragment {
             Log.d("TAG",String.format(String.valueOf(myDatabaseHelper.getGeoPointsById(hikeId))));
 
             stepsTV.setText(String.format(String.valueOf(steps)));
-            //distanceTV.setText(String.format(String.valueOf(distance)));
             nameTV.setText(name);
 
             myDatabaseHelper = new StepAppOpenHelper(getContext());

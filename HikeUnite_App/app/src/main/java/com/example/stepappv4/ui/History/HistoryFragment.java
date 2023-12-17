@@ -43,7 +43,7 @@ public class HistoryFragment extends Fragment {
     private TextView textViewMonth;
     private ImageButton btnPrevMonth;
     private ImageButton btnNextMonth;
-    private int currentMonthIndex = 0;  // Track the current month index
+    private int currentMonthIndex = 0;
     Calendar calendar = Calendar.getInstance();
     private int currentYear = calendar.get(Calendar.YEAR);
 
@@ -143,13 +143,10 @@ public class HistoryFragment extends Fragment {
     }
 
     private void createCursor() {
-        // Create a cursor to fetch data from the database
         Cursor cursor = myDatabaseHelper.getHikesForMonth(currentMonthIndex, currentYear);
 
-        // Log the contents of the cursor
         DatabaseUtils.dumpCursor(cursor);
 
-        // Define the columns from which to fetch data
         String[] columns = {
                 StepAppOpenHelper.KEY_NAME,
                 //StepAppOpenHelper.KEY_DAY,
@@ -202,47 +199,39 @@ public class HistoryFragment extends Fragment {
     }
 
     private void updateMonth() {
-        // Get the current month and year based on currentMonthIndex
         Calendar calendar = Calendar.getInstance();
         calendar.set(Calendar.MONTH, currentMonthIndex);
         String currentMonth = new DateFormatSymbols(Locale.getDefault()).getMonths()[currentMonthIndex];
 
-        // Update the TextView with the current month and year
         textViewMonth.setText(String.format(Locale.getDefault(), "%s %d", currentMonth, currentYear));
     }
 
     private void navigateToPreviousMonth() {
-        // Update currentMonthIndex and refresh the UI
-        currentMonthIndex = (currentMonthIndex - 1 + 12) % 12;  // Ensure the index wraps around
 
-        // Check if we need to decrement the year as well
-        if (currentMonthIndex == 11) {  // If moving from January to December
+        currentMonthIndex = (currentMonthIndex - 1 + 12) % 12;
+
+        if (currentMonthIndex == 11) {
             currentYear--;
         }
 
         updateMonth();
 
-        // Refresh the cursor data for the new month
         adapter.swapCursor(myDatabaseHelper.getHikesForMonth(currentMonthIndex, currentYear));
 
-        // Add logic to update the ListView based on the new month if needed
     }
 
     private void navigateToNextMonth() {
-        // Update currentMonthIndex and refresh the UI
-        currentMonthIndex = (currentMonthIndex + 1) % 12;  // Ensure the index wraps around
 
-        // Check if we need to increment the year as well
-        if (currentMonthIndex == 0) {  // If moving from December to January
+        currentMonthIndex = (currentMonthIndex + 1) % 12;
+
+        if (currentMonthIndex == 0) {
             currentYear++;
         }
 
         updateMonth();
 
-        // Refresh the cursor data for the new month
         adapter.swapCursor(myDatabaseHelper.getHikesForMonth(currentMonthIndex, currentYear));
 
-        // Add logic to update the ListView based on the new month if needed
     }
 
 }

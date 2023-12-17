@@ -1,28 +1,14 @@
 package com.example.stepappv4.ui.Achievements;
 
-
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.content.Intent;
-import android.app.Dialog;
 import android.widget.GridView;
-import android.widget.ImageView;
-import android.widget.TextView;
-import android.widget.ImageButton;
-import androidx.appcompat.app.AppCompatActivity;
-
-import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
-import androidx.navigation.NavController;
-import androidx.navigation.Navigation;
-
 import com.example.stepappv4.R;
 import com.example.stepappv4.StepAppOpenHelper;
 import com.example.stepappv4.databinding.FragmentAchievementsBinding;
-import com.google.android.material.progressindicator.LinearProgressIndicator;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -37,8 +23,6 @@ public class AchievementsFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
         myDatabaseHelper = new StepAppOpenHelper(getContext());
-
-        NavController navController = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment_content_main);
 
         binding = FragmentAchievementsBinding.inflate(inflater, container, false);
         View root = binding.getRoot();
