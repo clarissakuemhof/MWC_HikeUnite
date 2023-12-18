@@ -46,12 +46,10 @@ public class HikeHelper {
 
     public void startHike() {
         if (!haveBreak && !started) {
-            myGPSHelper.getAndHandleLastLocation();
             id = myDatabaseHelper.getLastId(myDatabaseHelper.getWritableDatabase()) + 1;
-            myDatabaseHelper.insertHikeData();
             //insertDummyHikeLuganoToBellinzonaWithGPS();
             myGPSHelper.checkAndRequestPermissions();
-            myDatabaseHelper.insertGPSData(myGPSHelper.getLongitude(),myGPSHelper.getLatitude(), myGPSHelper.getAltitude(),id);
+            myDatabaseHelper.insertHikeData();
             setStarted(true);
             changeButtonColor(startButton, buttonColor2);
             changeButtonColor(stopButton,buttonColor1);
@@ -160,7 +158,7 @@ public class HikeHelper {
         myDatabaseHelper.insertGPSData( 8.9382, 46.0015,255, id);
         myDatabaseHelper.insertGPSData( 8.9527, 46.0158,343, id);
         myDatabaseHelper.insertGPSData( 8.9164, 46.0276,243, id);
-        myDatabaseHelper.insertGPSData( 8.9873, 46.0391,345, id);
+        myDatabaseHelper.insertGPSData( 8.9873, 46.0391,100, id);
         myDatabaseHelper.insertGPSData( 9.0173, 46.1984,255, id);
 
         mapsHelper = new OpenStreetMapsHelper(context, myDatabaseHelper.getGeoPointsById(id));

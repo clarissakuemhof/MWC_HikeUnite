@@ -30,6 +30,8 @@ import org.osmdroid.views.MapView;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -162,7 +164,7 @@ public class ReportFragment extends Fragment {
     private Cartesian createColumnChart(List<Double> altitudeData) {
         Cartesian cartesian = AnyChart.column();
 
-        List<DataEntry> data = new java.util.ArrayList<>();
+        List<DataEntry> data = new ArrayList<>();
         for (int i = 0; i < altitudeData.size(); i++) {
             data.add(new ValueDataEntry(i, altitudeData.get(i)));
         }
@@ -179,10 +181,14 @@ public class ReportFragment extends Fragment {
 
         cartesian.tooltip().positionMode(TooltipPositionMode.POINT);
         cartesian.interactivity().hoverMode(HoverMode.BY_X);
-        cartesian.yScale().minimum(0);
+
+        double maxAltitude = Collections.max(altitudeData) + 5;
+        double minAltitude = Collections.min(altitudeData) - 5;
+        cartesian.yScale().minimum(minAltitude > 0 ? 0 : minAltitude).maximum(maxAltitude < 0 ? 0 : maxAltitude);
 
         cartesian.yAxis(0).title("Altitude");
         cartesian.xAxis(0).title("Point");
+        cartesian.xAxis(0).labels().enabled(false);
         cartesian.background().fill("#00000000");
         cartesian.animation(true);
 

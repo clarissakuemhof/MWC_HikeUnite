@@ -197,38 +197,43 @@ public class StepAppOpenHelper extends SQLiteOpenHelper {
      * @param id id of hike that is connected to location data
      */
     public void insertGPSData(double longitude, double latitude, double altitude, int id) {
-        SQLiteDatabase database = this.getWritableDatabase();
-        ContentValues values = new ContentValues();
 
-        // Get the last gpsnum from the database
-        int lastGpsNum = getLastGpsNum(database);
+        if (!(altitude==0 && longitude == 0 && latitude == 0)) {
 
-        // Increment the last gpsnum to assign a new one
-        int newGpsNum = lastGpsNum + 1;
+            SQLiteDatabase database = this.getWritableDatabase();
+            ContentValues values = new ContentValues();
+            // Get the last gpsnum from the database
+            int lastGpsNum = getLastGpsNum(database);
 
-        // Get current timestamp
-        String timestamp = getCurrentTimestamp();
+            // Increment the last gpsnum to assign a new one
+            int newGpsNum = lastGpsNum + 1;
 
-        values.put(KEY_GPS_NUM, newGpsNum);
-        //values.put(KEY_DAY, getCurrentDate());
-        //values.put(KEY_HOUR, getCurrentHour());
-        values.put(KEY_TIMESTAMP, timestamp);
-        values.put(KEY_ID, id);
-        values.put(KEY_LONGITUDE, longitude);
-        values.put(KEY_LATITUDE, latitude);
-        values.put(KEY_ALTITUDE, altitude);
+            // Get current timestamp
+            String timestamp = getCurrentTimestamp();
 
-        // Insert the values into the database
-        database.insert(TABLE_NAME2, null, values);
-        // Log the inserted entry
-        Log.d("DatabaseInsert", "Inserted GPS data - GPS_NUM: " + newGpsNum
-                + ", ID: " + id
-                + ", Longitude: " + longitude
-                + ", Latitude: " + latitude
-                + ", Altitude: " + altitude
-                + ", Timestamp: " + timestamp);
-        // Close the database
-        database.close();
+            values.put(KEY_GPS_NUM, newGpsNum);
+            //values.put(KEY_DAY, getCurrentDate());
+            //values.put(KEY_HOUR, getCurrentHour());
+            values.put(KEY_TIMESTAMP, timestamp);
+            values.put(KEY_ID, id);
+            values.put(KEY_LONGITUDE, longitude);
+            values.put(KEY_LATITUDE, latitude);
+            values.put(KEY_ALTITUDE, altitude);
+
+            // Insert the values into the database
+            database.insert(TABLE_NAME2, null, values);
+            // Log the inserted entry
+            Log.d("DatabaseInsert", "Inserted GPS data - GPS_NUM: " + newGpsNum
+                    + ", ID: " + id
+                    + ", Longitude: " + longitude
+                    + ", Latitude: " + latitude
+                    + ", Altitude: " + altitude
+                    + ", Timestamp: " + timestamp);
+            // Close the database
+            database.close();
+        } else {
+            Log.d("DEBUG", "No valid location found");
+        }
 
     }
 
@@ -347,8 +352,10 @@ public class StepAppOpenHelper extends SQLiteOpenHelper {
             if (altitudeIndex == -1) {
                 Log.w("Altitudes", "Column not found in cursor.");
             } else {
+                double baselineAltitude = cursor.getDouble(altitudeIndex);
+
                 do {
-                    double altitude = cursor.getDouble(altitudeIndex);
+                    double altitude = cursor.getDouble(altitudeIndex) - baselineAltitude;
                     altitudeList.add(altitude);
                 } while (cursor.moveToNext());
             }
