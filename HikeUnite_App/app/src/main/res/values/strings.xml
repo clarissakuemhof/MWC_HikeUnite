@@ -37,4 +37,12 @@
     <string name="achievements">Achievements</string>
     <string name="gps_test">GPS Test</string>
     <string name="end">Stop</string>
+    <string name="altitudeLabel1">Altitude Gain: </string>
+    <string name="altitudeLabel2">Altitude Loss: </string>
+    <string name="distance_placeholder">%s km</string>
+    <string name="stepLabel">Steps:</string>
+    <string name="distanceLabel">Distance: </string>
+    <string name="steps_placeholder">%s steps</string>
+    <string name="alt_placeholder">%s m</string>
+
 </resources>
