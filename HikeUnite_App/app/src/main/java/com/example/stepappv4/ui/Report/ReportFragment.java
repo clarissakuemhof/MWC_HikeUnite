@@ -125,7 +125,7 @@ public class ReportFragment extends Fragment {
         mapHelper = new OpenStreetMapsHelper(this.getContext(), mMap, myDatabaseHelper.getGeoPointsById(hikeId));
         Log.d("TAG",String.format(String.valueOf(myDatabaseHelper.getGeoPointsById(hikeId))));
         mapHelper.initMap();
-        mapHelper.addPolyline(myDatabaseHelper.getGeoPointsById(hikeId));
+        mapHelper.addPolyline();
         distance = BigDecimal.valueOf(mapHelper.getTotalDistanceInKm())
                 .setScale(2, RoundingMode.HALF_DOWN)
                 .floatValue();

@@ -78,10 +78,10 @@ public class HikeHelper {
             changeButtonColor(stopButton,buttonColor1);
             Log.d("BOOLEAN CHANGED", "started: " + started);
             //setNotifications();
-            sendToDatabase(5,false);
+            sendToDatabase(120,false);
         } else if (haveBreak && started){
             setHaveBreak(false);
-            sendToDatabase(5, false);
+            sendToDatabase(120, false);
             changeButtonColor(startButton, buttonColor2);
             changeButtonColor(stopButton,buttonColor1);
             Log.d("BOOLEAN CHANGED", "haveBreak: " + haveBreak);
