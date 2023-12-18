@@ -1,17 +1,26 @@
 package com.example.stepappv4.ui.HelperClass;
 
+import android.app.AlarmManager;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
+import android.icu.util.Calendar;
 import android.os.Handler;
 import android.util.Log;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.core.app.NotificationCompat;
 import androidx.core.content.ContextCompat;
 
+import com.example.stepappv4.MainActivity;
 import com.example.stepappv4.R;
 import com.example.stepappv4.StepAppOpenHelper;
+import com.example.stepappv4.ui.Home.HomeFragment;
 import com.example.stepappv4.ui.Home.StepCounterListener;
 
 import java.util.Random;
@@ -54,6 +63,7 @@ public class HikeHelper {
             changeButtonColor(startButton, buttonColor2);
             changeButtonColor(stopButton,buttonColor1);
             Log.d("BOOLEAN CHANGED", "started: " + started);
+            //setNotifications();
             sendToDatabase(5,false);
         } else if (haveBreak && started){
             setHaveBreak(false);
@@ -205,5 +215,33 @@ public class HikeHelper {
             quoteText.setText(inspirationalQuotes[randomIndex]);
         }
     }
+
+
+    /**
+     *
+
+    public void setNotifications(){
+        AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTimeInMillis(System.currentTimeMillis());
+
+// Set the initial time to start the first alarm 30 minutes from the current time
+        calendar.add(Calendar.SECOND, 30);
+
+        Intent intent = new Intent(context, NotificationReceiver.class);
+        intent.setAction("MY_NOTIFICATION_MESSAGE");
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(context, 100, intent, PendingIntent.FLAG_IMMUTABLE);
+
+
+// Set the interval to 30 minutes
+        long intervalMillis = 30 * 60 * 1000;
+        //long intervalMillis = 30*1000;
+
+// Set the repeating alarm with a 30-minute interval
+        alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), intervalMillis, pendingIntent);
+        Log.d("DEBUG", "Alarm set, notification coming");
+    }
+     */
+
 
 }

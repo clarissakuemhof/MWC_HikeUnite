@@ -1,6 +1,7 @@
 package com.example.stepappv4.ui.Home;
 
 import android.content.Context;
+import android.content.Intent;
 import android.database.sqlite.SQLiteDatabase;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
@@ -57,6 +58,8 @@ public class HomeFragment extends Fragment {
 
 
     private HikeHelper hikeHelper;
+
+
 
 
     public View onCreateView(@NonNull LayoutInflater inflater,
@@ -153,6 +156,7 @@ public class HomeFragment extends Fragment {
 
         return root;
     }
+
 
     @Override
     public void onDestroyView() {

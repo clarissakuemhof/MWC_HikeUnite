@@ -8,6 +8,7 @@ import android.util.Log;
 
 import com.example.stepappv4.R;
 
+
 import org.osmdroid.api.IMapController;
 import org.osmdroid.config.Configuration;
 import org.osmdroid.events.MapListener;
@@ -144,15 +145,17 @@ public class OpenStreetMapsHelper implements MapListener {
      */
     public void addPolyline(List<GeoPoint> hikeRoute) {
         if (hikeRoute != null && hikeRoute.size() > 1) {
-            for (GeoPoint geoPoint : hikeRoute) {
-                Log.d("GeoPoint", "Latitude: " + geoPoint.getLatitude() + ", Longitude: " + geoPoint.getLongitude() + ", Altitude: " + geoPoint.getAltitude());
-            }
+            //for (GeoPoint geoPoint : hikeRoute) {
+            //    Log.d("GeoPoint", "Latitude: " + geoPoint.getLatitude() + ", Longitude: " + geoPoint.getLongitude() + ", Altitude: " + geoPoint.getAltitude());
+            //}
+
 
             Polyline polyline = new Polyline();
             polyline.setPoints(hikeRoute);
             polyline.setGeodesic(true); // Add this line to ensure a great circle path
             red.setColor(Color.RED);
             polyline.getOutlinePaint().set(red);
+            polyline.getOutlinePaint().setStrokeCap(Paint.Cap.ROUND);
             mMap.getOverlayManager().add(polyline);
             Log.d("TEST", "Polyline added...");
             mMap.invalidate();

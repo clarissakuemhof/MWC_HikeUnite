@@ -6,10 +6,12 @@ import android.app.Activity;
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.location.Location;
 import android.os.Build;
 import android.os.Handler;
@@ -25,6 +27,7 @@ import androidx.core.content.ContextCompat;
 
 import com.example.stepappv4.R;
 import com.example.stepappv4.StepAppOpenHelper;
+import com.example.stepappv4.ui.Home.HomeFragment;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationAvailability;
 import com.google.android.gms.location.LocationCallback;
@@ -37,6 +40,7 @@ public class HikeService extends Service {
     private PowerManager.WakeLock wakeLock;
 
 
+    private static final int NOTIFICATION_INTERVAL = 30  *  60  *  1000; // 30 minutes in milliseconds
     private final Handler handler = new Handler();
 
     private FusedLocationProviderClient fusedLocationClient;
@@ -73,6 +77,9 @@ public class HikeService extends Service {
         boolean started = intent.getBooleanExtra("started", false);
         boolean haveBreak = intent.getBooleanExtra("haveBreak", false);
         boolean stopService = intent.getBooleanExtra("stopService", false);
+
+
+
         if (stopService) {
             handler.removeCallbacksAndMessages(null);
             stopSelf();
@@ -89,6 +96,7 @@ public class HikeService extends Service {
 
             // Call the sendToDatabase method
             if (started) {
+                scheduleNotifications();
                 sendToDatabase(myDatabaseHelper, id, haveBreak, started, seconds);
             }
 
@@ -159,16 +167,55 @@ public class HikeService extends Service {
                     public void onSuccess(Location location) {
                         if (location != null) {
                             latitude = location.getLatitude();
-                            Log.d("ServiceGPS", "Latitude: " + location.getLatitude());
+                            //Log.d("ServiceGPS", "Latitude: " + location.getLatitude());
                             longitude = location.getLongitude();
-                            Log.d("ServiceGPS", "Longitude: " + location.getLongitude());
+                            //Log.d("ServiceGPS", "Longitude: " + location.getLongitude());
                             altitude = location.getAltitude();
-                            Log.d("ServiceGPS", "Altitude: " + location.getAltitude());
+                            //Log.d("ServiceGPS", "Altitude: " + location.getAltitude());
                         } else {
                             Log.e("ServiceGPS", "Last known location is null");
                         }
                     }
                 });
+    }
+
+    private void scheduleNotifications() {
+        handler.postDelayed(() -> {
+            // Trigger instant notification
+            setInstantNotifications();
+
+            // Schedule the next notification after the interval
+            scheduleNotifications();
+        }, NOTIFICATION_INTERVAL);
+    }
+
+    private void setInstantNotifications() {
+        NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+
+        String channelId = "HikeUniteChannel";
+        CharSequence channelName = "Some HikeUniteChannel";
+        int importance = NotificationManager.IMPORTANCE_DEFAULT;
+        NotificationChannel notificationChannel = new NotificationChannel(channelId, channelName, importance);
+        notificationChannel.enableLights(true);
+        notificationChannel.setLightColor(Color.RED);
+        notificationChannel.enableVibration(true);
+        notificationChannel.setVibrationPattern(new long[]{100, 200, 300, 400, 500, 400, 300, 200, 400});
+        notificationManager.createNotificationChannel(notificationChannel);
+
+        Intent intent = new Intent(context, HomeFragment.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+
+        PendingIntent pendingIntent = PendingIntent.getActivity(context, 100, intent, PendingIntent.FLAG_MUTABLE);
+
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(context, "HikeUniteChannel")
+                .setContentIntent(pendingIntent)
+                .setSmallIcon(android.R.drawable.arrow_up_float)
+                .setContentTitle("Please drink some water!!")
+                .setContentText("See your steps here... ")
+                .setAutoCancel(true);
+
+        notificationManager.notify(100, builder.build());
+        Log.d("DEBUG", "Instant notification built and sent");
     }
 
 
