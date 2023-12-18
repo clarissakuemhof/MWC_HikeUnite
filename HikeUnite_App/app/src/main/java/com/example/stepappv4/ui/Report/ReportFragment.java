@@ -179,8 +179,8 @@ public class ReportFragment extends Fragment {
 
         Column column = cartesian.column(data);
 
-        column.fill("#1EB980");
-        column.stroke("#1EB980");
+        column.fill("#201C00");
+        column.stroke("#201C00");
 
         column.tooltip()
                 .position(Position.RIGHT_TOP)

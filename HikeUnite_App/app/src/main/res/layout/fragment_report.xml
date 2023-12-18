@@ -22,7 +22,7 @@
             android:paddingTop="20dp"
             android:paddingBottom="20dp"
             android:text="Your HIke"
-            android:textColor="#1EB980"
+            android:textColor="#201C00"
             android:textSize="24sp" />
 
         <LinearLayout
