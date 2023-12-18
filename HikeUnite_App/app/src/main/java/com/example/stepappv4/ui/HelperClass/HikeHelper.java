@@ -38,6 +38,14 @@ public class HikeHelper {
     private Button startButton, stopButton;
     private String[] inspirationalQuotes;
 
+    /**
+     * Constructor class for HikeHelper
+     * Initiates all needed variables and requests permission for gps service
+     *
+     * @param activeContext context of activity where helper is constructed
+     * @param startButton start button in home fragment
+     * @param stopButton stop button in the home fragment
+     */
     public  HikeHelper(Context activeContext, Button startButton, Button stopButton){
         this.context = activeContext;
         myGPSHelper = new GPSHelper(context);
@@ -53,6 +61,12 @@ public class HikeHelper {
     }
 
 
+    /**
+     * Method to handle start hike button logic
+     * Creates a new hike in the database and then starts the call for the background service
+     * Also checks for Location permission to ensure that gps works
+     * Different logic for start new hike and start hike after break
+     */
     public void startHike() {
         if (!haveBreak && !started) {
             id = myDatabaseHelper.getLastId(myDatabaseHelper.getWritableDatabase()) + 1;
@@ -90,7 +104,6 @@ public class HikeHelper {
 
         mapsHelper = new OpenStreetMapsHelper(context, myDatabaseHelper.getGeoPointsById(id));
         myDatabaseHelper.updateHikeDistance(id,mapsHelper.getTotalDistanceInKm());
-        //Log.d("DEBUG","Updated Distance: " + distance + " for hike with id " + id);
 
         Log.d("TEST", "sendToDatabase");
         sendToDatabase(0, true);
@@ -135,6 +148,7 @@ public class HikeHelper {
 
     /**
      * Method to change color of buttons
+     *
      * @param button button you want to change
      * @param color color you want to set
      */
@@ -142,6 +156,11 @@ public class HikeHelper {
         button.setBackgroundColor(ContextCompat.getColor(context, color));
     }
 
+    /**
+     * Method to handle the functionality of the break button
+     * interrupts the database background service
+     * changes button color
+     */
     public void setBreak(){
         if (started) {
             setHaveBreak(true);
@@ -179,36 +198,74 @@ public class HikeHelper {
 
 
 
+    /**
+     * Retrieves the instance of the StepAppOpenHelper used by this HikeHelper instance.
+     *
+     * @return An instance of the StepAppOpenHelper class.
+     */
     public StepAppOpenHelper getMyDatabaseHelper() {
         return myDatabaseHelper;
     }
 
-
+    /**
+     * Gets the current hike ID associated with this HikeHelper instance.
+     *
+     * @return An integer representing the current hike ID.
+     */
     public int getId() {
         return id;
     }
 
+    /**
+     * Sets the hike ID for this HikeHelper instance.
+     *
+     * @param id The ID to be set for the hike.
+     */
     public void setId(int id) {
         this.id = id;
     }
 
+    /**
+     * Sets the color for the first button used in the UI.
+     *
+     * @param buttonColor1 The color resource ID for the first button.
+     */
     public void setButtonColor1(int buttonColor1) {
         this.buttonColor1 = buttonColor1;
     }
 
-
+    /**
+     * Sets the color for the second button used in the UI.
+     *
+     * @param buttonColor2 The color resource ID for the second button.
+     */
     public void setButtonColor2(int buttonColor2) {
         this.buttonColor2 = buttonColor2;
     }
 
+    /**
+     * Sets the status of whether the hike has started or not.
+     *
+     * @param started true if the hike has started, false otherwise.
+     */
     public void setStarted(boolean started) {
         this.started = started;
     }
 
+    /**
+     * Sets the status of whether the hike is currently on a break.
+     *
+     * @param haveBreak true if the hike is on a break, false otherwise.
+     */
     public void setHaveBreak(boolean haveBreak) {
         this.haveBreak = haveBreak;
     }
 
+    /**
+     * Sets a random inspirational quote to the provided TextView.
+     *
+     * @param quoteText The TextView to which the random quote will be set.
+     */
     public void setRandomQuote(TextView quoteText) {
         if (inspirationalQuotes.length > 0) {
             int randomIndex = new Random().nextInt(inspirationalQuotes.length);
@@ -217,31 +274,6 @@ public class HikeHelper {
     }
 
 
-    /**
-     *
-
-    public void setNotifications(){
-        AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTimeInMillis(System.currentTimeMillis());
-
-// Set the initial time to start the first alarm 30 minutes from the current time
-        calendar.add(Calendar.SECOND, 30);
-
-        Intent intent = new Intent(context, NotificationReceiver.class);
-        intent.setAction("MY_NOTIFICATION_MESSAGE");
-        PendingIntent pendingIntent = PendingIntent.getBroadcast(context, 100, intent, PendingIntent.FLAG_IMMUTABLE);
-
-
-// Set the interval to 30 minutes
-        long intervalMillis = 30 * 60 * 1000;
-        //long intervalMillis = 30*1000;
-
-// Set the repeating alarm with a 30-minute interval
-        alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), intervalMillis, pendingIntent);
-        Log.d("DEBUG", "Alarm set, notification coming");
-    }
-     */
 
 
 }

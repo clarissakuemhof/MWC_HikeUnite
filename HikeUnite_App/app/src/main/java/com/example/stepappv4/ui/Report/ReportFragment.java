@@ -165,7 +165,9 @@ public class ReportFragment extends Fragment {
     }
 
     /**
-     * Method to draw the chart based on altitude values during the hike
+     * Method to draw the chart based on altitude values during the hike. Shows Values based on
+     * first value as baseline. Therefore we just display altitude gains and losses
+     *
      * @param altitudeData Points that are saved in a given time interval during the hike
      * @return chart
      */

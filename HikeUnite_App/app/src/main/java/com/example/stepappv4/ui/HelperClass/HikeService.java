@@ -2,7 +2,6 @@ package com.example.stepappv4.ui.HelperClass;
 
 
 import android.Manifest;
-import android.app.Activity;
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
@@ -19,28 +18,32 @@ import android.os.IBinder;
 import android.os.PowerManager;
 import android.util.Log;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.app.ActivityCompat;
 import androidx.core.app.NotificationCompat;
-import androidx.core.content.ContextCompat;
 
 import com.example.stepappv4.R;
 import com.example.stepappv4.StepAppOpenHelper;
 import com.example.stepappv4.ui.Home.HomeFragment;
 import com.google.android.gms.location.FusedLocationProviderClient;
-import com.google.android.gms.location.LocationAvailability;
-import com.google.android.gms.location.LocationCallback;
-import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.tasks.OnSuccessListener;
 
+/**
+ * This class handles the foreground service of our app. This is needed to ensure that GPS Location and steps are
+ * also tracked if the user leaves the home fragment.
+ * We also use this class to schedule notifications during a hike
+ */
 public class HikeService extends Service {
 
     private PowerManager.WakeLock wakeLock;
 
-
-    private static final int NOTIFICATION_INTERVAL = 30  *  60  *  1000; // 30 minutes in milliseconds
+    /*
+    * 30: number of minutes you want
+    * 60: make it a minute
+    * 1000: times 1000 to calculate your minutes based on the milliseconds
+     */
+    private static final int NOTIFICATION_INTERVAL = 30  *  60  *  1000;
     private final Handler handler = new Handler();
 
     private FusedLocationProviderClient fusedLocationClient;
@@ -69,6 +72,22 @@ public class HikeService extends Service {
 
     }
 
+    @Override
+    /**
+     * Receives intent from startHike() function and handles the actions
+     * Gets:            id (hike id)
+     *                  seconds (Interval for GPS update in seconds)
+     *                  started (boolean to flag a started hike)
+     *                  haveBreak (boolean to flag a break)
+     *                  stopService (boolean to decide if Service should run or stop)
+     *
+     * If service is stopped all pending callbacks in the handler will be removed
+     *
+     * @param intent
+     * @param flags
+     * @param startId
+     * @return
+     */
     public int onStartCommand(Intent intent, int flags, int startId) {
         Log.d("TEST", "started intent");
         startForeground(NOTIFICATION_ID, buildNotification());
@@ -90,20 +109,25 @@ public class HikeService extends Service {
             fusedLocationClient = LocationServices.getFusedLocationProviderClient(context);
             StepAppOpenHelper myDatabaseHelper = new StepAppOpenHelper(context);
 
-            // Start the service in the foreground
-
             acquireWakeLock();
 
-            // Call the sendToDatabase method
             if (started) {
                 scheduleNotifications();
-                sendToDatabase(myDatabaseHelper, id, haveBreak, started, seconds);
+                sendToDatabase(myDatabaseHelper, id, haveBreak, seconds);
             }
 
             return START_STICKY;
         }
     }
-    private  void sendToDatabase(StepAppOpenHelper myDatabaseHelper, int id, boolean haveBreak, boolean started, int seconds){
+
+    /**
+     * Method to handle the location request and the insertion in the database
+     * @param myDatabaseHelper database-class instance
+     * @param id hike id
+     * @param haveBreak indicates if we have a break (maybe not needed anymore)
+     * @param seconds interval for database update
+     */
+    private  void sendToDatabase(StepAppOpenHelper myDatabaseHelper, int id, boolean haveBreak, int seconds){
         getAndHandleLastLocation();
             handler.postDelayed(() -> {
                 if (!haveBreak) {
@@ -111,7 +135,7 @@ public class HikeService extends Service {
                     Log.d("FunctionLog", "Updated Location");
                     myDatabaseHelper.insertGPSData(longitude, latitude, altitude, id);
 
-                    sendToDatabase(myDatabaseHelper, id, haveBreak, started, seconds);
+                    sendToDatabase(myDatabaseHelper, id, haveBreak, seconds);
                 }
             }, seconds * 1000L);
         }
@@ -119,11 +143,12 @@ public class HikeService extends Service {
 
     private static final int NOTIFICATION_ID = 1;
 
-    // Build a notification for the foreground service
+    /**
+     * Build a notification for the foreground service
+     *
+     * @return foreground notification
+     */
     private Notification buildNotification() {
-        // Implement your notification here
-        // ...
-
         NotificationCompat.Builder builder = new NotificationCompat.Builder(this, String.valueOf(1))
                 .setContentTitle("HikeService")
                 .setContentText("Service is running")
@@ -131,7 +156,9 @@ public class HikeService extends Service {
 
         return builder.build();
     }
-    // Acquire a WakeLock to keep the device awake
+    /**
+     Acquire a WakeLock to keep the device awake to ensure location request
+     */
     private void acquireWakeLock() {
         PowerManager powerManager = (PowerManager) getSystemService(Context.POWER_SERVICE);
         if (powerManager != null) {
@@ -143,7 +170,10 @@ public class HikeService extends Service {
         }
     }
 
-    // Release the WakeLock when the service is stopped
+    /**
+     * Release the WakeLock when the service is stopped
+     *
+     */
     @Override
     public void onDestroy() {
         super.onDestroy();
@@ -179,16 +209,25 @@ public class HikeService extends Service {
                 });
     }
 
+    /**
+     * Method to schedule notifications during the hike
+     * At the moment more or less a proof of concept
+     * Sends notication in set Interval
+     */
     private void scheduleNotifications() {
         handler.postDelayed(() -> {
-            // Trigger instant notification
             setInstantNotifications();
-
-            // Schedule the next notification after the interval
             scheduleNotifications();
         }, NOTIFICATION_INTERVAL);
     }
 
+    /**
+     * Function to build and sent a notification
+     *  Creates our reminder to drink water during the hike
+     *
+     * Didn't require a source/tutorial for this because i used it in previous projects
+     * Uses Notification manager + Channel and sends custom notification
+     */
     private void setInstantNotifications() {
         NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
 

@@ -1,15 +1,9 @@
 package com.example.stepappv4.ui.Home;
 
 import android.content.Context;
-import android.content.Intent;
-import android.database.sqlite.SQLiteDatabase;
 import android.hardware.Sensor;
-import android.hardware.SensorEvent;
-import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.SystemClock;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -20,27 +14,18 @@ import android.widget.Toast;
 import android.widget.ViewSwitcher;
 
 import androidx.annotation.NonNull;
-import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
-
-import com.example.stepappv4.StepAppOpenHelper;
 import com.example.stepappv4.R;
 import com.example.stepappv4.databinding.FragmentHomeBinding;
-import com.example.stepappv4.ui.HelperClass.GPSHelper;
 import com.example.stepappv4.ui.HelperClass.HikeHelper;
-import com.example.stepappv4.ui.HelperClass.OpenStreetMapsHelper;
 import com.google.android.material.button.MaterialButtonToggleGroup;
 import com.google.android.material.progressindicator.CircularProgressIndicator;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Random;
-import java.util.TimeZone;
-
-import java.util.ArrayList;
-import java.util.List;
-
+/**
+ * Home fragment has the main View of our app. Here the user can see an inspirational quote and also start, stop and end hikes.
+ * It also display the step count during hikes
+ */
 public class HomeFragment extends Fragment {
 
     private FragmentHomeBinding binding;
