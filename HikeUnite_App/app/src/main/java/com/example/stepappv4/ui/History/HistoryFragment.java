@@ -63,7 +63,7 @@ public class HistoryFragment extends Fragment {
         textViewMonth = root.findViewById(R.id.yourhikeheadline);
         btnPrevMonth = root.findViewById(R.id.btnPrevMonth);
         btnNextMonth = root.findViewById(R.id.btnNextMonth);
-        deleteDatabseButton = root.findViewById(R.id.deleteDatabase);
+        //deleteDatabseButton = root.findViewById(R.id.deleteDatabase);
         myDatabaseHelper = new StepAppOpenHelper(this.getContext());
 
 
@@ -124,13 +124,13 @@ public class HistoryFragment extends Fragment {
                 }
             }
         });
-
+/*
         deleteDatabseButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 myDatabaseHelper.onUpgrade(myDatabaseHelper.getWritableDatabase(),0,0);
             }
-        });
+        });*/
 
 
 

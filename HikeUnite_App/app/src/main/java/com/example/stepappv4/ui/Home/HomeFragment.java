@@ -83,7 +83,7 @@ public class HomeFragment extends Fragment {
         stopButton = root.findViewById(R.id.stop_button);
         endButton = root.findViewById(R.id.end_button);
         quoteText = root.findViewById(R.id.quote_text);
-        dummyHike = root.findViewById(R.id.InsertDummyHike);
+        //dummyHike = root.findViewById(R.id.InsertDummyHike);
         stepCountsView = (TextView) root.findViewById(R.id.counter);
         stepCountsView.setText("0");
         hikeHelper = new HikeHelper(getContext(), startButton, stopButton);
@@ -120,12 +120,12 @@ public class HomeFragment extends Fragment {
             }
         });
 
-        dummyHike.setOnClickListener(new View.OnClickListener() {
+        /*dummyHike.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 hikeHelper.insertDummyHikeLuganoToBellinzonaWithGPS();
             }
-        });
+        });*/
 
 
         toggleButtonGroup = (MaterialButtonToggleGroup) root.findViewById(R.id.toggleButtonGroup);
