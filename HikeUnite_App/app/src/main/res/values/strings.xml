@@ -16,7 +16,7 @@
     <string name="progress">0</string>
     <string name="steps">Steps</string>
     <string name="start_text">Start</string>
-    <string name="stop_text">Stop</string>
+    <string name="stop_text">Pause</string>
     <string name="acc_sensor_not_available">Acc. sensor not available</string>
     <string name="step_detector_sensor_not_available">STEP_DETECTOR sensor not available</string>
     <string name="step_permission_denied">Step permission is denied </string>
@@ -36,5 +36,5 @@
     <string name="date">date</string>
     <string name="achievements">Achievements</string>
     <string name="gps_test">GPS Test</string>
-    <string name="end">End</string>
+    <string name="end">Stop</string>
 </resources>
