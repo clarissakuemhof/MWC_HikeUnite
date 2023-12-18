@@ -7,6 +7,9 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
+import android.hardware.Sensor;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
 import android.icu.util.Calendar;
 import android.os.Handler;
 import android.util.Log;
@@ -17,11 +20,15 @@ import android.widget.Toast;
 import androidx.core.app.NotificationCompat;
 import androidx.core.content.ContextCompat;
 
+import com.anychart.editor.Step;
 import com.example.stepappv4.MainActivity;
 import com.example.stepappv4.R;
 import com.example.stepappv4.StepAppOpenHelper;
 import com.example.stepappv4.ui.Home.HomeFragment;
 import com.example.stepappv4.ui.Home.StepCounterListener;
+import com.google.android.material.progressindicator.CircularProgressIndicator;
+
+import org.w3c.dom.Text;
 
 import java.util.Random;
 
@@ -30,13 +37,15 @@ public class HikeHelper {
 
     private StepAppOpenHelper myDatabaseHelper;
     private GPSHelper myGPSHelper;
-    private int id, buttonColor1, buttonColor2;
+    private int id, buttonColor1, buttonColor2, steps;
     private boolean started, haveBreak;
     private OpenStreetMapsHelper mapsHelper;
     private Context context;
     private final Handler handler = new Handler();
     private Button startButton, stopButton;
     private String[] inspirationalQuotes;
+    private SensorManager sensorManager;
+    private StepCounterListener sensorListener;
 
     /**
      * Constructor class for HikeHelper
@@ -46,8 +55,9 @@ public class HikeHelper {
      * @param startButton start button in home fragment
      * @param stopButton stop button in the home fragment
      */
-    public  HikeHelper(Context activeContext, Button startButton, Button stopButton){
+    public  HikeHelper(Context activeContext, Button startButton, Button stopButton, SensorManager sensorManager){
         this.context = activeContext;
+        this.sensorManager = sensorManager;
         myGPSHelper = new GPSHelper(context);
         myGPSHelper.getAndHandleLastLocation();
         myDatabaseHelper = new StepAppOpenHelper(context);
@@ -67,8 +77,11 @@ public class HikeHelper {
      * Also checks for Location permission to ensure that gps works
      * Different logic for start new hike and start hike after break
      */
-    public void startHike() {
+    public void startHike(Sensor accSensor, TextView stepCountsView, CircularProgressIndicator progressBar) {
+
         if (!haveBreak && !started) {
+            sensorListener = new StepCounterListener(stepCountsView, progressBar, myDatabaseHelper.getWritableDatabase(), 0);
+            sensorManager.registerListener(sensorListener, accSensor, SensorManager.SENSOR_DELAY_NORMAL);
             id = myDatabaseHelper.getLastId(myDatabaseHelper.getWritableDatabase()) + 1;
             //insertDummyHikeLuganoToBellinzonaWithGPS();
             myGPSHelper.checkAndRequestPermissions();
@@ -80,11 +93,14 @@ public class HikeHelper {
             //setNotifications();
             sendToDatabase(120,false);
         } else if (haveBreak && started){
+            sensorListener = new StepCounterListener(stepCountsView, progressBar, myDatabaseHelper.getWritableDatabase(), steps);
+            sensorManager.registerListener(sensorListener, accSensor, SensorManager.SENSOR_DELAY_NORMAL);
             setHaveBreak(false);
             sendToDatabase(120, false);
             changeButtonColor(startButton, buttonColor2);
             changeButtonColor(stopButton,buttonColor1);
             Log.d("BOOLEAN CHANGED", "haveBreak: " + haveBreak);
+            sensorManager.registerListener(sensorListener, accSensor, SensorManager.SENSOR_DELAY_NORMAL);
         }
     }
 
@@ -95,7 +111,7 @@ public class HikeHelper {
      * calculates distance
      * updates steps and distance in database
      */
-    public void endHike(StepCounterListener sensorListener) {
+    public void endHike() {
         setStarted(false);
         handler.removeCallbacksAndMessages(null);
         myGPSHelper.getAndHandleLastLocation();
@@ -109,16 +125,15 @@ public class HikeHelper {
         sendToDatabase(0, true);
 
 
+
         changeButtonColor(startButton,buttonColor1);
         changeButtonColor(stopButton,buttonColor1);
-        if (sensorListener != null){
-            myDatabaseHelper.updateHikeData(id, sensorListener.getAccStepCounter() );
-            Log.d("Steps", "Step count: " + sensorListener.getAccStepCounter() );
-            System.out.println(sensorListener.getAccStepCounter());
-        } else {
-            Log.e("WARNING", "No SensorListener active");
-            Toast.makeText(context, "No active hike", Toast.LENGTH_SHORT).show();
-        }
+        myDatabaseHelper.updateHikeData(id, sensorListener.getAccStepCounter());
+        Log.d("Steps", "Step count: " + sensorListener.getAccStepCounter());
+        System.out.println(sensorListener.getAccStepCounter());
+        sensorManager.unregisterListener(sensorListener);
+
+
 
 
     }
@@ -171,7 +186,8 @@ public class HikeHelper {
             Log.d("TEST", "sendToDatabase");
             sendToDatabase(0, true);
             //startButton.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.md_theme_light_secondaryContainer));
-
+            steps = sensorListener.getAccStepCounter();
+            sensorManager.unregisterListener(sensorListener);
         }
     }
 

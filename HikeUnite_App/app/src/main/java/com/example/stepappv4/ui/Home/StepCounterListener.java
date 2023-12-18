@@ -18,7 +18,7 @@ import java.util.TimeZone;
 public class StepCounterListener implements SensorEventListener {
 
     private long lastSensorUpdate = 0;
-    public static int accStepCounter = 0;
+    public static int accStepCounter;
     ArrayList<Integer> accSeries = new ArrayList<Integer>();
     ArrayList<String> timestampsSeries = new ArrayList<String>();
     private double accMag = 0;
@@ -36,11 +36,14 @@ public class StepCounterListener implements SensorEventListener {
     private String day;
     private String hour;
     private long lastStepTime = 0;
+    private  boolean haveBreak;
 
-    public StepCounterListener(TextView stepCountsView, CircularProgressIndicator progressBar, SQLiteDatabase database) {
+    public StepCounterListener(TextView stepCountsView, CircularProgressIndicator progressBar, SQLiteDatabase database, int steps) {
         this.stepCountsView = stepCountsView;
         this.database = database;
         this.progressBar = progressBar;
+
+        accStepCounter = steps;
     }
 
     public int getAccStepCounter() {
@@ -135,4 +138,7 @@ public class StepCounterListener implements SensorEventListener {
         }
     }
 
+    public void destroy() {
+
+    }
 }
