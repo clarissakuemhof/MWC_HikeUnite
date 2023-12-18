@@ -82,13 +82,13 @@ public class ReportFragment extends Fragment {
         Bundle bundle = getArguments();
         if (bundle != null && bundle.containsKey("hikeId")) {
             hikeId = bundle.getInt("hikeId");
-            Log.d("ID", "ID: " + hikeId);
+            Log.d("DEBUG", "ID: " + hikeId);
 
             myDatabaseHelper = new StepAppOpenHelper(getContext());
             steps = myDatabaseHelper.getStepsDataById(hikeId);
             name = myDatabaseHelper.getNameDataById(hikeId);
-            Log.d("Test", "Steps: " + steps);
-            Log.d("TAG",String.format(String.valueOf(myDatabaseHelper.getGeoPointsById(hikeId))));
+            Log.d("DEBUG", "Steps: " + steps);
+            Log.d("DEBUG",String.format(String.valueOf(myDatabaseHelper.getGeoPointsById(hikeId))));
 
             stepsTV.setText(String.format(String.valueOf(steps)));
             nameTV.setText(name);
@@ -119,6 +119,8 @@ public class ReportFragment extends Fragment {
     private void showMap() {
         anyChartView.setVisibility(View.GONE);
         mMap.setVisibility(View.VISIBLE);
+        label1.setText(getResources().getString(R.string.stepLabel));
+        label2.setText(getResources().getString(R.string.distanceLabel));
 
         mapHelper = new OpenStreetMapsHelper(this.getContext(), mMap, myDatabaseHelper.getGeoPointsById(hikeId));
         Log.d("TAG",String.format(String.valueOf(myDatabaseHelper.getGeoPointsById(hikeId))));
@@ -127,8 +129,11 @@ public class ReportFragment extends Fragment {
         distance = BigDecimal.valueOf(mapHelper.getTotalDistanceInKm())
                 .setScale(2, RoundingMode.HALF_DOWN)
                 .floatValue();
-        distanceTV.setText(String.format(String.valueOf(distance)) +" km");
-        Log.d("CHECKVALUE", "Distance2: " + distance);
+        String distanceText = getString(R.string.distance_placeholder, String.valueOf(distance));
+        distanceTV.setText(distanceText);
+        String stepsText = getString(R.string.steps_placeholder, String.valueOf(steps));
+        stepsTV.setText(stepsText);
+        Log.d("DEBUG", "Distance2: " + distance);
 
         showMap = true;
     }
@@ -142,11 +147,14 @@ public class ReportFragment extends Fragment {
         chartLayout.setVisibility(View.VISIBLE);
         anyChartView.setVisibility(View.VISIBLE);
 
-        label1.setText("Altitude Gain");
-        label2.setText("Altitudeloss");
+        label1.setText(getResources().getString(R.string.altitudeLabel1));
+        label2.setText(getResources().getString(R.string.altitudeLabel2));
 
-        stepsTV.setText(String.valueOf(myDatabaseHelper.getTotalAltitudeGained(hikeId)));
-        distanceTV.setText(String.valueOf(myDatabaseHelper.getTotalAltitudeLost(hikeId)));
+
+        String altGainText = getString(R.string.alt_placeholder, String.valueOf(myDatabaseHelper.getTotalAltitudeGained(hikeId)));
+        stepsTV.setText(String.valueOf(altGainText));
+        String altLossText = getString(R.string.alt_placeholder, String.valueOf(myDatabaseHelper.getTotalAltitudeLost(hikeId)));
+        distanceTV.setText(String.valueOf(altLossText));
 
         List<Double> altitudeData = myDatabaseHelper.getAltitudesById(hikeId);
 
@@ -187,7 +195,7 @@ public class ReportFragment extends Fragment {
         cartesian.yScale().minimum(minAltitude > 0 ? 0 : minAltitude).maximum(maxAltitude < 0 ? 0 : maxAltitude);
 
         cartesian.yAxis(0).title("Altitude");
-        cartesian.xAxis(0).title("Point");
+        cartesian.xAxis(0).title("Elevation Profile of your hike");
         cartesian.xAxis(0).labels().enabled(false);
         cartesian.background().fill("#00000000");
         cartesian.animation(true);

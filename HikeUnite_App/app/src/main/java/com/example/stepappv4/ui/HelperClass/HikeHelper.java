@@ -87,6 +87,7 @@ public class HikeHelper {
 
 
         changeButtonColor(startButton,buttonColor1);
+        changeButtonColor(stopButton,buttonColor1);
         if (sensorListener != null){
             myDatabaseHelper.updateHikeData(id, sensorListener.getAccStepCounter() );
             Log.d("Steps", "Step count: " + sensorListener.getAccStepCounter() );
