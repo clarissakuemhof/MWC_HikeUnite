@@ -74,7 +74,9 @@ public class HikeService extends Service {
         boolean haveBreak = intent.getBooleanExtra("haveBreak", false);
         boolean stopService = intent.getBooleanExtra("stopService", false);
         if (stopService) {
+            handler.removeCallbacksAndMessages(null);
             stopSelf();
+            Log.d("DEBUG", "Stopped Service");
             return START_NOT_STICKY;
         } else {
             context = getApplicationContext();
@@ -94,6 +96,7 @@ public class HikeService extends Service {
         }
     }
     private  void sendToDatabase(StepAppOpenHelper myDatabaseHelper, int id, boolean haveBreak, boolean started, int seconds){
+        getAndHandleLastLocation();
             handler.postDelayed(() -> {
                 if (!haveBreak) {
                     getAndHandleLastLocation();
