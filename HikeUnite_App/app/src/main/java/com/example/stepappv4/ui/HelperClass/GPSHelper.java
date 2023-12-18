@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.os.Build;
+import android.os.Debug;
 import android.os.PowerManager;
 import android.util.Log;
 
@@ -40,7 +41,7 @@ public class GPSHelper {
     public GPSHelper(Context context) {
         this.context = context;
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(context);
-        checkAndRequestPermissions2();
+        checkAndRequestPermissions();
         getAndHandleLastLocation();
 
     }
@@ -48,16 +49,11 @@ public class GPSHelper {
     /**
      * Method to check and request location permissions
      */
-    private void checkAndRequestPermissions() {
+    public void checkAndRequestPermissions() {
         if (ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION)
                 == PackageManager.PERMISSION_GRANTED) {
-            if (ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_BACKGROUND_LOCATION)
-                    == PackageManager.PERMISSION_GRANTED) {
-                getAndHandleLastLocation();
-            } else {
-                ActivityCompat.requestPermissions((Activity) context,
-                        new String[]{Manifest.permission.ACCESS_BACKGROUND_LOCATION},
-                        123);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                checkAndRequestPermissions2();
             }
         } else {
             ActivityCompat.requestPermissions((Activity) context,
@@ -66,14 +62,16 @@ public class GPSHelper {
         }
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.Q)
     private void checkAndRequestPermissions2() {
         if (ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_BACKGROUND_LOCATION)
                 == PackageManager.PERMISSION_GRANTED) {
-            getAndHandleLastLocation();
+            Log.d("DEBUG", "Permission granted");
         } else {
             ActivityCompat.requestPermissions((Activity) context,
                     new String[]{Manifest.permission.ACCESS_BACKGROUND_LOCATION},
-                    456);
+                    123);
+            Log.d("DEBUG", "Permission denied");
         }
     }
 

@@ -47,7 +47,7 @@ public class ReportFragment extends Fragment {
     private MapView mMap;
     private OpenStreetMapsHelper mapHelper;
     private LinearLayout chartLayout;
-    private TextView stepsTV, distanceTV, nameTV;
+    private TextView stepsTV, distanceTV, nameTV, label1, label2;
 
     private boolean showMap = true;
 
@@ -64,6 +64,9 @@ public class ReportFragment extends Fragment {
         stepsTV = root.findViewById(R.id.steps);
         distanceTV = root.findViewById(R.id.distanceTest);
         nameTV = root.findViewById(R.id.yourhikeheadline);
+        label1 = root.findViewById(R.id.textView18);
+        label2 = root.findViewById(R.id.textView19);
+
 
         Button switchButton = root.findViewById(R.id.toggleMapButton);
 
@@ -136,6 +139,9 @@ public class ReportFragment extends Fragment {
         mMap.setVisibility(View.GONE);
         chartLayout.setVisibility(View.VISIBLE);
         anyChartView.setVisibility(View.VISIBLE);
+
+        label1.setText("Altitude Gain");
+        label2.setText("Altitudeloss");
 
         stepsTV.setText(String.valueOf(myDatabaseHelper.getTotalAltitudeGained(hikeId)));
         distanceTV.setText(String.valueOf(myDatabaseHelper.getTotalAltitudeLost(hikeId)));

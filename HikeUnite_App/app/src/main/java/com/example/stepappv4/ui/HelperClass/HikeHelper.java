@@ -50,7 +50,7 @@ public class HikeHelper {
             id = myDatabaseHelper.getLastId(myDatabaseHelper.getWritableDatabase()) + 1;
             myDatabaseHelper.insertHikeData();
             //insertDummyHikeLuganoToBellinzonaWithGPS();
-            myGPSHelper.getAndHandleLastLocation();
+            myGPSHelper.checkAndRequestPermissions();
             myDatabaseHelper.insertGPSData(myGPSHelper.getLongitude(),myGPSHelper.getLatitude(), myGPSHelper.getAltitude(),id);
             setStarted(true);
             changeButtonColor(startButton, buttonColor2);
