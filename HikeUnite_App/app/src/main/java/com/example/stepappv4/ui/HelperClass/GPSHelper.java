@@ -5,9 +5,11 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.location.Location;
+import android.os.Build;
 import android.os.PowerManager;
 import android.util.Log;
 
+import androidx.annotation.RequiresApi;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
@@ -38,7 +40,7 @@ public class GPSHelper {
     public GPSHelper(Context context) {
         this.context = context;
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(context);
-        checkAndRequestPermissions();
+        checkAndRequestPermissions2();
         getAndHandleLastLocation();
 
     }
@@ -49,13 +51,34 @@ public class GPSHelper {
     private void checkAndRequestPermissions() {
         if (ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION)
                 == PackageManager.PERMISSION_GRANTED) {
-            getAndHandleLastLocation();
+            if (ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_BACKGROUND_LOCATION)
+                    == PackageManager.PERMISSION_GRANTED) {
+                getAndHandleLastLocation();
+            } else {
+                ActivityCompat.requestPermissions((Activity) context,
+                        new String[]{Manifest.permission.ACCESS_BACKGROUND_LOCATION},
+                        123);
+            }
         } else {
             ActivityCompat.requestPermissions((Activity) context,
                     new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
                     123);
         }
     }
+
+    private void checkAndRequestPermissions2() {
+        if (ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_BACKGROUND_LOCATION)
+                == PackageManager.PERMISSION_GRANTED) {
+            getAndHandleLastLocation();
+        } else {
+            ActivityCompat.requestPermissions((Activity) context,
+                    new String[]{Manifest.permission.ACCESS_BACKGROUND_LOCATION},
+                    456);
+        }
+    }
+
+
+
 
     /**
      * Method to request current location and altitude. Updated variables

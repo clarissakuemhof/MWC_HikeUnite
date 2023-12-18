@@ -144,16 +144,6 @@ public class HikeService extends Service {
         }
     }
 
-    private void checkAndRequestPermissions() {
-        if (ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION)
-                == PackageManager.PERMISSION_GRANTED) {
-            getAndHandleLastLocation();
-        } else {
-            ActivityCompat.requestPermissions((Activity) context,
-                    new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
-                    123);
-        }
-    }
 
     /**
      * Method to request current location and altitude. Updated variables
