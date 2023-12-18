@@ -27,6 +27,7 @@ import com.example.stepappv4.StepAppOpenHelper;
 import com.example.stepappv4.R;
 import com.example.stepappv4.databinding.FragmentHomeBinding;
 import com.example.stepappv4.ui.HelperClass.GPSHelper;
+import com.example.stepappv4.ui.HelperClass.HikeHelper;
 import com.example.stepappv4.ui.HelperClass.OpenStreetMapsHelper;
 import com.google.android.material.button.MaterialButtonToggleGroup;
 import com.google.android.material.progressindicator.CircularProgressIndicator;
@@ -52,20 +53,10 @@ public class HomeFragment extends Fragment {
     private StepCounterListener sensorListener;
 
     private ViewSwitcher viewSwitcher;
-    private Button startButton,stopButton, endButton;
-
-    private String[] inspirationalQuotes;
-
-    private int id, steps, buttonColor1, buttonColor2;
-    private float distance;
-    private GPSHelper gpsHelper;
-    private StepAppOpenHelper myDatabaseHelper;
-    private boolean started;
+    private Button startButton,stopButton, endButton, dummyHike;
 
 
-    private boolean haveBreak;
-    private final Handler handler = new Handler();
-    private OpenStreetMapsHelper mapsHelper;
+    private HikeHelper hikeHelper;
 
 
     public View onCreateView(@NonNull LayoutInflater inflater,
@@ -77,16 +68,6 @@ public class HomeFragment extends Fragment {
         View root = binding.getRoot();
 
 
-//-----------------------GPS Helper Class---------------------------------
-        gpsHelper = new GPSHelper(this.getContext());
-//-----------------------Database Helper Class----------------------------
-        myDatabaseHelper = new StepAppOpenHelper(this.getContext());
-        SQLiteDatabase database = myDatabaseHelper.getWritableDatabase();
-        started = false;
-        haveBreak = false;
-//----------------------------ColorsButton-------------------------------
-        buttonColor1 = R.color.md_theme_light_secondaryContainer;
-        buttonColor2 = R.color.md_theme_dark_inversePrimary;
 //----------------------------Progress Bar-------------------------------
         progressBar = (CircularProgressIndicator) root.findViewById(R.id.progressBar);
         progressBar.setMax(10000);
@@ -102,10 +83,12 @@ public class HomeFragment extends Fragment {
         stopButton = root.findViewById(R.id.stop_button);
         endButton = root.findViewById(R.id.end_button);
         quoteText = root.findViewById(R.id.quote_text);
-        inspirationalQuotes = getResources().getStringArray(R.array.inspirational_quotes);
+        dummyHike = root.findViewById(R.id.InsertDummyHike);
         stepCountsView = (TextView) root.findViewById(R.id.counter);
         stepCountsView.setText("0");
-        setRandomQuote();
+        hikeHelper = new HikeHelper(getContext(), startButton, stopButton);
+        hikeHelper.setRandomQuote(quoteText);
+
 
 
         startButton.setOnClickListener(new View.OnClickListener(){
@@ -115,24 +98,14 @@ public class HomeFragment extends Fragment {
                 if (viewSwitcher.getCurrentView() == root.findViewById(R.id.defaultView)) {
                     viewSwitcher.showNext();
                 }
-                startHike();
+                hikeHelper.startHike();
             }
         });
 
         stopButton.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View v){
-                if (started) {
-                    setHaveBreak(true);
-                    Log.d("BOOLEAN CHANGED", "HAVE BREAK: " + haveBreak);
-                    changeButtonColor(stopButton,buttonColor2);
-                    //stopButton.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.md_theme_dark_inversePrimary));
-                    changeButtonColor(startButton,buttonColor1);
-                    //startButton.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.md_theme_light_secondaryContainer));
-
-                }
-
-
+                hikeHelper.setBreak();
             }
         });
 
@@ -140,10 +113,17 @@ public class HomeFragment extends Fragment {
             @Override
             public void onClick(View v){
                 if(viewSwitcher.getCurrentView() == root.findViewById(R.id.progressView)){
-                    setRandomQuote();
+                    hikeHelper.setRandomQuote(quoteText);
                     viewSwitcher.showPrevious();
                 }
-                endHike();
+                hikeHelper.endHike(sensorListener);
+            }
+        });
+
+        dummyHike.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                hikeHelper.insertDummyHikeLuganoToBellinzonaWithGPS();
             }
         });
 
@@ -155,7 +135,7 @@ public class HomeFragment extends Fragment {
                 if (group.getCheckedButtonId() ==R.id.start_button) {
                     if (accSensor != null)
                     {
-                        sensorListener = new StepCounterListener(stepCountsView, progressBar, database);
+                        sensorListener = new StepCounterListener(stepCountsView, progressBar, hikeHelper.getMyDatabaseHelper().getWritableDatabase());
                         sensorManager.registerListener(sensorListener, accSensor, SensorManager.SENSOR_DELAY_NORMAL);
                         Toast.makeText(getContext(), R.string.start_text, Toast.LENGTH_LONG).show();
                     }
@@ -181,242 +161,5 @@ public class HomeFragment extends Fragment {
 
     }
 
-    private void setRandomQuote() {
-        if (inspirationalQuotes.length > 0) {
-            int randomIndex = new Random().nextInt(inspirationalQuotes.length);
-            quoteText.setText(inspirationalQuotes[randomIndex]);
-        }
-    }
-
-    /**
-     * Method is used to create dummy data to test map feature
-     */
-    private void insertDummyHikeLuganoToBellinzonaWithGPS() {
-        // Insert the hike details
-        // Define GPS points for a circular path
-        myDatabaseHelper.insertGPSData( 8.9164, 45.9897,200, id);
-        myDatabaseHelper.insertGPSData( 8.9382, 46.0015,255, id);
-        myDatabaseHelper.insertGPSData( 8.9527, 46.0158,343, id);
-        myDatabaseHelper.insertGPSData( 8.9164, 46.0276,243, id);
-        myDatabaseHelper.insertGPSData( 8.9873, 46.0391,345, id);
-        myDatabaseHelper.insertGPSData( 9.0173, 46.1984,255, id);
-
-    }
-
-    /**
-     * Setter for is started value
-     * If hike is started the sendToDatabase function will start running
-     * @param started indicates if a hike is started at the moment.
-     */
-    public void setStarted(boolean started) {
-        this.started = started;
-    }
-
-    /**
-     * Setter for haveBreak value
-     * If haveBreak is true the app will stop sending the location to the database
-     * @param haveBreak indicates if user makes a break during the hike
-     */
-    public void setHaveBreak(boolean haveBreak) {
-        this.haveBreak = haveBreak;
-    }
-
-    /**
-     * Function to send the GPS data to the database in an adjustable time interval
-     * Accesses gpsHelper to update the current position and then retrieves the values and inserts them to database
-     * ALso checks if user has a break at the moment and stops sending the data if active
-     */
-    private void sendToDatabase() {
-        if (started) {
-            handler.postDelayed(() -> {
-                if (!haveBreak) {
-                    gpsHelper.getAndHandleLastLocation();
-                    Log.d("FunctionLog", "Updated Location");
-                    myDatabaseHelper.insertGPSData(gpsHelper.getLongitude(), gpsHelper.getLatitude(), gpsHelper.getAltitude(), id);
-                    // Check the flag again before scheduling the next call
-                    sendToDatabase();
-                }
-            }, 30000); // 30 seconds delay
-        }
-    }
-
-    private void startHike() {
-        if (!haveBreak) {
-            id = myDatabaseHelper.getLastId(myDatabaseHelper.getWritableDatabase()) + 1;
-            myDatabaseHelper.insertHikeData();
-            //insertDummyHikeLuganoToBellinzonaWithGPS();
-            gpsHelper.getAndHandleLastLocation();
-            myDatabaseHelper.insertGPSData(gpsHelper.getLongitude(),gpsHelper.getLatitude(), gpsHelper.getAltitude(),id);
-            setStarted(true);
-            changeButtonColor(startButton, buttonColor2);
-            changeButtonColor(stopButton,buttonColor1);
-            Log.d("BOOLEAN CHANGED", "started: " + started);
-            sendToDatabase();
-        } else {
-            setHaveBreak(false);
-            sendToDatabase();
-            changeButtonColor(startButton, buttonColor2);
-            changeButtonColor(stopButton,buttonColor1);
-            Log.d("BOOLEAN CHANGED", "haveBreak: " + haveBreak);
-        }
-    }
-
-    /**
-     * This functions handles the end of a hike.
-     * Removes any pending callbacks for the handler and therefore stops calls to database
-     * Saves a last geopoint in the database
-     * calculates distance
-     * updates steps and distance in database
-     */
-    private void endHike() {
-        setStarted(false);
-        handler.removeCallbacksAndMessages(null);
-        gpsHelper.getAndHandleLastLocation();
-        Log.d("FunctionLog", "Saved last Location");
-        myDatabaseHelper.insertGPSData(gpsHelper.getLongitude(), gpsHelper.getLatitude(), gpsHelper.getAltitude(), id);
-
-        mapsHelper = new OpenStreetMapsHelper(getContext(), myDatabaseHelper.getGeoPointsById(id));
-        myDatabaseHelper.updateHikeDistance(id,mapsHelper.getTotalDistanceInKm());
-        Log.d("DEBUG","Updated Distance: " + distance + " for hike with id " + id);
-
-        myDatabaseHelper.updateHikeData(id, sensorListener.getAccStepCounter() );
-
-        changeButtonColor(startButton,buttonColor1);
-        Log.d("Steps", "Step count: " + sensorListener.getAccStepCounter() );
-        System.out.println(sensorListener.getAccStepCounter());
-    }
-
-    /**
-     * Method to change color of buttons
-     * @param button button you want to change
-     * @param color color you want to set
-     */
-    public void changeButtonColor(Button button, int color){
-        button.setBackgroundColor(ContextCompat.getColor(requireContext(), color));
-    }
-
 }
 
-class  StepCounterListener implements SensorEventListener{
-
-    private long lastSensorUpdate = 0;
-    public static int accStepCounter = 0;
-    ArrayList<Integer> accSeries = new ArrayList<Integer>();
-    ArrayList<String> timestampsSeries = new ArrayList<String>();
-    private double accMag = 0;
-    // Everything in double since it's more precise (32-bit FP < 64-bit FP)
-    private double smoothAccMag = 0;
-    // the value requires imperative testing
-    // value is between 0 and 1
-    private double alpha = 0.8;
-    private int lastAddedIndex = 1;
-    int stepThreshold = 4;
-    TextView stepCountsView;
-    CircularProgressIndicator progressBar;
-    private SQLiteDatabase database;
-    private String timestamp;
-    private String day;
-    private String hour;
-    private long lastStepTime = 0;
-
-    public StepCounterListener(TextView stepCountsView, CircularProgressIndicator progressBar,  SQLiteDatabase database)
-    {
-        this.stepCountsView = stepCountsView;
-        this.database = database;
-        this.progressBar = progressBar;
-    }
-
-    public int getAccStepCounter(){
-        return accStepCounter;
-    }
-
-    @Override
-    public void onSensorChanged(SensorEvent sensorEvent) {
-        switch (sensorEvent.sensor.getType())
-        {
-            case Sensor.TYPE_LINEAR_ACCELERATION:
-
-                float x = sensorEvent.values[0];
-                float y = sensorEvent.values[1];
-                float z = sensorEvent.values[2];
-
-                long currentTimeInMilliSecond = System.currentTimeMillis();
-
-                long timeInMillis = currentTimeInMilliSecond + (sensorEvent.timestamp - SystemClock.elapsedRealtimeNanos()) / 1000000;
-
-                // Convert the timestamp to date
-                SimpleDateFormat jdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss:SSS");
-                jdf.setTimeZone(TimeZone.getTimeZone("GMT+2"));
-                String sensorEventDate = jdf.format(timeInMillis);
-
-                if ((currentTimeInMilliSecond - lastSensorUpdate) > 1000)
-                {
-                    lastSensorUpdate = currentTimeInMilliSecond;
-                    String sensorRawValues = "  x = "+ String.valueOf(x) +"  y = "+ String.valueOf(y) +"  z = "+ String.valueOf(z);
-                    //Log.d("Acc. Event", "last sensor update at " + String.valueOf(sensorEventDate) + sensorRawValues);
-                }
-
-                // Calculate the acceleration vector
-                accMag = Math.sqrt(x*x+y*y+z*z);
-
-                accSeries.add((int) accMag);
-                // Add a low-pass filter to smooth and to reduce noise
-                // alpha = smoothing factor
-                // (1- alpha) = weight assigned for the smoothAccMAg
-                smoothAccMag = alpha * accMag + (1- alpha) * smoothAccMag;
-
-
-                accSeries.add((int) smoothAccMag);
-                // Get the date, the day and the hour
-                timestamp = sensorEventDate;
-                day = sensorEventDate.substring(0,10);
-                hour = sensorEventDate.substring(11,13);
-                //Log.d("SensorEventTimestampInMilliSecond", timestamp);
-                timestampsSeries.add(timestamp);
-                peakDetection();
-
-                break;
-
-        }
-
-    }
-    @Override
-    public void onAccuracyChanged(Sensor sensor, int i) {
-
-    }
-
-
-    private void peakDetection() {
-
-        int windowSize = 20;
-        long timeConstraintMillis = 500;
-        /* Peak detection algorithm derived from: A Step Counter Service for Java-Enabled Devices Using a Built-In Accelerometer Mladenov et al.
-         */
-        int currentSize = accSeries.size(); // get the length of the series
-        if (currentSize - lastAddedIndex < windowSize) { // if the segment is smaller than the processing window size skip it
-            return;
-        }
-
-        List<Integer> valuesInWindow = accSeries.subList(lastAddedIndex,currentSize);
-        lastAddedIndex = currentSize;
-
-        for (int i = 1; i < valuesInWindow.size()-1; i++) {
-            int forwardSlope = valuesInWindow.get(i + 1) - valuesInWindow.get(i);
-            int downwardSlope = valuesInWindow.get(i) - valuesInWindow.get(i - 1);
-
-            if (forwardSlope < 0 && downwardSlope > 0 && valuesInWindow.get(i) > stepThreshold) {
-                    long currentTime = System.currentTimeMillis();
-                    // Log.d("Clock", "currentTime - lastStepTime: " + (currentTime - lastStepTime));
-
-                    if(currentTime - lastStepTime > timeConstraintMillis) {
-                        accStepCounter += 1;
-                        lastStepTime = currentTime;
-                        Log.d("ACC STEPS: ", String.valueOf(accStepCounter));
-                        stepCountsView.setText(String.valueOf(accStepCounter));
-                        progressBar.setProgress(accStepCounter);
-                    }
-            }
-        }
-    }
-
-}

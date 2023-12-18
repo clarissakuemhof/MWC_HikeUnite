@@ -8,95 +8,104 @@
 
 
     <LinearLayout
-        android:id="@+id/mapContainer"
         android:layout_width="match_parent"
-        android:layout_height="300dp"
-        android:layout_marginTop="32dp"
+        android:layout_height="match_parent"
+        android:gravity="center_horizontal"
         android:orientation="vertical"
-        app:layout_constraintBottom_toTopOf="@+id/distanceTest"
-        app:layout_constraintTop_toBottomOf="@+id/yourhikeheadline">
+        tools:layout_editor_absoluteX="-51dp"
+        tools:layout_editor_absoluteY="100dp">
 
-        <org.osmdroid.views.MapView
-            android:id="@+id/osmmap"
+        <TextView
+            android:id="@+id/yourhikeheadline"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingTop="20dp"
+            android:paddingBottom="20dp"
+            android:text="Your HIke"
+            android:textColor="#1EB980"
+            android:textSize="24sp" />
+
+        <LinearLayout
+            android:id="@+id/mapContainer"
+            android:layout_width="match_parent"
+            android:layout_height="300dp"
+            android:layout_marginTop="32dp"
+            android:orientation="vertical"
+            android:paddingTop="10dp"
+            android:paddingBottom="10dp">
+
+            <org.osmdroid.views.MapView
+                android:id="@+id/osmmap"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingTop="10dp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintTop_toTopOf="parent">
+
+            </org.osmdroid.views.MapView>
+
+            <!-- Add AnyChartView here if you want it inside the LinearLayout -->
+            <com.anychart.AnyChartView
+                android:id="@+id/anyChartView"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent" />
+        </LinearLayout>
+
+        <Button
+            android:id="@+id/toggleMapButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:onClick="toggleMapVisibility"
+            android:paddingTop="20dp"
+            android:paddingBottom="20dp"
+            android:text="Toggle Map" />
+
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintTop_toTopOf="parent" >
+            android:gravity="center_horizontal"
+            android:orientation="horizontal"
+            android:paddingTop="20dp"
+            android:paddingBottom="10dp">
 
-        </org.osmdroid.views.MapView>
+            <TextView
+                android:id="@+id/textView18"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingRight="50dp"
+                android:text="Steps:" />
 
-        <!-- Add AnyChartView here if you want it inside the LinearLayout -->
-        <com.anychart.AnyChartView
-            android:id="@+id/anyChartView"
+            <TextView
+                android:id="@+id/steps"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="xxxxx" />
+
+        </LinearLayout>
+
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent" />
+            android:layout_height="wrap_content"
+            android:gravity="center_horizontal"
+            android:orientation="horizontal"
+            android:paddingTop="20dp"
+            android:paddingBottom="10dp">
+
+            <TextView
+                android:id="@+id/textView19"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingRight="50dp"
+                android:text="Distance:" />
+
+            <TextView
+                android:id="@+id/distanceTest"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="xxxx" />
+        </LinearLayout>
+
     </LinearLayout>
-
-    <TextView
-        android:id="@+id/yourhikeheadline"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="40dp"
-        android:text="Your HIke"
-        android:textColor="#1EB980"
-        android:textSize="24sp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <TextView
-        android:id="@+id/steps"
-        android:layout_width="41dp"
-        android:layout_height="14dp"
-        android:text="xxxxx"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.931" />
-
-    <TextView
-        android:id="@+id/textView18"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="44dp"
-        android:text="Steps:"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/steps"
-        app:layout_constraintHorizontal_bias="0.519"
-        app:layout_constraintStart_toStartOf="parent" />
-
-    <TextView
-        android:id="@+id/textView19"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="68dp"
-        android:layout_marginBottom="40dp"
-        android:text="Distance:"
-        app:layout_constraintBottom_toTopOf="@+id/textView18"
-        app:layout_constraintStart_toStartOf="parent" />
-
-    <TextView
-        android:id="@+id/distanceTest"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="56dp"
-        android:layout_marginBottom="40dp"
-        android:text="xxxx"
-        app:layout_constraintBottom_toTopOf="@+id/steps"
-        app:layout_constraintStart_toEndOf="@+id/textView19" />
-
-    <Button
-        android:id="@+id/toggleMapButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="14dp"
-        android:onClick="toggleMapVisibility"
-        android:text="Toggle Map"
-        app:layout_constraintBottom_toTopOf="@+id/distanceTest"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
-
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -709,6 +709,90 @@ public class StepAppOpenHelper extends SQLiteOpenHelper {
         return timestampFormat.format(Calendar.getInstance().getTime());
     }
 
+    /**
+     * This method calculates the total altitude gained during a hike.
+     *
+     * @param id Identifies the hike.
+     * @return Total altitude gained in meters.
+     */
+    public double getTotalAltitudeGained(int id) {
+        SQLiteDatabase database = this.getReadableDatabase();
+        double totalAltitudeGained = 0;
+
+        String[] columns = {KEY_ALTITUDE};
+        String selection = KEY_ID + "=?";
+        String[] selectionArgs = {String.valueOf(id)};
+
+        Cursor cursor = database.query(TABLE_NAME2, columns, selection, selectionArgs, null, null, null);
+
+        if (cursor != null && cursor.moveToFirst()) {
+            double previousAltitude = Double.MIN_VALUE;
+
+            do {
+                int altitudeIndex = cursor.getColumnIndex(KEY_ALTITUDE);
+
+                if (altitudeIndex != -1) {
+                    double altitude = cursor.getDouble(altitudeIndex);
+
+                    if (previousAltitude != Double.MIN_VALUE && altitude > previousAltitude) {
+                        totalAltitudeGained += altitude - previousAltitude;
+                    }
+
+                    previousAltitude = altitude;
+                } else {
+                    Log.w("AltitudeGained", "Column KEY_ALTITUDE not found in cursor.");
+                }
+            } while (cursor.moveToNext());
+
+            cursor.close();
+        }
+
+        database.close();
+        return totalAltitudeGained;
+    }
+
+    /**
+     * This method calculates the total altitude lost during a hike.
+     *
+     * @param id Identifies the hike.
+     * @return Total altitude lost in meters.
+     */
+    public double getTotalAltitudeLost(int id) {
+        SQLiteDatabase database = this.getReadableDatabase();
+        double totalAltitudeLost = 0;
+
+        String[] columns = {KEY_ALTITUDE};
+        String selection = KEY_ID + "=?";
+        String[] selectionArgs = {String.valueOf(id)};
+
+        Cursor cursor = database.query(TABLE_NAME2, columns, selection, selectionArgs, null, null, null);
+
+        if (cursor != null && cursor.moveToFirst()) {
+            double previousAltitude = Double.MIN_VALUE;
+
+            do {
+                int altitudeIndex = cursor.getColumnIndex(KEY_ALTITUDE);
+
+                if (altitudeIndex != -1) {
+                    double altitude = cursor.getDouble(altitudeIndex);
+
+                    if (previousAltitude != Double.MIN_VALUE && altitude < previousAltitude) {
+                        totalAltitudeLost += previousAltitude - altitude;
+                    }
+
+                    previousAltitude = altitude;
+                } else {
+                    Log.w("AltitudeLost", "Column KEY_ALTITUDE not found in cursor.");
+                }
+            } while (cursor.moveToNext());
+
+            cursor.close();
+        }
+
+        database.close();
+        return totalAltitudeLost;
+    }
+
 
 
 }
