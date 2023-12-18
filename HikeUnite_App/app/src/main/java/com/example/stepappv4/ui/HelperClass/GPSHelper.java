@@ -5,8 +5,12 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.location.Location;
+import android.os.Build;
+import android.os.Debug;
+import android.os.PowerManager;
 import android.util.Log;
 
+import androidx.annotation.RequiresApi;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
@@ -45,16 +49,34 @@ public class GPSHelper {
     /**
      * Method to check and request location permissions
      */
-    private void checkAndRequestPermissions() {
+    public void checkAndRequestPermissions() {
         if (ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION)
                 == PackageManager.PERMISSION_GRANTED) {
-            getAndHandleLastLocation();
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                checkAndRequestPermissions2();
+            }
         } else {
             ActivityCompat.requestPermissions((Activity) context,
                     new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
                     123);
         }
     }
+
+    @RequiresApi(api = Build.VERSION_CODES.Q)
+    private void checkAndRequestPermissions2() {
+        if (ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_BACKGROUND_LOCATION)
+                == PackageManager.PERMISSION_GRANTED) {
+            Log.d("DEBUG", "Permission granted");
+        } else {
+            ActivityCompat.requestPermissions((Activity) context,
+                    new String[]{Manifest.permission.ACCESS_BACKGROUND_LOCATION},
+                    123);
+            Log.d("DEBUG", "Permission denied");
+        }
+    }
+
+
+
 
     /**
      * Method to request current location and altitude. Updated variables

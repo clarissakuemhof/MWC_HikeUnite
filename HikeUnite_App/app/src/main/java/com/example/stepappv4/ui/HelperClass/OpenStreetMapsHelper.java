@@ -8,6 +8,7 @@ import android.util.Log;
 
 import com.example.stepappv4.R;
 
+
 import org.osmdroid.api.IMapController;
 import org.osmdroid.config.Configuration;
 import org.osmdroid.events.MapListener;
@@ -19,7 +20,11 @@ import org.osmdroid.util.GeoPoint;
 import org.osmdroid.views.MapView;
 import org.osmdroid.views.overlay.Polyline;
 
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
+import java.util.Set;
 
 /**
  * This is the class to handle all methods needed to initialize the maps and to draw the route based on the saved GeoPoints
@@ -35,6 +40,9 @@ public class OpenStreetMapsHelper implements MapListener {
     private float totalDistance = 0.0f;
     private List<GeoPoint> hikeRoute;
     private Paint red = new Paint();
+
+    private Set<String> uniqueCoordinates = new HashSet<>();
+    private List<String> uniqueList = new ArrayList<>();
 
     /**
      * Constructor for map helper with map view. Used to display route and map in hike reports
@@ -114,7 +122,7 @@ public class OpenStreetMapsHelper implements MapListener {
 
     @Override
     public boolean onZoom(ZoomEvent event) {
-        Log.e("TAG", "onZoom zoom level: " + event.getZoomLevel() + "   source:  " + event.getSource());
+        //Log.e("TAG", "onZoom zoom level: " + event.getZoomLevel() + "   source:  " + event.getSource());
         return false;
     }
 
@@ -142,17 +150,33 @@ public class OpenStreetMapsHelper implements MapListener {
     /**
      * This method adds the Polyline overlay to the map to visualize the hike
      */
-    public void addPolyline(List<GeoPoint> hikeRoute) {
+    public void addPolyline() {
         if (hikeRoute != null && hikeRoute.size() > 1) {
-            for (GeoPoint geoPoint : hikeRoute) {
-                Log.d("GeoPoint", "Latitude: " + geoPoint.getLatitude() + ", Longitude: " + geoPoint.getLongitude() + ", Altitude: " + geoPoint.getAltitude());
+
+
+            //for (GeoPoint geoPoint : hikeRoute) {
+            //    Log.d("GeoPoint", "Latitude: " + geoPoint.getLatitude() + ", Longitude: " + geoPoint.getLongitude() + ", Altitude: " + geoPoint.getAltitude());
+            //}
+
+
+            List<GeoPoint> uniqueCoordinates = removeDuplicateCoordinates(hikeRoute);
+            Polyline polyline = new Polyline();
+                        /*
+            for (GeoPoint hikeCoordinate : hikeRoute) {
+                Log.d("DEBUG", String.valueOf(hikeCoordinate));
+            }
+            for (GeoPoint uniqueCoordinate : uniqueCoordinates) {
+                Log.d("DEBUG", String.valueOf(uniqueCoordinate));
             }
 
-            Polyline polyline = new Polyline();
-            polyline.setPoints(hikeRoute);
+             */
+
+            Log.d("DEBUG", String.valueOf(uniqueCoordinates));
+            polyline.setPoints(uniqueCoordinates);
             polyline.setGeodesic(true); // Add this line to ensure a great circle path
             red.setColor(Color.RED);
             polyline.getOutlinePaint().set(red);
+            polyline.getOutlinePaint().setStrokeCap(Paint.Cap.ROUND);
             mMap.getOverlayManager().add(polyline);
             Log.d("TEST", "Polyline added...");
             mMap.invalidate();
@@ -191,6 +215,26 @@ public class OpenStreetMapsHelper implements MapListener {
         }
 
         return new BoundingBox(maxLat, maxLon, minLat, minLon);
+    }
+
+    /**
+     * Removes duplicate locations in our polyline
+     * @param points
+     * @return
+     */
+    private List<GeoPoint> removeDuplicateCoordinates(List<GeoPoint> points) {
+        List<GeoPoint> uniquePoints = new ArrayList<>();
+        Set<String> uniqueCoordinates = new HashSet<>();
+
+        for (GeoPoint point : points) {
+            String coordinateKey = String.format(Locale.US, "%.6f,%.6f", point.getLatitude(), point.getLongitude());
+
+            if (uniqueCoordinates.add(coordinateKey)) {
+                uniquePoints.add(point);
+            }
+        }
+
+        return uniquePoints;
     }
 }
 

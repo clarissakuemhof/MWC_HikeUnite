@@ -143,23 +143,24 @@ public class HistoryFragment extends Fragment {
         binding = null;
     }
 
+
+    /**
+     * Creates and initializes a cursor to retrieve hike data for the current month and year.
+     * The method also sets up a SimpleCursorAdapter to bind the cursor data to a ListView.
+     * Additionally, it calculates and displays information such as distance and duration for each hike.
+     */
     private void createCursor() {
         Cursor cursor = myDatabaseHelper.getHikesForMonth(currentMonthIndex, currentYear);
-
         DatabaseUtils.dumpCursor(cursor);
 
         String[] columns = {
                 StepAppOpenHelper.KEY_NAME,
-                //StepAppOpenHelper.KEY_DAY,
-                //StepAppOpenHelper.KEY_DISTANCE
         };
 
         int[] to = {
                 R.id.name,
-                //R.id.version_number,
-                //R.id.type
-        };
 
+        };
         adapter = new SimpleCursorAdapter(
                 requireContext(),
                 R.layout.list_view_item,
@@ -199,6 +200,11 @@ public class HistoryFragment extends Fragment {
         };
     }
 
+    /**
+     * Updates the displayed month and year in the UI based on the currentMonthIndex and currentYear values.
+     * The formatted month and year string is set to the textViewMonth TextView.
+     */
+
     private void updateMonth() {
         Calendar calendar = Calendar.getInstance();
         calendar.set(Calendar.MONTH, currentMonthIndex);
@@ -207,6 +213,10 @@ public class HistoryFragment extends Fragment {
         textViewMonth.setText(String.format(Locale.getDefault(), "%s %d", currentMonth, currentYear));
     }
 
+    /**
+     * Navigates to the previous month and updates the UI and cursor accordingly.
+     * If the current month is December, decrements the year.
+     */
     private void navigateToPreviousMonth() {
 
         currentMonthIndex = (currentMonthIndex - 1 + 12) % 12;
@@ -221,6 +231,10 @@ public class HistoryFragment extends Fragment {
 
     }
 
+    /**
+     * Navigates to the next month and updates the UI and cursor accordingly.
+     * If the current month is January, increments the year.
+     */
     private void navigateToNextMonth() {
 
         currentMonthIndex = (currentMonthIndex + 1) % 12;
