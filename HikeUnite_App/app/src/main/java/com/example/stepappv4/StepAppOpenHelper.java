@@ -582,7 +582,7 @@ public class StepAppOpenHelper extends SQLiteOpenHelper {
             }
         }
 
-        return "Null";
+        return "00:00";
     }
 
     /**

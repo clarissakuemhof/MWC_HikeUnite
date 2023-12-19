@@ -81,7 +81,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:paddingStart="20dp"
-                android:paddingEnd="50dp"
+                android:paddingEnd="30dp"
                 android:text="Duration"
                 android:textColor="@color/md_theme_light_onSurface"
                 android:textStyle="bold" />

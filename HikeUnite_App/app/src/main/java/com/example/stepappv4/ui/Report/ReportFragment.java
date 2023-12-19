@@ -200,7 +200,7 @@ public class ReportFragment extends Fragment {
         cartesian.xAxis(0).title("Elevation Profile of your hike");
         cartesian.xAxis(0).labels().enabled(false);
         cartesian.background().fill("#00000000");
-        cartesian.animation(true);
+        cartesian.animation(false);
 
         return cartesian;
     }

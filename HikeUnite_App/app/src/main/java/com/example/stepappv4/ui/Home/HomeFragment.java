@@ -74,7 +74,7 @@ public class HomeFragment extends Fragment {
         dummyHike = root.findViewById(R.id.InsertDummyHike);
         stepCountsView = (TextView) root.findViewById(R.id.counter);
         stepCountsView.setText("0");
-        hikeHelper = new HikeHelper(getContext(), startButton, stopButton);
+        hikeHelper = new HikeHelper(getContext(), startButton, stopButton, sensorManager);
         hikeHelper.setRandomQuote(quoteText);
 
 
@@ -86,7 +86,7 @@ public class HomeFragment extends Fragment {
                 if (viewSwitcher.getCurrentView() == root.findViewById(R.id.defaultView)) {
                     viewSwitcher.showNext();
                 }
-                hikeHelper.startHike();
+                hikeHelper.startHike(accSensor, stepCountsView, progressBar);
             }
         });
 
@@ -95,23 +95,36 @@ public class HomeFragment extends Fragment {
             public void onClick(View v){
                 hikeHelper.setBreak();
             }
+
         });
 
         endButton.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View v){
-                if(viewSwitcher.getCurrentView() == root.findViewById(R.id.progressView)){
-                    hikeHelper.setRandomQuote(quoteText);
-                    viewSwitcher.showPrevious();
+                if(!hikeHelper.isHaveBreak()){
+                    if(viewSwitcher.getCurrentView() == root.findViewById(R.id.progressView)) {
+                        hikeHelper.setRandomQuote(quoteText);
+                        viewSwitcher.showPrevious();
+                    }
                 }
-                hikeHelper.endHike(sensorListener);
+                hikeHelper.endHike();
+                stepCountsView.setText("0");
+                progressBar.setProgress(0);
             }
         });
 
         dummyHike.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                hikeHelper.insertDummyHikeLuganoToBellinzonaWithGPS();
+                hikeHelper.insertDummyHikeLuganoToBellinzonaWithGPS(1);
+                hikeHelper.insertDummyHikeLuganoToBellinzonaWithGPS(2);
+                hikeHelper.insertDummyHikeLuganoToBellinzonaWithGPS(3);
+                hikeHelper.insertDummyHikeLuganoToBellinzonaWithGPS(4);
+                hikeHelper.insertDummyHikeLuganoToBellinzonaWithGPS(5);
+                hikeHelper.insertDummyHikeLuganoToBellinzonaWithGPS(6);
+                hikeHelper.insertDummyHikeLuganoToBellinzonaWithGPS(7);
+
+
             }
         });
 
@@ -123,8 +136,8 @@ public class HomeFragment extends Fragment {
                 if (group.getCheckedButtonId() ==R.id.start_button) {
                     if (accSensor != null)
                     {
-                        sensorListener = new StepCounterListener(stepCountsView, progressBar, hikeHelper.getMyDatabaseHelper().getWritableDatabase());
-                        sensorManager.registerListener(sensorListener, accSensor, SensorManager.SENSOR_DELAY_NORMAL);
+                        //sensorListener = new StepCounterListener(stepCountsView, progressBar, hikeHelper.getMyDatabaseHelper().getWritableDatabase());
+                        //sensorManager.registerListener(sensorListener, accSensor, SensorManager.SENSOR_DELAY_NORMAL);
                         Toast.makeText(getContext(), R.string.start_text, Toast.LENGTH_LONG).show();
                     }
                     else
@@ -134,7 +147,7 @@ public class HomeFragment extends Fragment {
                 }
                 if(group.getCheckedButtonId() == R.id.stop_button){
                     sensorManager.unregisterListener(sensorListener);
-                    Toast.makeText(getContext(), R.string.stop_text, Toast.LENGTH_LONG).show();
+                    //Toast.makeText(getContext(), R.string.stop_text, Toast.LENGTH_LONG).show();
                 }
             }
         });

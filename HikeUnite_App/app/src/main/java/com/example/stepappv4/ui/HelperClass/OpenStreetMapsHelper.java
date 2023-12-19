@@ -44,6 +44,8 @@ public class OpenStreetMapsHelper implements MapListener {
     private Set<String> uniqueCoordinates = new HashSet<>();
     private List<String> uniqueList = new ArrayList<>();
 
+
+
     /**
      * Constructor for map helper with map view. Used to display route and map in hike reports
      * @param context context of fragment/activity
