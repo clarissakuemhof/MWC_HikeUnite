@@ -101,9 +101,11 @@ public class HomeFragment extends Fragment {
         endButton.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View v){
-                if(viewSwitcher.getCurrentView() == root.findViewById(R.id.progressView)){
-                    hikeHelper.setRandomQuote(quoteText);
-                    viewSwitcher.showPrevious();
+                if(!hikeHelper.isHaveBreak()){
+                    if(viewSwitcher.getCurrentView() == root.findViewById(R.id.progressView)) {
+                        hikeHelper.setRandomQuote(quoteText);
+                        viewSwitcher.showPrevious();
+                    }
                 }
                 hikeHelper.endHike();
                 stepCountsView.setText("0");
@@ -114,7 +116,15 @@ public class HomeFragment extends Fragment {
         dummyHike.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                hikeHelper.insertDummyHikeLuganoToBellinzonaWithGPS();
+                hikeHelper.insertDummyHikeLuganoToBellinzonaWithGPS(1);
+                hikeHelper.insertDummyHikeLuganoToBellinzonaWithGPS(2);
+                hikeHelper.insertDummyHikeLuganoToBellinzonaWithGPS(3);
+                hikeHelper.insertDummyHikeLuganoToBellinzonaWithGPS(4);
+                hikeHelper.insertDummyHikeLuganoToBellinzonaWithGPS(5);
+                hikeHelper.insertDummyHikeLuganoToBellinzonaWithGPS(6);
+                hikeHelper.insertDummyHikeLuganoToBellinzonaWithGPS(7);
+
+
             }
         });
 
